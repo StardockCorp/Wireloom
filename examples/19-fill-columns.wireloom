@@ -1,0 +1,20 @@
+window "Three-column app shell":
+  row:
+    col 240:
+      panel:
+        text "Sidebar" bold
+        item "Home"
+        item "Search"
+        item "Library"
+        item "Settings"
+    col:
+      panel:
+        text "Main content fills remaining space" bold
+        text "This column has no explicit width, so it takes whatever is left after the fixed left and right columns claim theirs."
+        text "Resize the viewport and it grows or shrinks."
+    col 280:
+      panel:
+        text "Inspector" bold
+        kv "Type" "Document"
+        kv "Size" "42 KB"
+        kv "Modified" "Today, 14:32"

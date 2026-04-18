@@ -1,25 +1,55 @@
-# Wireloom Grammar (v0.1 — Thin Slice)
+# Wireloom Grammar (v0.2 — Full v1 Primitive Set)
 
-This document defines the formal grammar for Wireloom's thin-slice token set. It is the contract between the parser and the renderer. Any source file that conforms to this grammar must parse without error; any source file that doesn't must produce a parse error with a human-readable message and a line number.
+This document defines the formal grammar for Wireloom v0.2. It is the contract between the parser and the renderer. Any source file that conforms to this grammar must parse without error; any source file that doesn't must produce a parse error with a human-readable message and a line number.
 
-## Thin-Slice Primitives
+v0.2 is a superset of v0.1 — every v0.1 source continues to parse. Behaviorally, one default changes (bare `col` now fills instead of hugging content); this is explicitly called out in [Column Width Semantics](#column-width-semantics).
 
-The thin slice covers ten primitives, enough to express basic windows, forms, and toolbar/footer layouts:
+## Primitives
 
-| Primitive  | Children? | Purpose |
-|------------|-----------|---------|
-| `window`   | Yes       | Top-level container (the root of any wireframe). |
-| `header`   | Yes       | Top chrome region inside a `window`. |
-| `footer`   | Yes       | Bottom chrome region inside a `window`. |
-| `panel`    | Yes       | Bordered content container. |
-| `row`      | Yes       | Horizontal flow container. |
-| `col`      | Yes       | Vertical flow container. |
-| `text`     | No        | Static text. First positional arg is the text content. |
-| `button`   | No        | Clickable action. First positional arg is the label. |
-| `input`    | No        | Text input placeholder. Has no positional args; uses `placeholder=` attribute. |
-| `divider`  | No        | Horizontal rule separator. |
+Nineteen primitives total in v0.2. Grouped for readability.
+
+### Structural containers
+
+| Primitive   | Children?     | Purpose |
+|-------------|---------------|---------|
+| `window`    | Yes           | Top-level container (the root of any wireframe). Exactly one per source. |
+| `header`    | Yes           | Top chrome region inside a `window`. |
+| `footer`    | Yes           | Bottom chrome region inside a `window`. |
+| `panel`     | Yes           | Bordered content container. |
+| `section`   | Yes           | Labeled container with a quiet caps-style title band. Supports optional `badge="…"`. |
+| `tabs`      | Yes (tab-only)| Tab-bar container. Only accepts `tab` children. |
+| `row`       | Yes           | Horizontal flow container. |
+| `col`       | Yes           | Vertical flow container. Width is pixel-explicit, `fill`, or defaults to `fill`. |
+| `list`      | Yes (item/slot only) | Vertical list container. |
+| `slot`      | Yes           | Titled multi-field row, used inside `list` or as a standalone card. |
+
+### Leaves (no children)
+
+| Primitive   | Purpose |
+|-------------|---------|
+| `tab`       | A tab in a `tabs` bar. Required string label. Optional `active` flag, `badge="…"`. |
+| `item`      | A simple bulleted item in a `list`. Required string text. |
+| `text`      | Static text. Required string content. Typography flags / attrs supported. |
+| `button`    | Clickable action. Required string label. Optional `primary`, `disabled`, `badge="…"`. |
+| `input`     | Text input placeholder. Optional `placeholder=`, `type=`, `disabled`. |
+| `combo`     | Dropdown placeholder. Optional string label positional, optional `value=`, `options=`, `disabled`. |
+| `slider`    | Horizontal range control. Required `range=N-M`, `value=K`. Optional `label=`. |
+| `kv`        | Label/value row. Two required string positionals (label, value). Value typography flags supported. |
+| `image`     | Image placeholder. Optional `label=`, `width=`, `height=`. |
+| `icon`      | Icon glyph placeholder. Optional `name=`. |
+| `divider`   | Horizontal rule. |
 
 Every Wireloom source file must have exactly one root node, and it must be a `window`.
+
+## Structural Rules
+
+- **`window`** is the only primitive that can be a document root. It must not be nested.
+- **`header`** / **`footer`** may only appear as direct children of `window`.
+- **`tabs`** may appear anywhere a container child is legal; its children must be only `tab` nodes.
+- **`tab`** may only appear inside a `tabs` container.
+- **`list`** may appear anywhere a container child is legal; its children must be only `item` or `slot` nodes.
+- **`item`** may only appear inside a `list`.
+- All other containers (`panel`, `section`, `row`, `col`, `slot`) accept the full container-child set: other containers (except `header`/`footer`/`window`/`tab`/`item`) plus leaves.
 
 ## Lexical Structure
 
@@ -51,15 +81,21 @@ Blank lines (containing only whitespace) are ignored for all parsing purposes.
 - Enclosed in **double quotes** (`"`).
 - Support the escape sequences: `\"` (literal double quote), `\\` (backslash), `\n` (newline in rendered text).
 - Unterminated strings (missing closing `"` before end of line) produce a parse error.
-- Single-quoted strings are **not** supported in v0.1.
-- Multi-line strings are **not** supported in v0.1.
+- Single-quoted strings are **not** supported in v0.2.
+- Multi-line strings are **not** supported in v0.2.
 
 ### Number literals
 
-- Integer numbers (e.g., `340`, `16`, `0`) are supported.
+- Integer numbers (e.g., `340`, `16`, `0`).
 - Optional unit suffixes: `px`, `%`, `fr` (e.g., `340px`, `50%`, `1fr`). Bare integers are treated as pixels.
-- Negative numbers are not supported in v0.1.
-- Decimal numbers are not supported in v0.1.
+- Negative numbers are not supported in v0.2.
+- Decimal numbers are not supported in v0.2.
+
+### Range literals (new in v0.2)
+
+- Form: `N-M` where both are bare non-negative integers and M > N.
+- Used exclusively as a value for the `range=` attribute on `slider`.
+- Example: `range=0-100`.
 
 ### Identifiers
 
@@ -74,41 +110,97 @@ Every node declaration has the form:
 <primitive> [positional...] [attribute...] [:]
 ```
 
-- `primitive` — one of the ten primitive identifiers in the table above.
-- `positional` — zero or more string or number literals. Their meaning depends on the primitive (e.g., `text "Hello"`, `button "Save"`, `col 340`, `window "Sign in"`).
-- `attribute` — zero or more `key=value` pairs or bare-flag identifiers. Attributes follow positionals.
-- `:` — optional terminator. If present, the node has children indented one level deeper. If absent, the node is a leaf.
+- `primitive` — one of the primitive identifiers in the tables above.
+- `positional` — zero or more string, number, or range literals. Meaning depends on the primitive.
+- `attribute` — zero or more `key=value` pairs or bare-flag identifiers. Must follow positionals.
+- `:` — optional terminator. If present, the node has children indented one level deeper. Required for container primitives that must have children.
 
-### Positional argument rules
+### Positional argument rules (v0.2)
 
 | Primitive | Positional args |
 |-----------|-----------------|
 | `window`  | Optional: one string (the title). |
+| `section` | Required: one string (the title). |
+| `slot`    | Required: one string (the title). |
+| `tab`     | Required: one string (the label). |
+| `item`    | Required: one string (the text). |
 | `text`    | Required: one string (the text content). |
 | `button`  | Required: one string (the label). |
-| `col`     | Optional: one number (the column width). |
-| `row`     | None. |
-| `header`, `footer`, `panel`, `input`, `divider` | None. |
+| `kv`      | Required: two strings (label, value). |
+| `col`     | Optional: one number (fixed pixel width) OR the bare identifier `fill`. Missing = `fill`. |
+| `combo`   | Optional: one string (the label). |
+| `slider`  | None (use `label=` attribute). |
+| `image`, `icon` | None (use `label=` / `name=` attributes). |
+| `row`, `tabs`, `list`, `header`, `footer`, `panel`, `input`, `divider` | None. |
 
 ### Attribute syntax
 
 Two forms:
 
-- **Key=value**: `placeholder="Email"`, `width=340`, `type=password`.
-- **Bare flag**: `primary`, `disabled`, `active`.
+- **Key=value**: `placeholder="Email"`, `width=340`, `type=password`, `range=0-100`, `badge="3 new"`.
+- **Bare flag**: `primary`, `disabled`, `active`, `bold`, `italic`, `muted`.
 
-Values after `=` can be a string literal, a number literal, or an identifier (unquoted single word).
+Values after `=` can be a string literal, a number literal, a range literal, or an identifier (unquoted single word).
 
-### Recognized attributes (v0.1)
+### Recognized attributes (v0.2)
 
-| Attribute     | Applies to     | Values |
-|---------------|----------------|--------|
-| `placeholder` | `input`        | String |
-| `type`        | `input`        | Identifier (e.g., `text`, `password`, `email`) |
-| `primary`     | `button`       | Bare flag |
-| `disabled`    | `button`, `input` | Bare flag |
+| Attribute     | Applies to                      | Value kind / flag | Notes |
+|---------------|---------------------------------|-------------------|-------|
+| `placeholder` | `input`                         | String            | Greyed placeholder text. |
+| `type`        | `input`                         | Identifier: `text`, `password`, `email` | Purely cosmetic in the render. |
+| `value`       | `combo`                         | String            | Current selected value shown. |
+| `options`     | `combo`                         | String (comma-separated) | For documentation; doesn't change the render in v0.2. |
+| `range`       | `slider`                        | Range: `N-M`      | Required on `slider`. |
+| `value`       | `slider`                        | Number            | Required on `slider`. Thumb position computed as `(value − min) / (max − min)`. |
+| `label`       | `slider`, `image`               | String            | Optional label text. |
+| `width`       | `image`                         | Number (px)       | Overrides default placeholder width. |
+| `height`      | `image`                         | Number (px)       | Overrides default placeholder height. |
+| `name`        | `icon`                          | String            | Icon name (for the sketch label, not an icon font lookup). |
+| `badge`       | `tab`, `section`, `button`      | String            | Small counter/status pill rendered next to label. |
+| `align`       | `row`                           | Identifier: `left`, `center`, `right` | Children alignment along the main axis. Default `left`. |
+| `weight`      | `text`, `kv` (applies to value) | Identifier: `light`, `regular`, `semibold`, `bold` | Default `regular`. |
+| `size`        | `text`, `kv` (applies to value) | Identifier: `small`, `regular`, `large` | Default `regular`. |
+| `primary`     | `button`                        | Flag              | Emphasizes the action. |
+| `disabled`    | `button`, `input`, `combo`, `slider` | Flag         | Renders reduced-contrast. |
+| `active`      | `tab`, `slot`                   | Flag              | Marks the currently-selected tab or slot. |
+| `bold`        | `text`, `kv`                    | Flag              | Shorthand for `weight=bold`. |
+| `italic`      | `text`, `kv`                    | Flag              | Italic text style. |
+| `muted`       | `text`, `kv`                    | Flag              | Renders with the muted text color. |
+| `fill`        | `col` (positional-style)        | Identifier        | Forces fill sizing. Bare `col` also defaults to fill. |
 
-Unknown attributes produce a parse error in v0.1. (v0.2 will be permissive for forward compatibility.)
+Unknown attributes (or flags used on primitives that don't accept them) produce parse errors.
+
+## Column Width Semantics
+
+`col` in v0.2 has three possible widths:
+
+1. **Explicit pixel**: `col 340:` — fixed 340-pixel-wide column.
+2. **Explicit fill**: `col fill:` — takes a share of any remaining horizontal space in the enclosing row.
+3. **Default (bare)**: `col:` — treated as `fill` in v0.2.
+
+**Behavior change from v0.1:** v0.1 bare `col` hugged content (intrinsic sizing). v0.2 bare `col` fills. This was deliberate — the most common case is "layout wants this column to take the rest of the row," which was awkward to express in v0.1. If the v0.1 intrinsic behavior is what you want, specify every column's width explicitly.
+
+**Fill distribution** within a row:
+- Let `available = row_width − sum(fixed col widths) − sum(inter-col gaps)`.
+- `fill` columns each receive `available / count(fill cols)` pixels.
+- If there are no `fill` cols and the explicit widths underflow the available width, extra space falls to the right of the last column (not distributed).
+
+## Row Alignment
+
+`row align=right:` positions children flush to the right edge of the row, with remaining space to the left. `align=center` centers them as a block. Default `align=left` packs them from the left.
+
+Alignment applies to the row's inner box (after row padding).
+
+## Typography
+
+`text` and `kv` support four styling mechanisms:
+
+- **Bare flags**: `bold` (≡ `weight=bold`), `italic`, `muted`.
+- **Explicit `weight`**: `light` (300), `regular` (400, default), `semibold` (600), `bold` (700).
+- **Explicit `size`**: `small` (~12px), `regular` (~14px, default), `large` (~18px).
+- Flags and explicit attributes can be combined: `text "Heading" bold size=large`.
+
+On `kv`, typography attributes apply to the **value** portion of the row. Labels use the theme's default body text.
 
 ## Formal EBNF
 
@@ -119,16 +211,24 @@ node           ::= indent primitive positional_args? attributes? terminator
                    children?
 
 primitive      ::= "window" | "header" | "footer" | "panel"
+                 | "section" | "tabs" | "tab"
                  | "row" | "col"
-                 | "text" | "button" | "input" | "divider"
+                 | "list" | "item" | "slot"
+                 | "text" | "button" | "input"
+                 | "combo" | "slider"
+                 | "kv" | "image" | "icon" | "divider"
 
 positional_args ::= positional_arg (WS positional_arg)*
-positional_arg ::= STRING | NUMBER
+positional_arg ::= STRING
+                 | NUMBER
+                 | "fill"                 (* only valid on col *)
 
 attributes     ::= WS attribute (WS attribute)*
 attribute      ::= IDENT "=" value
-                 | IDENT
-value          ::= STRING | NUMBER | IDENT
+                 | IDENT                  (* bare flag *)
+value          ::= STRING | NUMBER | RANGE | IDENT
+
+RANGE          ::= DIGIT+ "-" DIGIT+
 
 terminator     ::= ":" line_end
                  | line_end
@@ -156,21 +256,27 @@ DEDENT         ::= <synthetic, emitted when leading spaces decrease>
 
 ## Error Cases and Expected Messages
 
-The parser must produce human-readable errors with line and column information for each of these cases:
+The parser produces human-readable errors with line and column information:
 
 | Input problem | Expected error message |
 |---------------|------------------------|
-| Tab in leading whitespace | `Line {n}: tab in indentation (use 2 spaces, not tabs)` |
-| Odd number of leading spaces (not a multiple of 2) | `Line {n}: indentation of {k} spaces is not a multiple of 2` |
-| Unknown primitive | `Line {n}: unknown primitive "{name}" (valid: window, header, footer, panel, row, col, text, button, input, divider)` |
-| Missing required positional | `Line {n}: "{primitive}" requires a {expected} argument` |
+| Tab in leading whitespace | `Line {n}, col 1: tab in indentation (use 2 spaces, not tabs)` |
+| Odd number of leading spaces | `Line {n}, col 1: indentation of {k} spaces is not a multiple of 2` |
+| Unknown primitive | `Line {n}, col {c}: unknown primitive "{name}" (valid: window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, text, button, input, combo, slider, kv, image, icon, divider)` |
+| Missing required positional | `Line {n}, col {c}: "{primitive}" requires {expected}` |
 | Unterminated string | `Line {n}, col {c}: unterminated string literal` |
-| Unknown attribute | `Line {n}: unknown attribute "{key}" on "{primitive}"` |
-| Children under a leaf-only primitive | `Line {n}: "{primitive}" cannot have children` |
-| Multiple root nodes | `Line {n}: only one root "window" node is allowed` |
-| Root is not a window | `Line {n}: root node must be "window"` |
-| Inconsistent child indentation | `Line {n}: indentation mismatch with sibling at line {m}` |
-| Colon on a leaf line with no children following | `Line {n}: "{primitive}" ends with ":" but has no children` |
+| Unknown attribute on primitive | `Line {n}, col {c}: unknown attribute "{key}" on "{primitive}"` |
+| Unknown bare flag on primitive | `Line {n}, col {c}: unknown flag "{flag}" on "{primitive}"` |
+| Invalid enumerated value | `Line {n}, col {c}: "{value}" is not a valid {attr} (expected one of: {allowed})` |
+| Invalid range format | `Line {n}, col {c}: range must be N-M with M > N, got "{got}"` |
+| `tab` outside `tabs` | `Line {n}, col {c}: "tab" may only appear inside "tabs"` |
+| `item` outside `list` | `Line {n}, col {c}: "item" may only appear inside "list"` |
+| `tabs` contains non-tab child | `Line {n}, col {c}: "tabs" accepts only "tab" children` |
+| `list` contains non-item/slot child | `Line {n}, col {c}: "list" accepts only "item" or "slot" children` |
+| Children under a leaf-only primitive | `Line {n}, col {c}: "{primitive}" cannot have children` |
+| Multiple root nodes | `Line {n}, col {c}: only one root "window" node is allowed` |
+| Root is not a window | `Line {n}, col {c}: root node must be "window"` |
+| Colon on a leaf line with no children following | `Line {n}, col {c}: "{primitive}" ends with ":" but has no children` |
 
 ## Design Rationale
 
@@ -178,5 +284,9 @@ The parser must produce human-readable errors with line and column information f
 - **Two spaces, not flexible.** YAML's indentation flexibility is the source of most YAML bugs. Pick a number, enforce it.
 - **Tabs are errors.** Tabs in indentation are the classic invisible-bug generator. We fail fast and loudly.
 - **No inline children syntax.** `row: a b c` saves typing but makes error messages terrible. Worth the verbosity.
-- **`window` as required root.** Every wireframe depicts something, and that something has outer bounds. Forcing `window` makes the grammar and renderer simpler.
-- **Known attributes only.** v0.1 fails on unknown attributes so users get fast feedback on typos. v0.2 will relax this for forward compatibility.
+- **`window` as required root.** Every wireframe depicts something, and that something has outer bounds.
+- **`col fill` as the default.** The 80% case is "this column takes the remaining space." v0.2 makes that the default so simple layouts read naturally.
+- **`kv` as first-class.** Data-heavy UIs (settings, ledgers, dashboards) are dominated by label/right-aligned-value rows. Giving them a dedicated primitive with correct alignment baked in is much cleaner than composing `row` + two `text`s with manual alignment.
+- **Tabs / list / slot as constrained containers.** Limiting what they can contain (only `tab`, only `item`/`slot`) means the renderer can make strong layout assumptions and users get fast errors when they put the wrong thing in.
+- **Typography as attributes, not primitives.** `text "Heading" bold` stays DSL-idiomatic instead of introducing a `heading` primitive with its own schema. Keeps the grammar small.
+- **Known attributes only.** v0.2 still fails on unknown attributes so users get fast feedback on typos. A permissive mode may ship in v0.3 for forward compatibility with future primitives.

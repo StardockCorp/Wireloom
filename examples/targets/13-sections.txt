@@ -1,0 +1,27 @@
+Target rendering for examples/13-sections.wireloom
+====================================================
+
+┌─────────────────────────────────────────────────┐
+│                    Settings                     │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ APPEARANCE                                      │
+│ ├── Theme                              Dark     │
+│ └── Font size                          14       │
+│                                                 │
+│ NOTIFICATIONS                         [2 new]   │
+│ ├── Email                              Enabled  │
+│ ├── Push                               Disabled │
+│ └── SMS                                Disabled │
+│                                                 │
+│ PRIVACY                                         │
+│ ├── Telemetry                          Anonymous│
+│ └── Crash reports                      Enabled  │
+│                                                 │
+└─────────────────────────────────────────────────┘
+
+Notes:
+- Section titles render in small-caps-style header (bold, size=small, muted).
+- `badge="2 new"` on a section renders as a small pill at the right edge of the title row.
+- Each `kv` inside a section emits the label on the left and the value flush right.
+- No bordered frame around a section — it's a header band plus its children.

@@ -1,0 +1,11 @@
+window "Colonial Charter":
+  tabs:
+    tab "Government" active
+    tab "Leaders"
+    tab "Ministers"
+    tab "Diplomats" badge="3"
+    tab "Governors"
+    tab "Commanders"
+  panel:
+    text "Currently viewing Government settings."
+    text "Switch tabs to see other sections."

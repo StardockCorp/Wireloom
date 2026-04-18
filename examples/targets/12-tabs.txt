@@ -1,0 +1,21 @@
+Target rendering for examples/12-tabs.wireloom
+================================================
+
+┌────────────────────────────────────────────────────────────┐
+│                      Colonial Charter                      │
+├────────────────────────────────────────────────────────────┤
+│  Government  │ Leaders  │ Ministers  │ Diplomats(3) │ …   │
+│  ══════════   (underlined active tab)                      │
+├────────────────────────────────────────────────────────────┤
+│ ┌────────────────────────────────────────────────────────┐ │
+│ │ Currently viewing Government settings.                 │ │
+│ │ Switch tabs to see other sections.                     │ │
+│ └────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────┘
+
+Notes:
+- `tabs:` renders as a horizontal bar of `tab` labels separated by subtle vertical lines.
+- The `active` tab gets an underline or brightened stroke.
+- `tab "Diplomats" badge="3"` shows a small pill `(3)` next to the label.
+- Content below the tab bar is the "active tab's body" — in v0.2 there is no real
+  tab-switching, whatever siblings follow the tabs container render as the body.

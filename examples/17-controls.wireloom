@@ -1,0 +1,17 @@
+window "Preferences":
+  section "Economy":
+    slider range=0-100 value=30 label="Tax Rate"
+    slider range=0-100 value=72 label="Approval Weight"
+  section "Governance":
+    row:
+      text "Default government"
+      combo value="Colonial Charter" options="Colonial Charter,Autocracy,Federation"
+    row:
+      text "Difficulty"
+      combo value="Challenging" options="Easy,Normal,Challenging,Brutal"
+    row:
+      text "AI Personality"
+      combo "Select an AI trait" options="Aggressive,Builder,Diplomat,Explorer"
+  footer:
+    button "Reset"
+    button "Apply" primary

@@ -1,0 +1,18 @@
+window "Profile":
+  header:
+    text "Commander Profile"
+  row:
+    col 200:
+      image label="Portrait" width=160 height=160
+    col:
+      panel:
+        kv "Name" "Admiral Kade Voss"
+        kv "Rank" "Fleet Admiral"
+        kv "Homeworld" "Arcturus Prime"
+        row:
+          icon name="medal"
+          icon name="star"
+          icon name="shield"
+  footer:
+    button "Edit profile"
+    button "Close" primary

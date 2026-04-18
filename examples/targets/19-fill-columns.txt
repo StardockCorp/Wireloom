@@ -1,0 +1,31 @@
+Target rendering for examples/19-fill-columns.wireloom
+=======================================================
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                     Three-column app shell                           │
+├──────────────────────────────────────────────────────────────────────┤
+│ ┌──────────┐ ┌────────────────────────────────────────┐ ┌──────────┐ │
+│ │ Sidebar  │ │ Main content fills remaining space     │ │Inspector │ │
+│ │          │ │                                        │ │          │ │
+│ │ • Home   │ │ This column has no explicit width, so  │ │Type      │ │
+│ │ • Search │ │ it takes whatever is left after the    │ │  Document│ │
+│ │ • Library│ │ fixed left and right columns claim     │ │Size      │ │
+│ │ • Settin.│ │ theirs.                                │ │    42 KB │ │
+│ │          │ │                                        │ │Modified  │ │
+│ │          │ │ Resize the viewport and it grows or    │ │Today,14:3│ │
+│ │          │ │ shrinks.                               │ │          │ │
+│ └──────────┘ └────────────────────────────────────────┘ └──────────┘ │
+└──────────────────────────────────────────────────────────────────────┘
+│←—— 240px ——→│←———  fill (remaining width)  ———→│←—— 280px ——→│
+
+Notes:
+- Left `col 240:` and right `col 280:` take their exact pixel widths.
+- Middle `col:` (bare, no width) defaults to `fill` in v0.2.
+- Fill distribution: `(row_width − 240 − 280 − 2 gaps)` flows to the middle.
+- Each column stacks its children vertically.
+- `list` of `item` children renders as bulleted lines.
+- `kv` rows in the right column lay value flush right against the col's right edge.
+
+v0.1 compat note:
+- In v0.1, a bare `col:` hugged content (intrinsic sizing). v0.2 changes the default to fill.
+- If the old v0.1 behavior is wanted, specify widths explicitly for every column.

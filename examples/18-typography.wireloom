@@ -1,0 +1,14 @@
+window "Typography Showcase":
+  panel:
+    text "Headline weight and size" bold size=large
+    text "Subhead — medium emphasis" weight=semibold
+    text "Body text at the default weight and size."
+    text "Muted caption reads quieter than body." muted size=small
+    text "Italic text for inline emphasis." italic
+    divider
+    text "LABEL IN SMALL CAPS" bold size=small muted
+    kv "Label" "Default value"
+    kv "Label" "Bold value" bold
+    kv "Label" "Large value" size=large
+    kv "Label" "Muted value" muted
+    kv "Label" "Italic value" italic

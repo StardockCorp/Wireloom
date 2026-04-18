@@ -1,0 +1,11 @@
+window "Settings":
+  section "Appearance":
+    kv "Theme" "Dark"
+    kv "Font size" "14"
+  section "Notifications" badge="2 new":
+    kv "Email" "Enabled"
+    kv "Push" "Disabled"
+    kv "SMS" "Disabled"
+  section "Privacy":
+    kv "Telemetry" "Anonymous"
+    kv "Crash reports" "Enabled"

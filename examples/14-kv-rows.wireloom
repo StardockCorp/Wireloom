@@ -1,0 +1,12 @@
+window "Empire Overview":
+  panel:
+    text "ECONOMY" bold size=small muted
+    kv "Tax Rate" "30%"
+    kv "Approval" "Content (72%)"
+    kv "Colony Income" "+612"
+    kv "Trade Routes" "+145"
+    kv "Treaty Income" "+62"
+    divider
+    kv "Total Income" "+847 bc" bold
+    kv "Total Expenses" "-612 bc" bold
+    kv "Net Income" "+235 bc" bold size=large

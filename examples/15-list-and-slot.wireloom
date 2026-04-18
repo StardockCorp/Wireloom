@@ -1,0 +1,21 @@
+window "Policies":
+  section "Enacted policies" badge="4 / 7":
+    list:
+      slot "Colonial Defense Pact":
+        text "+15% Planetary Defense"
+        text "All colonies gain defensive bonuses" muted
+      slot "Free Market Initiative":
+        text "+10% Income, -5% Approval"
+        text "Deregulated trade increases revenue" muted
+      slot "Research Subsidies" active:
+        text "+20% Research Output"
+        text "Government funded research programs" muted
+        button "Revoke"
+      slot "Cultural Exchange":
+        text "+10% Influence, +5% Tourism"
+        text "Interstellar cultural programs" muted
+  section "Quick wins":
+    list:
+      item "Recruit a Governor on Vega IV"
+      item "Establish trade route with Terran Alliance"
+      item "Upgrade shipyard to tier 2"
