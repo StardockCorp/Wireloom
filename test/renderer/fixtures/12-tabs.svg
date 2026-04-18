@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="329.6" height="184" viewBox="0 0 329.6 184" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
-<rect x="0" y="0" width="329.6" height="184" fill="#ffffff" />
-<rect x="0.5" y="0.5" width="328.6" height="183" fill="none" stroke="#505050" stroke-width="1.25" />
-<line x1="0" y1="36" x2="329.6" y2="36" stroke="#b0b0b0" stroke-width="1" />
-<text x="164.8" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Colonial Charter</text>
-<rect x="16.5" y="96.5" width="296.6" height="71" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<svg xmlns="http://www.w3.org/2000/svg" width="626.4571428571428" height="184" viewBox="0 0 626.4571428571428 184" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="626.4571428571428" height="184" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="625.4571428571428" height="183" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="626.4571428571428" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="313.2285714285714" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Colonial Charter</text>
+<rect x="16.5" y="96.5" width="593.4571428571428" height="71" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
 <text x="28" y="123" fill="#2d2d2d">Currently viewing Government settings.</text>
 <text x="28" y="151" fill="#2d2d2d">Switch tabs to see other sections.</text>
 </svg>
