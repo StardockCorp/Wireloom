@@ -2,6 +2,8 @@
 
 > UI wireframe mockups from a Markdown-embedded DSL, rendered as inline SVG.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Wireloom is a small text-based language for sketching user-interface wireframes. You write the layout as indented plain text inside a fenced code block in any Markdown document, and Wireloom turns it into an SVG diagram that renders inline — in GitHub, Obsidian, Notion, static site generators, or any tool that supports SVG in Markdown.
 
 ## Status
@@ -50,6 +52,11 @@ Wireloom is text-first, SVG-output, Markdown-native.
 - **v0.2** — Full v1 token set: `tabs`, `section`, `list`, `slot`, `kv`, `image`, `icon`, form inputs, badges. Dark theme.
 - **v0.3** — Error messages with line numbers, visual regression tests, published on npm.
 - **v1.0** — Documentation site with live editor and example gallery.
+
+## Links
+
+- GitHub: [StardockCorp/Wireloom](https://github.com/StardockCorp/Wireloom)
+- Issues: [github.com/StardockCorp/Wireloom/issues](https://github.com/StardockCorp/Wireloom/issues)
 
 ## License
 
