@@ -1,0 +1,80 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Are you sure you want to continue?",
+            "attributes": [],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "This action cannot be undone.",
+            "attributes": [],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "Cancel",
+            "attributes": [],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Continue",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 7,
+                  "column": 23
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 5,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Confirm"
+  },
+  "sourceLines": 8
+}

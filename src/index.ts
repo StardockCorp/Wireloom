@@ -16,9 +16,11 @@
 
 import { mergeConfig, type WireloomConfig } from './config.js';
 import type { Document } from './parser/ast.js';
+import { parse as parseSource } from './parser/parser.js';
 
 export type { WireloomConfig, WireloomTheme, WireloomSecurityLevel } from './config.js';
 export type * from './parser/ast.js';
+export { WireloomError } from './parser/errors.js';
 
 export interface RenderResult {
   svg: string;
@@ -34,16 +36,10 @@ export function initialize(config: Partial<WireloomConfig>): void {
 
 /**
  * Parses a Wireloom source string into an AST.
- *
- * v0.1 stub: returns an empty {@link Document}. Real parser is implemented
- * in the parser todo and replaces this export.
+ * Throws {@link WireloomError} with line/column info on parse failure.
  */
 export function parse(source: string): Document {
-  void source;
-  return {
-    kind: 'document',
-    sourceLines: 0,
-  };
+  return parseSource(source);
 }
 
 /**

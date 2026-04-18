@@ -1,0 +1,23 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "text",
+        "content": "Hello, Wireloom",
+        "attributes": [],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    }
+  },
+  "sourceLines": 3
+}

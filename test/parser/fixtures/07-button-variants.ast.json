@@ -1,0 +1,132 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Default button:",
+            "attributes": [],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Default",
+            "attributes": [],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Primary button:",
+            "attributes": [],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Save",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 6,
+                  "column": 19
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Disabled button:",
+            "attributes": [],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Unavailable",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "disabled",
+                "position": {
+                  "line": 8,
+                  "column": 26
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Primary and disabled:",
+            "attributes": [],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Submit",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 10,
+                  "column": 21
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "disabled",
+                "position": {
+                  "line": 10,
+                  "column": 29
+                }
+              }
+            ],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Button showcase"
+  },
+  "sourceLines": 11
+}

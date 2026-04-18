@@ -1,0 +1,95 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Top section",
+            "attributes": [],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "More top content",
+            "attributes": [],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "divider",
+            "attributes": [],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Middle section",
+            "attributes": [],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "More middle content",
+            "attributes": [],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          },
+          {
+            "kind": "divider",
+            "attributes": [],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Bottom section",
+            "attributes": [],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Final content",
+            "attributes": [],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Divided layout"
+  },
+  "sourceLines": 11
+}

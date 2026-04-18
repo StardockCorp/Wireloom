@@ -1,0 +1,241 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Application Settings",
+            "attributes": [],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Appearance",
+            "attributes": [],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "Theme",
+                "attributes": [],
+                "position": {
+                  "line": 7,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "input",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "placeholder",
+                    "value": {
+                      "kind": "string",
+                      "value": "Dark",
+                      "position": {
+                        "line": 8,
+                        "column": 25
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 13
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "Font size",
+                "attributes": [],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "input",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "placeholder",
+                    "value": {
+                      "kind": "string",
+                      "value": "14",
+                      "position": {
+                        "line": 11,
+                        "column": 25
+                      }
+                    },
+                    "position": {
+                      "line": 11,
+                      "column": 13
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 11,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 4,
+          "column": 3
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Privacy",
+            "attributes": [],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "Telemetry",
+                "attributes": [],
+                "position": {
+                  "line": 15,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "input",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "placeholder",
+                    "value": {
+                      "kind": "string",
+                      "value": "Enabled",
+                      "position": {
+                        "line": 16,
+                        "column": 25
+                      }
+                    },
+                    "position": {
+                      "line": 16,
+                      "column": 13
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 16,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 14,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 12,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "Cancel",
+            "attributes": [],
+            "position": {
+              "line": 18,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Save",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 19,
+                  "column": 19
+                }
+              }
+            ],
+            "position": {
+              "line": 19,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 17,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Settings"
+  },
+  "sourceLines": 20
+}

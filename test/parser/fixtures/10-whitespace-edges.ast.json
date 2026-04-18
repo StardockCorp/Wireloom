@@ -1,0 +1,99 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Header text",
+            "attributes": [],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 8,
+          "column": 3
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Main content",
+            "attributes": [],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "More content below a blank line",
+            "attributes": [],
+            "position": {
+              "line": 17,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Last content item",
+            "attributes": [],
+            "position": {
+              "line": 19,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 12,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "OK",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 23,
+                  "column": 17
+                }
+              }
+            ],
+            "position": {
+              "line": 23,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 21,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 5,
+      "column": 1
+    },
+    "title": "Whitespace test"
+  },
+  "sourceLines": 24
+}

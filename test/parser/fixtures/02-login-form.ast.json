@@ -1,0 +1,163 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Welcome back",
+            "attributes": [],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "input",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "placeholder",
+                "value": {
+                  "kind": "string",
+                  "value": "Email",
+                  "position": {
+                    "line": 5,
+                    "column": 23
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 11
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "type",
+                "value": {
+                  "kind": "identifier",
+                  "value": "email",
+                  "position": {
+                    "line": 5,
+                    "column": 36
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 31
+                }
+              }
+            ],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "input",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "placeholder",
+                "value": {
+                  "kind": "string",
+                  "value": "Password",
+                  "position": {
+                    "line": 6,
+                    "column": 23
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 11
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "type",
+                "value": {
+                  "kind": "identifier",
+                  "value": "password",
+                  "position": {
+                    "line": 6,
+                    "column": 39
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 34
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Sign in",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 7,
+                  "column": 22
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 4,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Forgot your password?",
+            "attributes": [],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 8,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Sign in"
+  },
+  "sourceLines": 10
+}
