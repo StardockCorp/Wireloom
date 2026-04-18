@@ -67,3 +67,49 @@ describe('svg renderer — example corpus', () => {
     expect(svg).toContain('fill="#e0e0e0"'); // dark text
   });
 });
+
+describe('svg renderer — dark theme fidelity', () => {
+  // Representative subset: a simple window (title bar + body), a v0.2
+  // primitive-rich example (slots, sections, kv, badges), and the full
+  // stress test. If any of these break under dark theme, we catch it.
+  const darkTargets = [
+    '02-login-form',
+    '15-list-and-slot',
+    '11-colonial-charter',
+  ];
+
+  for (const file of darkTargets) {
+    it(`renders ${file} correctly in dark theme`, async () => {
+      const src = readFileSync(join(examplesDir, `${file}.wireloom`), 'utf8');
+      const svg = renderWireframe(src, { theme: 'dark' });
+      const pretty = svg.replace(/></g, '>\n<');
+      await expect(pretty).toMatchFileSnapshot(
+        join(__dirname, 'fixtures', 'dark', `${file}.svg`),
+      );
+    });
+  }
+
+  it('uses dark palette for every primitive in the Colonial Charter demo', () => {
+    const src = readFileSync(join(examplesDir, '11-colonial-charter.wireloom'), 'utf8');
+    const svg = renderWireframe(src, { theme: 'dark' });
+    // Background is the dark theme's base color
+    expect(svg).toContain('fill="#1e1e1e"');
+    // Dark body text
+    expect(svg).toContain('fill="#e0e0e0"');
+    // Dark theme primary button fill is light (inversion)
+    expect(svg).toContain('fill="#d4d4d4"');
+    // Dark slot fill
+    expect(svg).toContain('fill="#252525"');
+    // Dark theme slot active border is the light contrast color
+    expect(svg).toContain('stroke="#d4d4d4"');
+  });
+
+  it('dark theme output differs from default theme for the same source', () => {
+    const src = readFileSync(join(examplesDir, '02-login-form.wireloom'), 'utf8');
+    const defaultSvg = renderWireframe(src, { theme: 'default' });
+    const darkSvg = renderWireframe(src, { theme: 'dark' });
+    expect(defaultSvg).not.toBe(darkSvg);
+    // Same structural dimensions — theme only swaps colors
+    expect(defaultSvg.length).toBe(darkSvg.length);
+  });
+});

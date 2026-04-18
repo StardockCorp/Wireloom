@@ -44,12 +44,24 @@ export function parse(source: string): Document {
   return parseSource(source);
 }
 
+export interface RenderOptions {
+  /** Override the theme for this render without touching the global config. */
+  theme?: 'default' | 'dark';
+}
+
 /**
  * Parses and renders a Wireloom source string to an SVG string.
  * Throws {@link WireloomError} with line/column info on parse failure.
+ * If `options.theme` is omitted the global theme from `initialize()` is used.
  */
-export async function render(id: string, source: string): Promise<RenderResult> {
-  const svg = renderWireframe(source, { id });
+export async function render(
+  id: string,
+  source: string,
+  options?: RenderOptions,
+): Promise<RenderResult> {
+  const rwOpts: { id: string; theme?: 'default' | 'dark' } = { id };
+  if (options?.theme !== undefined) rwOpts.theme = options.theme;
+  const svg = renderWireframe(source, rwOpts);
   return { svg };
 }
 

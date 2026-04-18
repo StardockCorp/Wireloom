@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="350.40000000000003" height="682" viewBox="0 0 350.40000000000003 682" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="350.40000000000003" height="682" fill="#1e1e1e" />
+<rect x="0.5" y="0.5" width="349.40000000000003" height="681" fill="none" stroke="#8a8a8a" stroke-width="1.25" />
+<line x1="0" y1="36" x2="350.40000000000003" y2="36" stroke="#555555" stroke-width="1" />
+<text x="175.20000000000002" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#e0e0e0">Policies</text>
+<text x="16" y="70" font-size="11" font-weight="700" letter-spacing="0.8" fill="#8a9099">ENACTED POLICIES</text>
+<rect x="290.11428571428576" y="54" width="44.28571428571429" height="18" rx="9" fill="#353a42" />
+<text x="312.2571428571429" y="66.66666666666667" text-anchor="middle" font-size="11" font-weight="600" fill="#b8bcc4">4 / 7</text>
+<line x1="16" y1="74" x2="334.40000000000003" y2="74" stroke="#404040" stroke-width="1" opacity="0.6" />
+<rect x="16.5" y="82.5" width="317.40000000000003" height="97" fill="#252525" stroke="#555a62" stroke-width="1" rx="4" />
+<text x="26" y="107.4" font-weight="600" fill="#e0e0e0">Colonial Defense Pact</text>
+<text x="26" y="137" fill="#e0e0e0">+15% Planetary Defense</text>
+<text x="26" y="165" fill="#8a9099">All colonies gain defensive bonuses</text>
+<rect x="16.5" y="186.5" width="317.40000000000003" height="97" fill="#252525" stroke="#555a62" stroke-width="1" rx="4" />
+<text x="26" y="211.4" font-weight="600" fill="#e0e0e0">Free Market Initiative</text>
+<text x="26" y="241" fill="#e0e0e0">+10% Income, -5% Approval</text>
+<text x="26" y="269" fill="#8a9099">Deregulated trade increases revenue</text>
+<rect x="16.5" y="290.5" width="317.40000000000003" height="137" fill="#252525" stroke="#d4d4d4" stroke-width="1.5" rx="4" />
+<text x="26" y="315.4" font-weight="600" fill="#e0e0e0">Research Subsidies</text>
+<text x="26" y="345" fill="#e0e0e0">+20% Research Output</text>
+<text x="26" y="373" fill="#8a9099">Government funded research programs</text>
+<g opacity="1">
+<rect x="26.5" y="386.5" width="74.2" height="31" fill="#2a2a2a" stroke="#b0b0b0" stroke-width="1.25" rx="3" />
+<text x="63.6" y="406.6666666666667" text-anchor="middle" font-weight="500" fill="#e0e0e0">Revoke</text>
+</g>
+<rect x="16.5" y="434.5" width="317.40000000000003" height="97" fill="#252525" stroke="#555a62" stroke-width="1" rx="4" />
+<text x="26" y="459.4" font-weight="600" fill="#e0e0e0">Cultural Exchange</text>
+<text x="26" y="489" fill="#e0e0e0">+10% Influence, +5% Tourism</text>
+<text x="26" y="517" fill="#8a9099">Interstellar cultural programs</text>
+<text x="16" y="570" font-size="11" font-weight="700" letter-spacing="0.8" fill="#8a9099">QUICK WINS</text>
+<line x1="16" y1="574" x2="334.40000000000003" y2="574" stroke="#404040" stroke-width="1" opacity="0.6" />
+<circle cx="22" cy="593" r="2" fill="#707780" />
+<text x="32" y="596" fill="#e0e0e0">Recruit a Governor on Vega IV</text>
+<circle cx="22" cy="619" r="2" fill="#707780" />
+<text x="32" y="622" fill="#e0e0e0">Establish trade route with Terran Alliance</text>
+<circle cx="22" cy="645" r="2" fill="#707780" />
+<text x="32" y="648" fill="#e0e0e0">Upgrade shipyard to tier 2</text>
+</svg>
