@@ -30,6 +30,68 @@ window "Sign in":
 
 Renders as an inline SVG showing the structure — a titled window with a form panel and a footer link. No pixel-perfect fidelity; the aesthetic is sketch-style so it reads as a wireframe, not a finished UI.
 
+## Install
+
+Wireloom isn't on npm yet. Install directly from GitHub:
+
+```bash
+npm install github:StardockCorp/Wireloom
+```
+
+Works the same with `pnpm add github:StardockCorp/Wireloom` or `yarn add github:StardockCorp/Wireloom`.
+
+Once the package is published to npm you'll be able to install it the normal way — `npm install wireloom` — and this section will be updated.
+
+## Usage
+
+Three public calls, same shape as other text-to-diagram libraries:
+
+```ts
+import wireloom from 'wireloom';
+
+// Optional: configure theme + security level once at startup.
+wireloom.initialize({ theme: 'default', securityLevel: 'strict' });
+
+// Render a source string to an SVG string.
+const { svg } = await wireloom.render('my-diagram', `
+window "Sign in":
+  header:
+    text "Welcome"
+  panel:
+    input placeholder="Email"
+    input placeholder="Password" type=password
+    button "Sign in" primary
+`);
+
+document.getElementById('container').innerHTML = svg;
+```
+
+Or parse without rendering, useful for editors and tooling:
+
+```ts
+const doc = wireloom.parse(source); // typed AST
+```
+
+### Inside a Markdown renderer
+
+Hook `wireloom.render` onto the `wireloom` fence language in whatever pipeline you use (react-markdown, remark, markdown-it, etc.):
+
+```tsx
+<ReactMarkdown
+  components={{
+    code({ className, children }) {
+      const lang = /language-(\w+)/.exec(className ?? '')?.[1];
+      if (lang === 'wireloom') return <WireloomBlock source={String(children)} />;
+      // ... your other handlers
+    },
+  }}
+>
+  {markdown}
+</ReactMarkdown>
+```
+
+`WireloomBlock` is a small component that awaits `wireloom.render(id, source)` on mount and injects the SVG via `dangerouslySetInnerHTML`.
+
 ## Why not just use [other thing]?
 
 - **ASCII art** is readable but doesn't render visually and can't be styled.
