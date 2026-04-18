@@ -15,7 +15,7 @@ Since everything in Clairvoyance flows through Markdown and SVG is already the c
 
 ## Status
 
-**Pre-alpha.** Grammar and API are being pinned down. Nothing is published yet. Follow the milestones below.
+**v0.2 — pre-npm-release.** The full v1 primitive set is implemented, tested, and rendering. Install via GitHub until the first npm publish lands.
 
 ## What it looks like
 
@@ -40,6 +40,29 @@ Renders as:
 ![Login form wireframe rendered by Wireloom](docs/login-form.svg)
 
 No pixel-perfect fidelity; the aesthetic is sketch-style so it reads as a wireframe, not a finished UI.
+
+### A denser example
+
+```wireloom
+window "Settings":
+  section "Appearance":
+    kv "Theme" "Dark"
+    kv "Font size" "14"
+  section "Notifications" badge="2 new":
+    kv "Email" "Enabled"
+    kv "Push" "Disabled"
+  section "Privacy":
+    kv "Telemetry" "Anonymous"
+    kv "Crash reports" "Enabled"
+```
+
+![Settings dialog wireframe rendered by Wireloom](docs/settings-dialog.svg)
+
+Sections with optional badges, `kv` label/value rows with flush-right alignment. Add `tabs`, `slot`, `combo`, `slider`, `image`, and `icon` primitives on top of that and you can sketch a full application screen:
+
+![Colonial Charter screen rendered by Wireloom](docs/colonial-charter.svg)
+
+The source for that render is in [`examples/11-colonial-charter.wireloom`](examples/11-colonial-charter.wireloom) — a real game-UI stress test used to drive v0.2 fidelity.
 
 ## Install
 
@@ -83,6 +106,18 @@ Or parse without rendering, useful for editors and tooling:
 const doc = wireloom.parse(source); // typed AST
 ```
 
+Serialize an AST back to canonical source — useful for formatters and structural diffs:
+
+```ts
+const canonical = wireloom.serialize(doc);
+```
+
+Switch themes per-render:
+
+```ts
+const { svg } = await wireloom.render('id', source, { theme: 'dark' });
+```
+
 ### Inside a Markdown renderer
 
 Hook `wireloom.render` onto the `wireloom` fence language in whatever pipeline you use (react-markdown, remark, markdown-it, etc.):
@@ -119,12 +154,24 @@ Wireloom is text-first, SVG-output, Markdown-native.
 - **Small core.** Fewer primitives, composed well. No feature creep.
 - **Public package.** MIT-licensed. Built to be depended on.
 
+## Primitive set (v0.2)
+
+20 primitives, grouped:
+
+- **Structural containers**: `window`, `header`, `footer`, `panel`, `section`, `tabs`, `row`, `col`, `list`, `slot`
+- **Interactive leaves**: `button`, `input`, `combo`, `slider`, `tab`, `item`
+- **Content leaves**: `text`, `kv`, `image`, `icon`, `divider`
+
+Styling attributes on `text` and `kv` value: `bold` / `italic` / `muted` flags, `weight=light|regular|semibold|bold`, `size=small|regular|large`. `badge="…"` on tabs, sections, and buttons. `align=left|center|right` on rows. `fill` on columns.
+
+Full reference at [`design/grammar.md`](design/grammar.md).
+
 ## Roadmap
 
-- **v0.1** — Thin slice: `window`, `header`, `footer`, `row`, `col`, `panel`, `text`, `button`, `input`, `divider`. Default theme.
-- **v0.2** — Full v1 token set: `tabs`, `section`, `list`, `slot`, `kv`, `image`, `icon`, form inputs, badges. Dark theme.
-- **v0.3** — Error messages with line numbers, visual regression tests, published on npm.
-- **v1.0** — Documentation site with live editor and example gallery.
+- ✅ **v0.1** — Thin slice: `window`, `header`, `footer`, `row`, `col`, `panel`, `text`, `button`, `input`, `divider`. Default theme.
+- ✅ **v0.2** — Full v1 token set: `tabs`, `section`, `list`, `slot`, `kv`, `combo`, `slider`, `image`, `icon`, badges, alignment, typography, dark theme, roundtrip serializer.
+- **v0.3** — Published to npm. Documentation site with live editor. Visual regression via headless Chromium.
+- **v1.0** — Stable public API, ecosystem adapters (`remark-wireloom`, `markdown-it-wireloom`), VS Code extension.
 
 ## Links
 
