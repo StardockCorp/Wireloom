@@ -3,8 +3,15 @@
 > UI wireframe mockups from a Markdown-embedded DSL, rendered as inline SVG.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Built for Clairvoyance](https://img.shields.io/badge/built%20for-Clairvoyance-3a3a3a)](https://www.clairvoyanceai.com)
 
 Wireloom is a small text-based language for sketching user-interface wireframes. You write the layout as indented plain text inside a fenced code block in any Markdown document, and Wireloom turns it into an SVG diagram that renders inline — in GitHub, Obsidian, Notion, static site generators, or any tool that supports SVG in Markdown.
+
+## Origin
+
+Wireloom was built for **[Clairvoyance](https://www.clairvoyanceai.com)** — an AI-native knowledge workspace where staff (AI agents) collaborate with users through chat and Markdown notes. The team needed a way for staff to *communicate UI design ideas inline* — not flowcharts, not ASCII art, not clickable prototypes, but quick visual wireframes embedded directly in a chat reply, a note, or a design report.
+
+Since everything in Clairvoyance flows through Markdown and SVG is already the cross-tool lingua franca for inline visuals, Wireloom was built as a text-to-SVG DSL. It ships with Clairvoyance and Just Works™ there — and because the output is plain static SVG, it works everywhere else that renders SVG in Markdown.
 
 ## Status
 
@@ -28,7 +35,11 @@ window "Sign in":
 ```
 ~~~
 
-Renders as an inline SVG showing the structure — a titled window with a form panel and a footer link. No pixel-perfect fidelity; the aesthetic is sketch-style so it reads as a wireframe, not a finished UI.
+Renders as:
+
+![Login form wireframe rendered by Wireloom](docs/login-form.svg)
+
+No pixel-perfect fidelity; the aesthetic is sketch-style so it reads as a wireframe, not a finished UI.
 
 ## Install
 
@@ -119,6 +130,7 @@ Wireloom is text-first, SVG-output, Markdown-native.
 
 - GitHub: [StardockCorp/Wireloom](https://github.com/StardockCorp/Wireloom)
 - Issues: [github.com/StardockCorp/Wireloom/issues](https://github.com/StardockCorp/Wireloom/issues)
+- Designed for: **[Clairvoyance](https://www.clairvoyanceai.com)** — AI-native knowledge workspace where staff communicate UI designs through wireloom blocks inline
 
 ## License
 
