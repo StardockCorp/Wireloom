@@ -2,16 +2,161 @@
 <rect x="0" y="0" width="1048.8" height="1069.7142857142858" fill="#ffffff" />
 <rect x="0.5" y="0.5" width="1047.8" height="1068.7142857142858" fill="none" stroke="#505050" stroke-width="1.25" />
 <line x1="0" y1="36" x2="1048.8" y2="36" stroke="#b0b0b0" stroke-width="1" />
-<text x="524.4" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">CIVILIZATION</text>
+<text x="524.4" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">CIVILIZATION</text>
 <line x1="0" y1="81.71428571428572" x2="1048.8" y2="81.71428571428572" stroke="#b0b0b0" stroke-width="1" />
-<text x="450.3428571428571" y="61" fill="#2d2d2d">Colonial Charter</text>
+<text x="450.3428571428571" y="65.28571428571428" font-size="18" fill="#2d2d2d">Colonial Charter</text>
+<line x1="16" y1="133.21428571428572" x2="1032.8" y2="133.21428571428572" stroke="#b0b0b0" stroke-width="1" />
+<text x="30" y="120.3809523809524" font-weight="600" fill="#2d2d2d">Government</text>
+<line x1="20" y1="131.71428571428572" x2="112" y2="131.71428571428572" stroke="#3a3a3a" stroke-width="2" />
+<text x="132" y="120.3809523809524" font-weight="400" fill="#8a8f97">Leaders</text>
+<text x="212.4" y="120.3809523809524" font-weight="400" fill="#8a8f97">Ministers</text>
+<text x="307.2" y="120.3809523809524" font-weight="400" fill="#8a8f97">Diplomats</text>
+<text x="402" y="120.3809523809524" font-weight="400" fill="#8a8f97">Governors</text>
+<text x="496.8" y="120.3809523809524" font-weight="400" fill="#8a8f97">Commanders</text>
+<text x="598.8" y="120.3809523809524" font-weight="400" fill="#8a8f97">Institutions</text>
+<text x="715.1999999999999" y="120.3809523809524" font-weight="400" fill="#8a8f97">Parties</text>
+<text x="16" y="159.71428571428572" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">ECONOMY</text>
+<line x1="16" y1="163.71428571428572" x2="356" y2="163.71428571428572" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="16" y="186.71428571428572" fill="#2d2d2d">Tax Rate</text>
+<text x="356" y="186.71428571428572" text-anchor="end" fill="#2d2d2d">30%</text>
+<rect x="16" y="211.71428571428572" width="340" height="4" fill="#dde0e4" rx="2" />
+<rect x="16" y="211.71428571428572" width="102" height="4" fill="#6b7078" rx="2" />
+<circle cx="118" cy="213.71428571428572" r="7" fill="#3a3a3a" stroke="#ffffff" stroke-width="1.5" />
+<text x="16" y="250.71428571428572" fill="#2d2d2d">Approval</text>
+<text x="356" y="250.71428571428572" text-anchor="end" fill="#2d2d2d">Content (72%)</text>
+<text x="16" y="293.7142857142857" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">GROSS INCOME</text>
+<line x1="16" y1="297.7142857142857" x2="356" y2="297.7142857142857" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="16" y="320.7142857142857" fill="#2d2d2d">Colony Income</text>
+<text x="356" y="320.7142857142857" text-anchor="end" fill="#2d2d2d">+612</text>
+<text x="16" y="348.7142857142857" fill="#2d2d2d">Trade Routes</text>
+<text x="356" y="348.7142857142857" text-anchor="end" fill="#2d2d2d">+145</text>
+<text x="16" y="376.7142857142857" fill="#2d2d2d">Treaty Income</text>
+<text x="356" y="376.7142857142857" text-anchor="end" fill="#2d2d2d">+62</text>
+<text x="16" y="404.7142857142857" fill="#2d2d2d">Tax Rate (30%)</text>
+<text x="356" y="404.7142857142857" text-anchor="end" fill="#2d2d2d">+28</text>
+<line x1="16" y1="423.7142857142857" x2="356" y2="423.7142857142857" stroke="#c4c4c4" stroke-width="1" />
+<text x="16" y="452.7142857142857" fill="#2d2d2d">Total Income</text>
+<text x="356" y="452.7142857142857" text-anchor="end" font-weight="700" fill="#2d2d2d">+847 bc</text>
+<text x="16" y="495.7142857142857" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">EXPENSES</text>
+<line x1="16" y1="499.7142857142857" x2="356" y2="499.7142857142857" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="16" y="522.7142857142858" fill="#2d2d2d">Ship Maintenance</text>
+<text x="356" y="522.7142857142858" text-anchor="end" fill="#2d2d2d">-245</text>
+<text x="16" y="550.7142857142858" fill="#2d2d2d">Colony Maintenance</text>
+<text x="356" y="550.7142857142858" text-anchor="end" fill="#2d2d2d">-180</text>
+<text x="16" y="578.7142857142858" fill="#2d2d2d">Starbase Maintenance</text>
+<text x="356" y="578.7142857142858" text-anchor="end" fill="#2d2d2d">-95</text>
+<text x="16" y="606.7142857142858" fill="#2d2d2d">Treaty Maintenance</text>
+<text x="356" y="606.7142857142858" text-anchor="end" fill="#2d2d2d">-52</text>
+<text x="16" y="634.7142857142858" fill="#2d2d2d">Policy Maintenance</text>
+<text x="356" y="634.7142857142858" text-anchor="end" fill="#2d2d2d">-40</text>
+<line x1="16" y1="653.7142857142858" x2="356" y2="653.7142857142858" stroke="#c4c4c4" stroke-width="1" />
+<text x="16" y="682.7142857142858" fill="#2d2d2d">Total Expenses</text>
+<text x="356" y="682.7142857142858" text-anchor="end" font-weight="700" fill="#2d2d2d">-612 bc</text>
+<text x="16" y="725.7142857142858" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">NET</text>
+<line x1="16" y1="729.7142857142858" x2="356" y2="729.7142857142858" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="16" y="757.0000000000001" fill="#2d2d2d">Net Income</text>
+<text x="356" y="757.0000000000001" text-anchor="end" font-weight="700" font-size="18" fill="#2d2d2d">+235 bc</text>
+<text x="16" y="786.4285714285714" fill="#2d2d2d">Treasury</text>
+<text x="356" y="786.4285714285714" text-anchor="end" fill="#2d2d2d">4,250 bc</text>
+<text x="16" y="829.4285714285714" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">CIVILIZATION</text>
+<line x1="16" y1="833.4285714285714" x2="356" y2="833.4285714285714" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="16" y="856.4285714285714" fill="#2d2d2d">Government</text>
+<text x="356" y="856.4285714285714" text-anchor="end" fill="#2d2d2d">Colonial Charter</text>
+<text x="16" y="884.4285714285714" fill="#2d2d2d">Colonies</text>
+<text x="356" y="884.4285714285714" text-anchor="end" fill="#2d2d2d">12</text>
+<text x="16" y="912.4285714285714" fill="#2d2d2d">Citizens</text>
+<text x="356" y="912.4285714285714" text-anchor="end" fill="#2d2d2d">24.5B</text>
+<text x="364" y="159.71428571428572" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">ENACTED POLICIES</text>
+<rect x="546.9714285714285" y="143.71428571428572" width="117.82857142857144" height="18" rx="9" fill="#eef0f3" />
+<text x="605.8857142857142" y="156.38095238095238" text-anchor="middle" font-size="11" font-weight="600" fill="#505560">4 / 7 slots filled</text>
+<line x1="364" y1="163.71428571428572" x2="664.8" y2="163.71428571428572" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<rect x="364.5" y="172.21428571428572" width="299.79999999999995" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="374" y="197.11428571428573" font-weight="600" fill="#2d2d2d">Colonial Defense Pact</text>
+<text x="374" y="226.71428571428572" fill="#2d2d2d">+15% Planetary Defense</text>
+<text x="374" y="254.71428571428572" fill="#7a7f87">All colonies gain defensive bonuses</text>
+<rect x="364.5" y="276.2142857142857" width="299.79999999999995" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="374" y="301.1142857142857" font-weight="600" fill="#2d2d2d">Free Market Initiative</text>
+<text x="374" y="330.7142857142857" fill="#2d2d2d">+10% Income, -5% Approval</text>
+<text x="374" y="358.7142857142857" fill="#7a7f87">Deregulated trade increases revenue</text>
+<rect x="364.5" y="380.2142857142857" width="299.79999999999995" height="137" fill="#fafbfc" stroke="#3a3a3a" stroke-width="1.5" rx="4" />
+<text x="374" y="405.1142857142857" font-weight="600" fill="#2d2d2d">Research Subsidies</text>
+<text x="374" y="434.7142857142857" fill="#2d2d2d">+20% Research Output</text>
+<text x="374" y="462.7142857142857" fill="#7a7f87">Government funded research programs</text>
+<g opacity="1">
+<rect x="580.0999999999999" y="476.2142857142857" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="617.1999999999999" y="496.3809523809524" text-anchor="middle" font-weight="500" fill="#2d2d2d">Revoke</text>
+</g>
+<rect x="364.5" y="524.2142857142858" width="299.79999999999995" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="374" y="549.1142857142858" font-weight="600" fill="#2d2d2d">Cultural Exchange</text>
+<text x="374" y="578.7142857142858" fill="#2d2d2d">+10% Influence, +5% Tourism</text>
+<text x="374" y="606.7142857142858" fill="#7a7f87">Interstellar cultural programs</text>
+<rect x="364.5" y="628.2142857142858" width="299.79999999999995" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="374" y="653.1142857142858" font-weight="600" fill="#2d2d2d">Empty Policy Slot</text>
+<text x="374" y="682.7142857142858" font-style="italic" fill="#7a7f87">Choose a policy from the available list</text>
+<rect x="364.5" y="704.2142857142858" width="299.79999999999995" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="374" y="729.1142857142858" font-weight="600" fill="#2d2d2d">Empty Policy Slot</text>
+<text x="374" y="758.7142857142858" font-style="italic" fill="#7a7f87">Choose a policy from the available list</text>
+<rect x="364.5" y="780.2142857142858" width="299.79999999999995" height="69" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="374" y="805.1142857142858" font-weight="600" fill="#2d2d2d">Empty Policy Slot</text>
+<text x="374" y="834.7142857142858" font-style="italic" fill="#7a7f87">Choose a policy from the available list</text>
+<text x="672.8" y="159.71428571428572" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">AVAILABLE POLICIES</text>
+<line x1="672.8" y1="163.71428571428572" x2="1032.8" y2="163.71428571428572" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<rect x="673.3" y="172.21428571428572" width="359" height="137" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="682.8" y="197.11428571428573" font-weight="600" fill="#2d2d2d">Frontier Expansion</text>
+<text x="682.8" y="226.71428571428572" fill="#2d2d2d">+20% Colony Speed, +10% Growth</text>
+<text x="682.8" y="254.71428571428572" fill="#7a7f87">Prioritize outward expansion</text>
+<text x="903.5999999999999" y="280.57142857142856" font-size="12" fill="#7a7f87">2 Admin</text>
+<g opacity="1">
+<rect x="955.3" y="268.2142857142857" width="67" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="988.8" y="288.3809523809524" text-anchor="middle" font-weight="500" fill="#ffffff">Enact</text>
+</g>
+<rect x="673.3" y="316.2142857142857" width="359" height="137" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="682.8" y="341.1142857142857" font-weight="600" fill="#2d2d2d">Militia Training</text>
+<text x="682.8" y="370.7142857142857" fill="#2d2d2d">+15% Planetary Defense, +10% Military</text>
+<text x="682.8" y="398.7142857142857" fill="#7a7f87">Arm the colonists</text>
+<text x="903.5999999999999" y="424.57142857142856" font-size="12" fill="#7a7f87">3 Admin</text>
+<g opacity="1">
+<rect x="955.3" y="412.2142857142857" width="67" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="988.8" y="432.3809523809524" text-anchor="middle" font-weight="500" fill="#ffffff">Enact</text>
+</g>
+<rect x="673.3" y="460.2142857142857" width="359" height="137.00000000000006" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="682.8" y="485.1142857142857" font-weight="600" fill="#2d2d2d">Trade Agreements</text>
+<text x="682.8" y="514.7142857142858" fill="#2d2d2d">+20% Trade Route Income</text>
+<text x="682.8" y="542.7142857142858" fill="#7a7f87">Establish favorable trade terms</text>
+<text x="903.5999999999999" y="568.5714285714287" font-size="12" fill="#7a7f87">2 Admin</text>
+<g opacity="1">
+<rect x="955.3" y="556.2142857142858" width="67" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="988.8" y="576.3809523809524" text-anchor="middle" font-weight="500" fill="#ffffff">Enact</text>
+</g>
+<rect x="673.3" y="604.2142857142858" width="359" height="137" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="682.8" y="629.1142857142858" font-weight="600" fill="#2d2d2d">Infrastructure Investment</text>
+<text x="682.8" y="658.7142857142858" fill="#2d2d2d">+15% Manufacturing, +10% Growth</text>
+<text x="682.8" y="686.7142857142858" fill="#7a7f87">Build foundational industry</text>
+<text x="903.5999999999999" y="712.5714285714287" font-size="12" fill="#7a7f87">3 Admin</text>
+<g opacity="1">
+<rect x="955.3" y="700.2142857142858" width="67" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="988.8" y="720.3809523809524" text-anchor="middle" font-weight="500" fill="#ffffff">Enact</text>
+</g>
+<rect x="673.3" y="748.2142857142858" width="359" height="137" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="682.8" y="773.1142857142858" font-weight="600" fill="#2d2d2d">Diplomatic Corps</text>
+<text x="682.8" y="802.7142857142858" fill="#2d2d2d">+15% Influence, +10% Diplomacy</text>
+<text x="682.8" y="830.7142857142858" fill="#7a7f87">Invest in foreign relations</text>
+<text x="903.5999999999999" y="856.5714285714287" font-size="12" fill="#7a7f87">2 Admin</text>
+<g opacity="1">
+<rect x="955.3" y="844.2142857142858" width="67" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="988.8" y="864.3809523809524" text-anchor="middle" font-weight="500" fill="#ffffff">Enact</text>
+</g>
+<rect x="673.3" y="892.2142857142858" width="359" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="682.8" y="917.1142857142858" font-weight="600" fill="#2d2d2d">Pioneer Spirit</text>
+<text x="682.8" y="946.7142857142858" fill="#2d2d2d">+15% Approval, +10% Morale</text>
+<text x="682.8" y="974.7142857142858" fill="#7a7f87">Foster community and purpose</text>
 <line x1="0" y1="1017.7142857142858" x2="1048.8" y2="1017.7142857142858" stroke="#b0b0b0" stroke-width="1" />
 <g opacity="1">
 <rect x="810.0999999999999" y="1028.2142857142858" width="153.4" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
-<text x="886.8" y="1048.3809523809525" text-anchor="middle" fill="#2d2d2d">Change Government</text>
+<text x="886.8" y="1048.3809523809525" text-anchor="middle" font-weight="500" fill="#2d2d2d">Change Government</text>
 </g>
 <g opacity="1">
 <rect x="972.5" y="1028.2142857142858" width="59.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
-<text x="1002.4" y="1048.3809523809525" text-anchor="middle" fill="#ffffff">Done</text>
+<text x="1002.4" y="1048.3809523809525" text-anchor="middle" font-weight="500" fill="#ffffff">Done</text>
 </g>
 </svg>

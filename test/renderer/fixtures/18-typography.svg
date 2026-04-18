@@ -2,13 +2,23 @@
 <rect x="0" y="0" width="351.2" height="417.7142857142857" fill="#ffffff" />
 <rect x="0.5" y="0.5" width="350.2" height="416.7142857142857" fill="none" stroke="#505050" stroke-width="1.25" />
 <line x1="0" y1="36" x2="351.2" y2="36" stroke="#b0b0b0" stroke-width="1" />
-<text x="175.6" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Typography Showcase</text>
+<text x="175.6" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Typography Showcase</text>
 <rect x="16.5" y="52.5" width="318.2" height="348.7142857142857" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
-<text x="28" y="79" fill="#2d2d2d">Headline weight and size</text>
-<text x="28" y="112.71428571428572" fill="#2d2d2d">Subhead — medium emphasis</text>
+<text x="28" y="83.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">Headline weight and size</text>
+<text x="28" y="112.71428571428572" font-weight="600" fill="#2d2d2d">Subhead — medium emphasis</text>
 <text x="28" y="140.71428571428572" fill="#2d2d2d">Body text at the default weight and size.</text>
-<text x="28" y="168.71428571428572" fill="#2d2d2d">Muted caption reads quieter than body.</text>
-<text x="28" y="193.85714285714286" fill="#2d2d2d">Italic text for inline emphasis.</text>
+<text x="28" y="166.57142857142858" font-size="12" fill="#7a7f87">Muted caption reads quieter than body.</text>
+<text x="28" y="193.85714285714286" font-style="italic" fill="#2d2d2d">Italic text for inline emphasis.</text>
 <line x1="28" y1="212.85714285714286" x2="323.2" y2="212.85714285714286" stroke="#c4c4c4" stroke-width="1" />
-<text x="28" y="241.85714285714286" fill="#2d2d2d">LABEL IN SMALL CAPS</text>
+<text x="28" y="239.71428571428572" font-weight="700" font-size="12" fill="#7a7f87">LABEL IN SMALL CAPS</text>
+<text x="28" y="267" fill="#2d2d2d">Label</text>
+<text x="323.2" y="267" text-anchor="end" fill="#2d2d2d">Default value</text>
+<text x="28" y="295" fill="#2d2d2d">Label</text>
+<text x="323.2" y="295" text-anchor="end" font-weight="700" fill="#2d2d2d">Bold value</text>
+<text x="28" y="327.2857142857143" fill="#2d2d2d">Label</text>
+<text x="323.2" y="327.2857142857143" text-anchor="end" font-size="18" fill="#2d2d2d">Large value</text>
+<text x="28" y="356.7142857142857" fill="#2d2d2d">Label</text>
+<text x="323.2" y="356.7142857142857" text-anchor="end" fill="#7a7f87">Muted value</text>
+<text x="28" y="384.7142857142857" fill="#2d2d2d">Label</text>
+<text x="323.2" y="384.7142857142857" text-anchor="end" font-style="italic" fill="#2d2d2d">Italic value</text>
 </svg>

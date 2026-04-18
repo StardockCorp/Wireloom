@@ -2,8 +2,24 @@
 <rect x="0" y="0" width="256" height="358.8571428571429" fill="#ffffff" />
 <rect x="0.5" y="0.5" width="255" height="357.8571428571429" fill="none" stroke="#505050" stroke-width="1.25" />
 <line x1="0" y1="36" x2="256" y2="36" stroke="#b0b0b0" stroke-width="1" />
-<text x="128" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Empire Overview</text>
+<text x="128" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Empire Overview</text>
 <rect x="16.5" y="52.5" width="223" height="289.85714285714283" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
-<text x="28" y="79" fill="#2d2d2d">ECONOMY</text>
+<text x="28" y="76.85714285714286" font-weight="700" font-size="12" fill="#7a7f87">ECONOMY</text>
+<text x="28" y="104.14285714285714" fill="#2d2d2d">Tax Rate</text>
+<text x="228" y="104.14285714285714" text-anchor="end" fill="#2d2d2d">30%</text>
+<text x="28" y="132.14285714285714" fill="#2d2d2d">Approval</text>
+<text x="228" y="132.14285714285714" text-anchor="end" fill="#2d2d2d">Content (72%)</text>
+<text x="28" y="160.14285714285714" fill="#2d2d2d">Colony Income</text>
+<text x="228" y="160.14285714285714" text-anchor="end" fill="#2d2d2d">+612</text>
+<text x="28" y="188.14285714285714" fill="#2d2d2d">Trade Routes</text>
+<text x="228" y="188.14285714285714" text-anchor="end" fill="#2d2d2d">+145</text>
+<text x="28" y="216.14285714285714" fill="#2d2d2d">Treaty Income</text>
+<text x="228" y="216.14285714285714" text-anchor="end" fill="#2d2d2d">+62</text>
 <line x1="28" y1="235.14285714285714" x2="228" y2="235.14285714285714" stroke="#c4c4c4" stroke-width="1" />
+<text x="28" y="264.1428571428571" fill="#2d2d2d">Total Income</text>
+<text x="228" y="264.1428571428571" text-anchor="end" font-weight="700" fill="#2d2d2d">+847 bc</text>
+<text x="28" y="292.1428571428571" fill="#2d2d2d">Total Expenses</text>
+<text x="228" y="292.1428571428571" text-anchor="end" font-weight="700" fill="#2d2d2d">-612 bc</text>
+<text x="28" y="324.4285714285714" fill="#2d2d2d">Net Income</text>
+<text x="228" y="324.4285714285714" text-anchor="end" font-weight="700" font-size="18" fill="#2d2d2d">+235 bc</text>
 </svg>

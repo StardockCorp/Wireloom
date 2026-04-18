@@ -2,7 +2,7 @@
 <rect x="0" y="0" width="192.8" height="292" fill="#ffffff" />
 <rect x="0.5" y="0.5" width="191.8" height="291" fill="none" stroke="#505050" stroke-width="1.25" />
 <line x1="0" y1="36" x2="192.8" y2="36" stroke="#b0b0b0" stroke-width="1" />
-<text x="96.4" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Divided layout</text>
+<text x="96.4" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Divided layout</text>
 <rect x="16.5" y="52.5" width="159.8" height="223" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
 <text x="28" y="79" fill="#2d2d2d">Top section</text>
 <text x="28" y="107" fill="#2d2d2d">More top content</text>

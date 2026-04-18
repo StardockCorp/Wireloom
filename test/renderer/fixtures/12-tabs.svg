@@ -2,7 +2,17 @@
 <rect x="0" y="0" width="626.4571428571428" height="184" fill="#ffffff" />
 <rect x="0.5" y="0.5" width="625.4571428571428" height="183" fill="none" stroke="#505050" stroke-width="1.25" />
 <line x1="0" y1="36" x2="626.4571428571428" y2="36" stroke="#b0b0b0" stroke-width="1" />
-<text x="313.2285714285714" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Colonial Charter</text>
+<text x="313.2285714285714" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Colonial Charter</text>
+<line x1="16" y1="87.5" x2="610.4571428571428" y2="87.5" stroke="#b0b0b0" stroke-width="1" />
+<text x="30" y="74.66666666666667" font-weight="600" fill="#2d2d2d">Government</text>
+<line x1="20" y1="86" x2="112" y2="86" stroke="#3a3a3a" stroke-width="2" />
+<text x="132" y="74.66666666666667" font-weight="400" fill="#8a8f97">Leaders</text>
+<text x="212.4" y="74.66666666666667" font-weight="400" fill="#8a8f97">Ministers</text>
+<text x="307.2" y="74.66666666666667" font-weight="400" fill="#8a8f97">Diplomats</text>
+<rect x="378" y="61" width="21.65714285714286" height="18" rx="9" fill="#eef0f3" />
+<text x="388.8285714285714" y="73.66666666666667" text-anchor="middle" font-size="11" font-weight="600" fill="#505560">3</text>
+<text x="429.65714285714284" y="74.66666666666667" font-weight="400" fill="#8a8f97">Governors</text>
+<text x="524.4571428571428" y="74.66666666666667" font-weight="400" fill="#8a8f97">Commanders</text>
 <rect x="16.5" y="96.5" width="593.4571428571428" height="71" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
 <text x="28" y="123" fill="#2d2d2d">Currently viewing Government settings.</text>
 <text x="28" y="151" fill="#2d2d2d">Switch tabs to see other sections.</text>

@@ -2,26 +2,26 @@
 <rect x="0" y="0" width="207.20000000000002" height="356" fill="#ffffff" />
 <rect x="0.5" y="0.5" width="206.20000000000002" height="355" fill="none" stroke="#505050" stroke-width="1.25" />
 <line x1="0" y1="36" x2="207.20000000000002" y2="36" stroke="#b0b0b0" stroke-width="1" />
-<text x="103.60000000000001" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Button showcase</text>
+<text x="103.60000000000001" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Button showcase</text>
 <rect x="16.5" y="52.5" width="174.20000000000002" height="287" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
 <text x="28" y="79" fill="#2d2d2d">Default button:</text>
 <g opacity="1">
 <rect x="28.5" y="92.5" width="81.4" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
-<text x="69.2" y="112.66666666666667" text-anchor="middle" fill="#2d2d2d">Default</text>
+<text x="69.2" y="112.66666666666667" text-anchor="middle" font-weight="500" fill="#2d2d2d">Default</text>
 </g>
 <text x="28" y="147" fill="#2d2d2d">Primary button:</text>
 <g opacity="1">
 <rect x="28.5" y="160.5" width="59.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
-<text x="58.4" y="180.66666666666666" text-anchor="middle" fill="#ffffff">Save</text>
+<text x="58.4" y="180.66666666666666" text-anchor="middle" font-weight="500" fill="#ffffff">Save</text>
 </g>
 <text x="28" y="215" fill="#2d2d2d">Disabled button:</text>
 <g opacity="0.55">
 <rect x="28.5" y="228.5" width="110.2" height="31" fill="#ffffff" stroke="#b8b8b8" stroke-width="1.25" rx="3" />
-<text x="83.6" y="248.66666666666666" text-anchor="middle" fill="#b8b8b8">Unavailable</text>
+<text x="83.6" y="248.66666666666666" text-anchor="middle" font-weight="500" fill="#b8b8b8">Unavailable</text>
 </g>
 <text x="28" y="283" fill="#2d2d2d">Primary and disabled:</text>
 <g opacity="0.55">
 <rect x="28.5" y="296.5" width="74.2" height="31" fill="#3a3a3a" stroke="#b8b8b8" stroke-width="1.25" rx="3" />
-<text x="65.6" y="316.6666666666667" text-anchor="middle" fill="#b8b8b8">Submit</text>
+<text x="65.6" y="316.6666666666667" text-anchor="middle" font-weight="500" fill="#b8b8b8">Submit</text>
 </g>
 </svg>

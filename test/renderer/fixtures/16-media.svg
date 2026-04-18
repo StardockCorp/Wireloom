@@ -2,17 +2,33 @@
 <rect x="0" y="0" width="464" height="320" fill="#ffffff" />
 <rect x="0.5" y="0.5" width="463" height="319" fill="none" stroke="#505050" stroke-width="1.25" />
 <line x1="0" y1="36" x2="464" y2="36" stroke="#b0b0b0" stroke-width="1" />
-<text x="232" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Profile</text>
+<text x="232" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Profile</text>
 <line x1="0" y1="76" x2="464" y2="76" stroke="#b0b0b0" stroke-width="1" />
 <text x="170.8" y="61" fill="#2d2d2d">Commander Profile</text>
+<rect x="16.5" y="92.5" width="159" height="159" fill="#fafbfc" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<line x1="16" y1="92" x2="176" y2="252" stroke="#8a8a8a" stroke-width="0.5" opacity="0.4" />
+<line x1="176" y1="92" x2="16" y2="252" stroke="#8a8a8a" stroke-width="0.5" opacity="0.4" />
+<text x="96" y="176.66666666666666" text-anchor="middle" font-size="12" fill="#7a7f87">Portrait</text>
 <rect x="224.5" y="92.5" width="223" height="131" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="236" y="119" fill="#2d2d2d">Name</text>
+<text x="436" y="119" text-anchor="end" fill="#2d2d2d">Admiral Kade Voss</text>
+<text x="236" y="147" fill="#2d2d2d">Rank</text>
+<text x="436" y="147" text-anchor="end" fill="#2d2d2d">Fleet Admiral</text>
+<text x="236" y="175" fill="#2d2d2d">Homeworld</text>
+<text x="436" y="175" text-anchor="end" fill="#2d2d2d">Arcturus Prime</text>
+<rect x="236.5" y="188.5" width="23" height="23" fill="none" stroke="#6b7078" stroke-width="1" rx="3" />
+<text x="248" y="204.66666666666666" text-anchor="middle" font-size="12" fill="#6b7078">M</text>
+<rect x="268.5" y="188.5" width="23" height="23" fill="none" stroke="#6b7078" stroke-width="1" rx="3" />
+<text x="280" y="204.66666666666666" text-anchor="middle" font-size="12" fill="#6b7078">S</text>
+<rect x="300.5" y="188.5" width="23" height="23" fill="none" stroke="#6b7078" stroke-width="1" rx="3" />
+<text x="312" y="204.66666666666666" text-anchor="middle" font-size="12" fill="#6b7078">S</text>
 <line x1="0" y1="268" x2="464" y2="268" stroke="#b0b0b0" stroke-width="1" />
 <g opacity="1">
 <rect x="254.1" y="278.5" width="117.4" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
-<text x="312.8" y="298.6666666666667" text-anchor="middle" fill="#2d2d2d">Edit profile</text>
+<text x="312.8" y="298.6666666666667" text-anchor="middle" font-weight="500" fill="#2d2d2d">Edit profile</text>
 </g>
 <g opacity="1">
 <rect x="380.5" y="278.5" width="67" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
-<text x="414" y="298.6666666666667" text-anchor="middle" fill="#ffffff">Close</text>
+<text x="414" y="298.6666666666667" text-anchor="middle" font-weight="500" fill="#ffffff">Close</text>
 </g>
 </svg>
