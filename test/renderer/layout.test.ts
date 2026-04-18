@@ -208,4 +208,70 @@ describe('layout engine', () => {
     expect(image!.width).toBe(200);
     expect(image!.height).toBe(140);
   });
+
+  // -------------------------------------------------------------------------
+  // Cross-cutting regression tests (todo #6)
+  // -------------------------------------------------------------------------
+
+  it('fill distribution is exact pixels for a simple 3-col shell', () => {
+    const root = layoutSource(
+      'window:\n  row:\n    col 240:\n      text "L"\n    col:\n      text "M"\n    col 180:\n      text "R"',
+    );
+    const row = root.children.find((c) => c.node.kind === 'row');
+    const [left, mid, right] = row!.children;
+    // Fill col exactly fills: row.width = 240 + mid + 180 + 2 gaps
+    const expectedMid =
+      row!.width - 240 - 180 - DEFAULT_THEME.rowGap * 2;
+    expect(mid?.width).toBeCloseTo(expectedMid, 1);
+    // Sum of child widths + gaps == row width
+    const sum = (left?.width ?? 0) + (mid?.width ?? 0) + (right?.width ?? 0) + DEFAULT_THEME.rowGap * 2;
+    expect(sum).toBeCloseTo(row!.width, 1);
+  });
+
+  it('badge width contributes to section parent sizing', () => {
+    const withBadge = layoutSource(
+      'window:\n  section "Short" badge="12345678901234567890":\n    text "content"',
+    );
+    const withoutBadge = layoutSource(
+      'window:\n  section "Short":\n    text "content"',
+    );
+    // With a wide badge the section (and thus the window) must be wider.
+    expect(withBadge.width).toBeGreaterThan(withoutBadge.width);
+  });
+
+  it('supports tabs nested inside a section', () => {
+    const root = layoutSource(
+      'window:\n  section "Navigation":\n    tabs:\n      tab "One" active\n      tab "Two"',
+    );
+    const section = root.children.find((c) => c.node.kind === 'section');
+    const tabs = section?.children.find((c) => c.node.kind === 'tabs');
+    expect(tabs).toBeDefined();
+    expect(tabs!.children.length).toBe(2);
+  });
+
+  it('row right-alignment + fill cols: fills win when both are present', () => {
+    const root = layoutSource(
+      'window:\n  row align=right:\n    col 100:\n      text "fixed"\n    col:\n      text "fill"',
+    );
+    const row = root.children.find((c) => c.node.kind === 'row');
+    const [fixed, fill] = row!.children;
+    // Fill should still consume slack; right-align is ignored.
+    expect(fixed?.x).toBe(row!.x);
+    expect(fill!.x).toBeGreaterThan(fixed!.x + fixed!.width);
+    expect(fill!.x + fill!.width).toBeCloseTo(row!.x + row!.width, 1);
+  });
+
+  it('row align=center centers children when the row has slack', () => {
+    // A wide col forces the sibling row to have extra width to distribute.
+    const root = layoutSource(
+      'window:\n  col 600:\n    row align=center:\n      button "A"\n      button "B"',
+    );
+    const col = root.children.find((c) => c.node.kind === 'col');
+    const row = col!.children[0]!;
+    const [a, b] = row.children;
+    const leftSlack = a!.x - row.x;
+    const rightSlack = row.x + row.width - (b!.x + b!.width);
+    expect(leftSlack).toBeCloseTo(rightSlack, 1);
+    expect(leftSlack).toBeGreaterThan(0);
+  });
 });

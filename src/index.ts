@@ -17,6 +17,7 @@
 import { mergeConfig, type WireloomConfig } from './config.js';
 import type { Document } from './parser/ast.js';
 import { parse as parseSource } from './parser/parser.js';
+import { serialize as serializeDoc } from './parser/serializer.js';
 import { renderWireframe } from './renderer/index.js';
 
 export type { WireloomConfig, WireloomTheme, WireloomSecurityLevel } from './config.js';
@@ -42,6 +43,16 @@ export function initialize(config: Partial<WireloomConfig>): void {
  */
 export function parse(source: string): Document {
   return parseSource(source);
+}
+
+/**
+ * Serializes a parsed {@link Document} back to canonical Wireloom source.
+ * Useful for formatting, tooling, and roundtrip verification. Comments and
+ * non-canonical whitespace in the original source are not preserved; the
+ * re-parsed AST of the serialized output equals the input AST.
+ */
+export function serialize(doc: Document): string {
+  return serializeDoc(doc);
 }
 
 export interface RenderOptions {
