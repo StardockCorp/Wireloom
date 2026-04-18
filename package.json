@@ -1,0 +1,57 @@
+{
+  "name": "wireloom",
+  "version": "0.0.1",
+  "description": "UI wireframe mockups from a Markdown-embedded DSL, rendered as inline SVG.",
+  "license": "MIT",
+  "author": "Brad Wardell",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "wireframe",
+    "mockup",
+    "markdown",
+    "svg",
+    "dsl",
+    "ui",
+    "diagram"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StardockCorp/Wireloom.git"
+  },
+  "bugs": {
+    "url": "https://github.com/StardockCorp/Wireloom/issues"
+  },
+  "homepage": "https://github.com/StardockCorp/Wireloom#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false
+}
