@@ -6,7 +6,7 @@ interface WireloomConfig {
 }
 
 /**
- * AST type definitions for the Wireloom v0.1 thin-slice grammar.
+ * AST type definitions for the Wireloom v0.2 grammar.
  *
  * The parser produces a `Document` whose optional `root` is the required
  * `WindowNode`. Every node carries a source position so errors and tooling
@@ -25,6 +25,14 @@ interface LengthValue {
     value: number;
     unit: LengthUnit;
 }
+/** Column width — fixed pixel length, or "fill remaining space". */
+type ColWidth = {
+    kind: 'length';
+    value: number;
+    unit: LengthUnit;
+} | {
+    kind: 'fill';
+};
 type AttributeValue = {
     kind: 'string';
     value: string;
@@ -33,6 +41,11 @@ type AttributeValue = {
     kind: 'number';
     value: number;
     unit: LengthUnit;
+    position: SourcePosition;
+} | {
+    kind: 'range';
+    min: number;
+    max: number;
     position: SourcePosition;
 } | {
     kind: 'identifier';
@@ -72,14 +85,40 @@ interface PanelNode extends NodeBase {
     kind: 'panel';
     children: ContainerChild[];
 }
+interface SectionNode extends NodeBase {
+    kind: 'section';
+    title: string;
+    children: ContainerChild[];
+}
+interface TabsNode extends NodeBase {
+    kind: 'tabs';
+    children: TabNode[];
+}
 interface RowNode extends NodeBase {
     kind: 'row';
     children: ContainerChild[];
 }
 interface ColNode extends NodeBase {
     kind: 'col';
-    width?: LengthValue;
+    width: ColWidth;
     children: ContainerChild[];
+}
+interface ListNode extends NodeBase {
+    kind: 'list';
+    children: (ItemNode | SlotNode)[];
+}
+interface SlotNode extends NodeBase {
+    kind: 'slot';
+    title: string;
+    children: ContainerChild[];
+}
+interface TabNode extends NodeBase {
+    kind: 'tab';
+    label: string;
+}
+interface ItemNode extends NodeBase {
+    kind: 'item';
+    text: string;
 }
 interface TextNode extends NodeBase {
     kind: 'text';
@@ -92,13 +131,35 @@ interface ButtonNode extends NodeBase {
 interface InputNode extends NodeBase {
     kind: 'input';
 }
+interface ComboNode extends NodeBase {
+    kind: 'combo';
+    label?: string;
+}
+interface SliderNode extends NodeBase {
+    kind: 'slider';
+}
+interface KvNode extends NodeBase {
+    kind: 'kv';
+    label: string;
+    value: string;
+}
+interface ImageNode extends NodeBase {
+    kind: 'image';
+}
+interface IconNode extends NodeBase {
+    kind: 'icon';
+}
 interface DividerNode extends NodeBase {
     kind: 'divider';
 }
-type LeafNode = TextNode | ButtonNode | InputNode | DividerNode;
-type ContainerChild = PanelNode | RowNode | ColNode | LeafNode;
-type WindowChild = HeaderNode | FooterNode | PanelNode | RowNode | ColNode | LeafNode;
-type AnyNode = WindowNode | HeaderNode | FooterNode | PanelNode | RowNode | ColNode | LeafNode;
+/**
+ * Leaf nodes that can appear in any container (panel/section/row/col/slot).
+ * Excludes `tab` (must be inside `tabs`) and `item` (must be inside `list`).
+ */
+type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode;
+type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | LeafNode;
+type WindowChild = HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | LeafNode;
+type AnyNode = WindowNode | HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | LeafNode;
 interface Document {
     kind: 'document';
     /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
@@ -122,17 +183,17 @@ declare class WireloomError extends Error {
  * Theme definitions for the Wireloom SVG renderer.
  *
  * A theme bundles colors, strokes, typography, and spacing into a single
- * object consumed by the layout engine and SVG emitter. v0.1 ships with
- * `default` only; `dark` is declared as a structural placeholder and will
- * ship real values in a later todo.
+ * object consumed by the layout engine and SVG emitter.
  */
 interface Theme {
     name: string;
     background: string;
     textColor: string;
+    mutedTextColor: string;
     placeholderColor: string;
     windowBorderColor: string;
     panelBorderColor: string;
+    sectionTitleColor: string;
     dividerColor: string;
     chromeLineColor: string;
     buttonBorderColor: string;
@@ -141,6 +202,20 @@ interface Theme {
     primaryButtonFill: string;
     primaryButtonText: string;
     disabledColor: string;
+    tabActiveColor: string;
+    tabInactiveColor: string;
+    tabUnderlineColor: string;
+    slotBorderColor: string;
+    slotActiveBorderColor: string;
+    slotFillColor: string;
+    badgeFill: string;
+    badgeText: string;
+    sliderTrackColor: string;
+    sliderFillColor: string;
+    sliderThumbColor: string;
+    comboChevronColor: string;
+    bulletColor: string;
+    iconStrokeColor: string;
     windowStrokeWidth: number;
     panelStrokeWidth: number;
     panelStrokeDasharray: string;
@@ -148,9 +223,15 @@ interface Theme {
     dividerStrokeWidth: number;
     buttonStrokeWidth: number;
     inputStrokeWidth: number;
+    slotStrokeWidth: number;
+    slotActiveStrokeWidth: number;
     fontFamily: string;
     fontSize: number;
     titleFontSize: number;
+    sectionTitleFontSize: number;
+    smallFontSize: number;
+    largeFontSize: number;
+    badgeFontSize: number;
     lineHeight: number;
     averageCharWidth: number;
     windowPadding: number;
@@ -158,14 +239,37 @@ interface Theme {
     panelPadding: number;
     headerPaddingY: number;
     footerPaddingY: number;
+    sectionTitleHeight: number;
+    sectionTitlePaddingBottom: number;
+    slotPadding: number;
+    slotTitleHeight: number;
     rowGap: number;
     colGap: number;
+    listGap: number;
     dividerHeight: number;
     buttonHeight: number;
     buttonPaddingX: number;
     inputHeight: number;
     inputPaddingX: number;
     inputMinWidth: number;
+    comboHeight: number;
+    comboChevronWidth: number;
+    comboMinWidth: number;
+    sliderHeight: number;
+    sliderTrackHeight: number;
+    sliderThumbRadius: number;
+    sliderDefaultWidth: number;
+    imageDefaultWidth: number;
+    imageDefaultHeight: number;
+    iconSize: number;
+    tabHeight: number;
+    tabPaddingX: number;
+    tabGap: number;
+    bulletWidth: number;
+    badgeHeight: number;
+    badgePaddingX: number;
+    kvMinWidth: number;
+    colFillMinWidth: number;
 }
 declare const DEFAULT_THEME: Theme;
 declare const DARK_THEME: Theme;
@@ -200,14 +304,26 @@ declare function initialize(config: Partial<WireloomConfig>): void;
  */
 declare function parse(source: string): Document;
 /**
+ * Serializes a parsed {@link Document} back to canonical Wireloom source.
+ * Useful for formatting, tooling, and roundtrip verification. Comments and
+ * non-canonical whitespace in the original source are not preserved; the
+ * re-parsed AST of the serialized output equals the input AST.
+ */
+declare function serialize(doc: Document): string;
+interface RenderOptions {
+    /** Override the theme for this render without touching the global config. */
+    theme?: 'default' | 'dark';
+}
+/**
  * Parses and renders a Wireloom source string to an SVG string.
  * Throws {@link WireloomError} with line/column info on parse failure.
+ * If `options.theme` is omitted the global theme from `initialize()` is used.
  */
-declare function render(id: string, source: string): Promise<RenderResult>;
+declare function render(id: string, source: string, options?: RenderOptions): Promise<RenderResult>;
 declare const wireloom: {
     initialize: typeof initialize;
     parse: typeof parse;
     render: typeof render;
 };
 
-export { type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type ButtonNode, type ColNode, type ContainerChild, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type HeaderNode, type InputNode, type LeafNode, type LengthUnit, type LengthValue, type PanelNode, type RenderResult, type RowNode, type SourcePosition, type TextNode, type Theme, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render };
+export { type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type ButtonNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type PanelNode, type RenderOptions, type RenderResult, type RowNode, type SectionNode, type SliderNode, type SlotNode, type SourcePosition, type TabNode, type TabsNode, type TextNode, type Theme, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
