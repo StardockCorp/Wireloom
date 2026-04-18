@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
 
-# Build output
-dist/
+# Build output (committed for git-install consumers until we publish to npm)
+# dist/
 build/
 *.tsbuildinfo
 
