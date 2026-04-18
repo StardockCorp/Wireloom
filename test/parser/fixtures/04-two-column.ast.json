@@ -10,6 +10,11 @@
         "children": [
           {
             "kind": "col",
+            "width": {
+              "kind": "length",
+              "value": 240,
+              "unit": "px"
+            },
             "attributes": [],
             "children": [
               {
@@ -43,14 +48,13 @@
             "position": {
               "line": 3,
               "column": 5
-            },
-            "width": {
-              "value": 240,
-              "unit": "px"
             }
           },
           {
             "kind": "col",
+            "width": {
+              "kind": "fill"
+            },
             "attributes": [],
             "children": [
               {

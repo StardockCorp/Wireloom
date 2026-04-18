@@ -106,6 +106,98 @@ describe('parser — error messages', () => {
 
   it('rejects "header" as a container child', () => {
     const err = expectParseError('window:\n  panel:\n    header:\n      text "nope"');
-    expect(err.message).toContain('"header" is not allowed here');
+    expect(err.message).toContain('"header"');
+    expect(err.message).toContain('"window"');
+  });
+
+  // ---------------------------------------------------------------------------
+  // v0.2 error cases
+  // ---------------------------------------------------------------------------
+
+  it('rejects "tab" outside "tabs"', () => {
+    const err = expectParseError('window:\n  tab "Stray"');
+    expect(err.message).toContain('"tab"');
+    expect(err.message).toContain('"tabs"');
+  });
+
+  it('rejects "item" outside "list"', () => {
+    const err = expectParseError('window:\n  item "Stray"');
+    expect(err.message).toContain('"item"');
+    expect(err.message).toContain('"list"');
+  });
+
+  it('rejects non-tab children inside "tabs"', () => {
+    const err = expectParseError('window:\n  tabs:\n    text "oops"');
+    expect(err.message).toContain('"tabs"');
+    expect(err.message).toContain('"tab"');
+  });
+
+  it('rejects non-item/slot children inside "list"', () => {
+    const err = expectParseError('window:\n  list:\n    text "oops"');
+    expect(err.message).toContain('"list"');
+  });
+
+  it('rejects missing title on "section"', () => {
+    const err = expectParseError('window:\n  section:\n    text "x"');
+    expect(err.message).toContain('"section" requires a title');
+  });
+
+  it('rejects missing title on "slot"', () => {
+    const err = expectParseError('window:\n  list:\n    slot:\n      text "x"');
+    expect(err.message).toContain('"slot" requires a title');
+  });
+
+  it('rejects missing positionals on "kv"', () => {
+    const err = expectParseError('window:\n  kv "Only Label"');
+    expect(err.message).toContain('"kv" requires a value string');
+  });
+
+  it('rejects invalid weight value on "text"', () => {
+    const err = expectParseError('window:\n  text "x" weight=extrabold');
+    expect(err.message).toContain('"extrabold"');
+    expect(err.message).toContain('weight');
+    expect(err.message).toContain('light, regular, semibold, bold');
+  });
+
+  it('rejects invalid size value on "text"', () => {
+    const err = expectParseError('window:\n  text "x" size=massive');
+    expect(err.message).toContain('"massive"');
+    expect(err.message).toContain('size');
+  });
+
+  it('rejects invalid align value on "row"', () => {
+    const err = expectParseError('window:\n  row align=justified:\n    text "x"');
+    expect(err.message).toContain('"justified"');
+    expect(err.message).toContain('align');
+  });
+
+  it('rejects range with M <= N on slider', () => {
+    const err = expectParseError('window:\n  slider range=100-0 value=50');
+    expect(err.message).toContain('M > N');
+  });
+
+  it('rejects non-range value for slider range', () => {
+    const err = expectParseError('window:\n  slider range=100 value=50');
+    expect(err.message).toContain('range');
+  });
+
+  it('rejects "bold" flag on non-text/kv primitive', () => {
+    const err = expectParseError('window:\n  button "Go" bold');
+    expect(err.message).toContain('"bold"');
+    expect(err.message).toContain('"button"');
+  });
+
+  it('accepts col with `fill` positional', () => {
+    const doc = parse('window:\n  row:\n    col fill:\n      text "a"');
+    expect(doc.root).toBeDefined();
+  });
+
+  it('defaults bare col to fill width (v0.2 behavior change)', () => {
+    const doc = parse('window:\n  row:\n    col:\n      text "a"');
+    const row = doc.root?.children[0];
+    if (row?.kind !== 'row') throw new Error('expected row');
+    const col = row.children[0];
+    if (col?.kind !== 'col') throw new Error('expected col');
+    expect(col.width.kind).toBe('fill');
   });
 });

@@ -3,10 +3,11 @@ window "Three-column app shell":
     col 240:
       panel:
         text "Sidebar" bold
-        item "Home"
-        item "Search"
-        item "Library"
-        item "Settings"
+        list:
+          item "Home"
+          item "Search"
+          item "Library"
+          item "Settings"
     col:
       panel:
         text "Main content fills remaining space" bold

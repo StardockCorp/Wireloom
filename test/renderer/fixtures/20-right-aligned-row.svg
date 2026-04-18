@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="696.8000000000001" height="192" viewBox="0 0 696.8000000000001 192" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="696.8000000000001" height="192" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="695.8000000000001" height="191" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="696.8000000000001" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="348.40000000000003" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Confirm action</text>
+<rect x="16.5" y="52.5" width="663.8000000000001" height="71" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="79" fill="#2d2d2d">Delete the selected project?</text>
+<text x="28" y="107" fill="#2d2d2d">This cannot be undone. All associated notes, tasks, and linked resources will be removed.</text>
+<line x1="0" y1="140" x2="696.8000000000001" y2="140" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="16.5" y="150.5" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="53.6" y="170.66666666666666" text-anchor="middle" fill="#2d2d2d">Cancel</text>
+</g>
+<g opacity="1">
+<rect x="99.7" y="150.5" width="74.2" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="136.8" y="170.66666666666666" text-anchor="middle" fill="#ffffff">Delete</text>
+</g>
+</svg>

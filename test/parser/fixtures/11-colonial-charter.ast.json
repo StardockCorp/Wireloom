@@ -1,0 +1,1596 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Colonial Charter",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "large",
+                  "position": {
+                    "line": 8,
+                    "column": 34
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 29
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 7,
+          "column": 3
+        }
+      },
+      {
+        "kind": "tabs",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "tab",
+            "label": "Government",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "active",
+                "position": {
+                  "line": 11,
+                  "column": 22
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Leaders",
+            "attributes": [],
+            "position": {
+              "line": 12,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Ministers",
+            "attributes": [],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Diplomats",
+            "attributes": [],
+            "position": {
+              "line": 14,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Governors",
+            "attributes": [],
+            "position": {
+              "line": 15,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Commanders",
+            "attributes": [],
+            "position": {
+              "line": 16,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Institutions",
+            "attributes": [],
+            "position": {
+              "line": 17,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Parties",
+            "attributes": [],
+            "position": {
+              "line": 18,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 10,
+          "column": 3
+        }
+      },
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "col",
+            "width": {
+              "kind": "length",
+              "value": 340,
+              "unit": "px"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "section",
+                "title": "Economy",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "kv",
+                    "label": "Tax Rate",
+                    "value": "30%",
+                    "attributes": [],
+                    "position": {
+                      "line": 26,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "slider",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "range",
+                        "value": {
+                          "kind": "range",
+                          "min": 0,
+                          "max": 100,
+                          "position": {
+                            "line": 27,
+                            "column": 22
+                          }
+                        },
+                        "position": {
+                          "line": 27,
+                          "column": 16
+                        }
+                      },
+                      {
+                        "kind": "pair",
+                        "key": "value",
+                        "value": {
+                          "kind": "number",
+                          "value": 30,
+                          "unit": "px",
+                          "position": {
+                            "line": 27,
+                            "column": 34
+                          }
+                        },
+                        "position": {
+                          "line": 27,
+                          "column": 28
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 27,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Approval",
+                    "value": "Content (72%)",
+                    "attributes": [],
+                    "position": {
+                      "line": 28,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 25,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "section",
+                "title": "Gross Income",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "kv",
+                    "label": "Colony Income",
+                    "value": "+612",
+                    "attributes": [],
+                    "position": {
+                      "line": 31,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Trade Routes",
+                    "value": "+145",
+                    "attributes": [],
+                    "position": {
+                      "line": 32,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Treaty Income",
+                    "value": "+62",
+                    "attributes": [],
+                    "position": {
+                      "line": 33,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Tax Rate (30%)",
+                    "value": "+28",
+                    "attributes": [],
+                    "position": {
+                      "line": 34,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "divider",
+                    "attributes": [],
+                    "position": {
+                      "line": 35,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Total Income",
+                    "value": "+847 bc",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "bold",
+                        "position": {
+                          "line": 36,
+                          "column": 37
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 36,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 30,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "section",
+                "title": "Expenses",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "kv",
+                    "label": "Ship Maintenance",
+                    "value": "-245",
+                    "attributes": [],
+                    "position": {
+                      "line": 39,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Colony Maintenance",
+                    "value": "-180",
+                    "attributes": [],
+                    "position": {
+                      "line": 40,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Starbase Maintenance",
+                    "value": "-95",
+                    "attributes": [],
+                    "position": {
+                      "line": 41,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Treaty Maintenance",
+                    "value": "-52",
+                    "attributes": [],
+                    "position": {
+                      "line": 42,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Policy Maintenance",
+                    "value": "-40",
+                    "attributes": [],
+                    "position": {
+                      "line": 43,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "divider",
+                    "attributes": [],
+                    "position": {
+                      "line": 44,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Total Expenses",
+                    "value": "-612 bc",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "bold",
+                        "position": {
+                          "line": 45,
+                          "column": 39
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 45,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 38,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "section",
+                "title": "Net",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "kv",
+                    "label": "Net Income",
+                    "value": "+235 bc",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "bold",
+                        "position": {
+                          "line": 48,
+                          "column": 35
+                        }
+                      },
+                      {
+                        "kind": "pair",
+                        "key": "size",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "large",
+                          "position": {
+                            "line": 48,
+                            "column": 45
+                          }
+                        },
+                        "position": {
+                          "line": 48,
+                          "column": 40
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 48,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Treasury",
+                    "value": "4,250 bc",
+                    "attributes": [],
+                    "position": {
+                      "line": 49,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 47,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "section",
+                "title": "Civilization",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "kv",
+                    "label": "Government",
+                    "value": "Colonial Charter",
+                    "attributes": [],
+                    "position": {
+                      "line": 52,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Colonies",
+                    "value": "12",
+                    "attributes": [],
+                    "position": {
+                      "line": 53,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Citizens",
+                    "value": "24.5B",
+                    "attributes": [],
+                    "position": {
+                      "line": 54,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 51,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 23,
+              "column": 5
+            }
+          },
+          {
+            "kind": "col",
+            "width": {
+              "kind": "fill"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "section",
+                "title": "Enacted Policies",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "badge",
+                    "value": {
+                      "kind": "string",
+                      "value": "4 / 7 slots filled",
+                      "position": {
+                        "line": 58,
+                        "column": 40
+                      }
+                    },
+                    "position": {
+                      "line": 58,
+                      "column": 34
+                    }
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "list",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "slot",
+                        "title": "Colonial Defense Pact",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+15% Planetary Defense",
+                            "attributes": [],
+                            "position": {
+                              "line": 61,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "All colonies gain defensive bonuses",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 62,
+                                  "column": 56
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 62,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 60,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Free Market Initiative",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+10% Income, -5% Approval",
+                            "attributes": [],
+                            "position": {
+                              "line": 64,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Deregulated trade increases revenue",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 65,
+                                  "column": 56
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 65,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 63,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Research Subsidies",
+                        "attributes": [
+                          {
+                            "kind": "flag",
+                            "flag": "active",
+                            "position": {
+                              "line": 66,
+                              "column": 37
+                            }
+                          }
+                        ],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+20% Research Output",
+                            "attributes": [],
+                            "position": {
+                              "line": 67,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Government funded research programs",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 68,
+                                  "column": 56
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 68,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "row",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "align",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "right",
+                                  "position": {
+                                    "line": 69,
+                                    "column": 23
+                                  }
+                                },
+                                "position": {
+                                  "line": 69,
+                                  "column": 17
+                                }
+                              }
+                            ],
+                            "children": [
+                              {
+                                "kind": "button",
+                                "label": "Revoke",
+                                "attributes": [],
+                                "position": {
+                                  "line": 70,
+                                  "column": 15
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 69,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 66,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Cultural Exchange",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+10% Influence, +5% Tourism",
+                            "attributes": [],
+                            "position": {
+                              "line": 72,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Interstellar cultural programs",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 73,
+                                  "column": 51
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 73,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 71,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Empty Policy Slot",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "Choose a policy from the available list",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 75,
+                                  "column": 60
+                                }
+                              },
+                              {
+                                "kind": "flag",
+                                "flag": "italic",
+                                "position": {
+                                  "line": 75,
+                                  "column": 66
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 75,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 74,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Empty Policy Slot",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "Choose a policy from the available list",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 77,
+                                  "column": 60
+                                }
+                              },
+                              {
+                                "kind": "flag",
+                                "flag": "italic",
+                                "position": {
+                                  "line": 77,
+                                  "column": 66
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 77,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 76,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Empty Policy Slot",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "Choose a policy from the available list",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 79,
+                                  "column": 60
+                                }
+                              },
+                              {
+                                "kind": "flag",
+                                "flag": "italic",
+                                "position": {
+                                  "line": 79,
+                                  "column": 66
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 79,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 78,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 59,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 58,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 57,
+              "column": 5
+            }
+          },
+          {
+            "kind": "col",
+            "width": {
+              "kind": "length",
+              "value": 360,
+              "unit": "px"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "section",
+                "title": "Available Policies",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "list",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "slot",
+                        "title": "Frontier Expansion",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+20% Colony Speed, +10% Growth",
+                            "attributes": [],
+                            "position": {
+                              "line": 86,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Prioritize outward expansion",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 87,
+                                  "column": 49
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 87,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "row",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "align",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "right",
+                                  "position": {
+                                    "line": 88,
+                                    "column": 23
+                                  }
+                                },
+                                "position": {
+                                  "line": 88,
+                                  "column": 17
+                                }
+                              }
+                            ],
+                            "children": [
+                              {
+                                "kind": "text",
+                                "content": "2 Admin",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "muted",
+                                    "position": {
+                                      "line": 89,
+                                      "column": 30
+                                    }
+                                  },
+                                  {
+                                    "kind": "pair",
+                                    "key": "size",
+                                    "value": {
+                                      "kind": "identifier",
+                                      "value": "small",
+                                      "position": {
+                                        "line": 89,
+                                        "column": 41
+                                      }
+                                    },
+                                    "position": {
+                                      "line": 89,
+                                      "column": 36
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 89,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "button",
+                                "label": "Enact",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "primary",
+                                    "position": {
+                                      "line": 90,
+                                      "column": 30
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 90,
+                                  "column": 15
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 88,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 85,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Militia Training",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+15% Planetary Defense, +10% Military",
+                            "attributes": [],
+                            "position": {
+                              "line": 92,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Arm the colonists",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 93,
+                                  "column": 38
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 93,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "row",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "align",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "right",
+                                  "position": {
+                                    "line": 94,
+                                    "column": 23
+                                  }
+                                },
+                                "position": {
+                                  "line": 94,
+                                  "column": 17
+                                }
+                              }
+                            ],
+                            "children": [
+                              {
+                                "kind": "text",
+                                "content": "3 Admin",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "muted",
+                                    "position": {
+                                      "line": 95,
+                                      "column": 30
+                                    }
+                                  },
+                                  {
+                                    "kind": "pair",
+                                    "key": "size",
+                                    "value": {
+                                      "kind": "identifier",
+                                      "value": "small",
+                                      "position": {
+                                        "line": 95,
+                                        "column": 41
+                                      }
+                                    },
+                                    "position": {
+                                      "line": 95,
+                                      "column": 36
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 95,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "button",
+                                "label": "Enact",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "primary",
+                                    "position": {
+                                      "line": 96,
+                                      "column": 30
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 96,
+                                  "column": 15
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 94,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 91,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Trade Agreements",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+20% Trade Route Income",
+                            "attributes": [],
+                            "position": {
+                              "line": 98,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Establish favorable trade terms",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 99,
+                                  "column": 52
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 99,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "row",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "align",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "right",
+                                  "position": {
+                                    "line": 100,
+                                    "column": 23
+                                  }
+                                },
+                                "position": {
+                                  "line": 100,
+                                  "column": 17
+                                }
+                              }
+                            ],
+                            "children": [
+                              {
+                                "kind": "text",
+                                "content": "2 Admin",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "muted",
+                                    "position": {
+                                      "line": 101,
+                                      "column": 30
+                                    }
+                                  },
+                                  {
+                                    "kind": "pair",
+                                    "key": "size",
+                                    "value": {
+                                      "kind": "identifier",
+                                      "value": "small",
+                                      "position": {
+                                        "line": 101,
+                                        "column": 41
+                                      }
+                                    },
+                                    "position": {
+                                      "line": 101,
+                                      "column": 36
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 101,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "button",
+                                "label": "Enact",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "primary",
+                                    "position": {
+                                      "line": 102,
+                                      "column": 30
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 102,
+                                  "column": 15
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 100,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 97,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Infrastructure Investment",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+15% Manufacturing, +10% Growth",
+                            "attributes": [],
+                            "position": {
+                              "line": 104,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Build foundational industry",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 105,
+                                  "column": 48
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 105,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "row",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "align",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "right",
+                                  "position": {
+                                    "line": 106,
+                                    "column": 23
+                                  }
+                                },
+                                "position": {
+                                  "line": 106,
+                                  "column": 17
+                                }
+                              }
+                            ],
+                            "children": [
+                              {
+                                "kind": "text",
+                                "content": "3 Admin",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "muted",
+                                    "position": {
+                                      "line": 107,
+                                      "column": 30
+                                    }
+                                  },
+                                  {
+                                    "kind": "pair",
+                                    "key": "size",
+                                    "value": {
+                                      "kind": "identifier",
+                                      "value": "small",
+                                      "position": {
+                                        "line": 107,
+                                        "column": 41
+                                      }
+                                    },
+                                    "position": {
+                                      "line": 107,
+                                      "column": 36
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 107,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "button",
+                                "label": "Enact",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "primary",
+                                    "position": {
+                                      "line": 108,
+                                      "column": 30
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 108,
+                                  "column": 15
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 106,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 103,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Diplomatic Corps",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+15% Influence, +10% Diplomacy",
+                            "attributes": [],
+                            "position": {
+                              "line": 110,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Invest in foreign relations",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 111,
+                                  "column": 48
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 111,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "row",
+                            "attributes": [
+                              {
+                                "kind": "pair",
+                                "key": "align",
+                                "value": {
+                                  "kind": "identifier",
+                                  "value": "right",
+                                  "position": {
+                                    "line": 112,
+                                    "column": 23
+                                  }
+                                },
+                                "position": {
+                                  "line": 112,
+                                  "column": 17
+                                }
+                              }
+                            ],
+                            "children": [
+                              {
+                                "kind": "text",
+                                "content": "2 Admin",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "muted",
+                                    "position": {
+                                      "line": 113,
+                                      "column": 30
+                                    }
+                                  },
+                                  {
+                                    "kind": "pair",
+                                    "key": "size",
+                                    "value": {
+                                      "kind": "identifier",
+                                      "value": "small",
+                                      "position": {
+                                        "line": 113,
+                                        "column": 41
+                                      }
+                                    },
+                                    "position": {
+                                      "line": 113,
+                                      "column": 36
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 113,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "button",
+                                "label": "Enact",
+                                "attributes": [
+                                  {
+                                    "kind": "flag",
+                                    "flag": "primary",
+                                    "position": {
+                                      "line": 114,
+                                      "column": 30
+                                    }
+                                  }
+                                ],
+                                "position": {
+                                  "line": 114,
+                                  "column": 15
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 112,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 109,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "slot",
+                        "title": "Pioneer Spirit",
+                        "attributes": [],
+                        "children": [
+                          {
+                            "kind": "text",
+                            "content": "+15% Approval, +10% Morale",
+                            "attributes": [],
+                            "position": {
+                              "line": 116,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "text",
+                            "content": "Foster community and purpose",
+                            "attributes": [
+                              {
+                                "kind": "flag",
+                                "flag": "muted",
+                                "position": {
+                                  "line": 117,
+                                  "column": 49
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 117,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 115,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 84,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 83,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 82,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 20,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "button",
+                "label": "Change Government",
+                "attributes": [],
+                "position": {
+                  "line": 121,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "row",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "align",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "right",
+                      "position": {
+                        "line": 122,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 122,
+                      "column": 11
+                    }
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "button",
+                    "label": "Done",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "primary",
+                        "position": {
+                          "line": 123,
+                          "column": 23
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 123,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 122,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 120,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 119,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 6,
+      "column": 1
+    },
+    "title": "CIVILIZATION"
+  },
+  "sourceLines": 124
+}

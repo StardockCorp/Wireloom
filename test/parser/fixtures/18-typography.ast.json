@@ -1,0 +1,290 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Headline weight and size",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "bold",
+                "position": {
+                  "line": 3,
+                  "column": 37
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "large",
+                  "position": {
+                    "line": 3,
+                    "column": 47
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 42
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Subhead — medium emphasis",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "weight",
+                "value": {
+                  "kind": "identifier",
+                  "value": "semibold",
+                  "position": {
+                    "line": 4,
+                    "column": 45
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 38
+                }
+              }
+            ],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Body text at the default weight and size.",
+            "attributes": [],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Muted caption reads quieter than body.",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "muted",
+                "position": {
+                  "line": 6,
+                  "column": 51
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "small",
+                  "position": {
+                    "line": 6,
+                    "column": 62
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 57
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Italic text for inline emphasis.",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "italic",
+                "position": {
+                  "line": 7,
+                  "column": 45
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          },
+          {
+            "kind": "divider",
+            "attributes": [],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "LABEL IN SMALL CAPS",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "bold",
+                "position": {
+                  "line": 9,
+                  "column": 32
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "small",
+                  "position": {
+                    "line": 9,
+                    "column": 42
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 37
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "muted",
+                "position": {
+                  "line": 9,
+                  "column": 48
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Label",
+            "value": "Default value",
+            "attributes": [],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Label",
+            "value": "Bold value",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "bold",
+                "position": {
+                  "line": 11,
+                  "column": 29
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Label",
+            "value": "Large value",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "large",
+                  "position": {
+                    "line": 12,
+                    "column": 35
+                  }
+                },
+                "position": {
+                  "line": 12,
+                  "column": 30
+                }
+              }
+            ],
+            "position": {
+              "line": 12,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Label",
+            "value": "Muted value",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "muted",
+                "position": {
+                  "line": 13,
+                  "column": 30
+                }
+              }
+            ],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Label",
+            "value": "Italic value",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "italic",
+                "position": {
+                  "line": 14,
+                  "column": 31
+                }
+              }
+            ],
+            "position": {
+              "line": 14,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Typography Showcase"
+  },
+  "sourceLines": 15
+}

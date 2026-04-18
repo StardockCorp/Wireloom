@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100.8" height="924" viewBox="0 0 1100.8 924" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="1100.8" height="924" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="1099.8" height="923" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="1100.8" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="550.4" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">CIVILIZATION</text>
+<line x1="0" y1="76" x2="1100.8" y2="76" stroke="#b0b0b0" stroke-width="1" />
+<text x="492.79999999999995" y="61" fill="#2d2d2d">Colonial Charter</text>
+<line x1="0" y1="872" x2="1100.8" y2="872" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="16.5" y="882.5" width="153.4" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="93.2" y="902.6666666666666" text-anchor="middle" fill="#2d2d2d">Change Government</text>
+</g>
+<g opacity="1">
+<rect x="178.9" y="882.5" width="59.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="208.8" y="902.6666666666666" text-anchor="middle" fill="#ffffff">Done</text>
+</g>
+</svg>

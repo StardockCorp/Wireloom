@@ -1,0 +1,357 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "section",
+        "title": "Economy",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "slider",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "range",
+                "value": {
+                  "kind": "range",
+                  "min": 0,
+                  "max": 100,
+                  "position": {
+                    "line": 3,
+                    "column": 18
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 12
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "number",
+                  "value": 30,
+                  "unit": "px",
+                  "position": {
+                    "line": 3,
+                    "column": 30
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 24
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "label",
+                "value": {
+                  "kind": "string",
+                  "value": "Tax Rate",
+                  "position": {
+                    "line": 3,
+                    "column": 39
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 33
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "slider",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "range",
+                "value": {
+                  "kind": "range",
+                  "min": 0,
+                  "max": 100,
+                  "position": {
+                    "line": 4,
+                    "column": 18
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 12
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "number",
+                  "value": 72,
+                  "unit": "px",
+                  "position": {
+                    "line": 4,
+                    "column": 30
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 24
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "label",
+                "value": {
+                  "kind": "string",
+                  "value": "Approval Weight",
+                  "position": {
+                    "line": 4,
+                    "column": 39
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 33
+                }
+              }
+            ],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Governance",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "Default government",
+                "attributes": [],
+                "position": {
+                  "line": 7,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "combo",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "value",
+                    "value": {
+                      "kind": "string",
+                      "value": "Colonial Charter",
+                      "position": {
+                        "line": 8,
+                        "column": 19
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 13
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "options",
+                    "value": {
+                      "kind": "string",
+                      "value": "Colonial Charter,Autocracy,Federation",
+                      "position": {
+                        "line": 8,
+                        "column": 46
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 38
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "Difficulty",
+                "attributes": [],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "combo",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "value",
+                    "value": {
+                      "kind": "string",
+                      "value": "Challenging",
+                      "position": {
+                        "line": 11,
+                        "column": 19
+                      }
+                    },
+                    "position": {
+                      "line": 11,
+                      "column": 13
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "options",
+                    "value": {
+                      "kind": "string",
+                      "value": "Easy,Normal,Challenging,Brutal",
+                      "position": {
+                        "line": 11,
+                        "column": 41
+                      }
+                    },
+                    "position": {
+                      "line": 11,
+                      "column": 33
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 11,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "AI Personality",
+                "attributes": [],
+                "position": {
+                  "line": 13,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "combo",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "options",
+                    "value": {
+                      "kind": "string",
+                      "value": "Aggressive,Builder,Diplomat,Explorer",
+                      "position": {
+                        "line": 14,
+                        "column": 42
+                      }
+                    },
+                    "position": {
+                      "line": 14,
+                      "column": 34
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 14,
+                  "column": 7
+                },
+                "label": "Select an AI trait"
+              }
+            ],
+            "position": {
+              "line": 12,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 5,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "Reset",
+            "attributes": [],
+            "position": {
+              "line": 16,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Apply",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 17,
+                  "column": 20
+                }
+              }
+            ],
+            "position": {
+              "line": 17,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 15,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Preferences"
+  },
+  "sourceLines": 18
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="504" height="288" viewBox="0 0 504 288" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="504" height="288" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="503" height="287" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="504" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="252" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Profile</text>
+<line x1="0" y1="76" x2="504" y2="76" stroke="#b0b0b0" stroke-width="1" />
+<text x="190.8" y="61" fill="#2d2d2d">Commander Profile</text>
+<rect x="224.5" y="92.5" width="263" height="127" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<line x1="0" y1="236" x2="504" y2="236" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="294.1" y="246.5" width="117.4" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="352.8" y="266.6666666666667" text-anchor="middle" fill="#2d2d2d">Edit profile</text>
+</g>
+<g opacity="1">
+<rect x="420.5" y="246.5" width="67" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="454" y="266.6666666666667" text-anchor="middle" fill="#ffffff">Close</text>
+</g>
+</svg>

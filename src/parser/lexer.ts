@@ -13,6 +13,7 @@ export type TokenKind =
   | 'ident'
   | 'string'
   | 'number'
+  | 'range'
   | 'equals'
   | 'colon'
   | 'newline'
@@ -30,6 +31,10 @@ export interface Token {
   numericValue?: number;
   /** For `number` tokens, the unit suffix (`px` by default). */
   unit?: LengthUnit;
+  /** For `range` tokens, the minimum bound. */
+  rangeMin?: number;
+  /** For `range` tokens, the maximum bound. */
+  rangeMax?: number;
   /** For `ident` tokens, the identifier text. */
   identValue?: string;
   line: number;
@@ -220,13 +225,35 @@ function tokenizeLineContent(
       continue;
     }
 
-    // Number literal.
+    // Number or range literal.
     if (ch !== undefined && /[0-9]/.test(ch)) {
       const start = col;
       while (col < end && /[0-9]/.test(rawLine[col] ?? '')) {
         col++;
       }
       const digits = rawLine.slice(start, col);
+
+      // Check for range form: digits "-" digits (no whitespace).
+      // A range is unambiguous here: `-` can't start an identifier (idents start
+      // with a letter/underscore), and negative numbers aren't in the grammar.
+      if (rawLine[col] === '-' && /[0-9]/.test(rawLine[col + 1] ?? '')) {
+        col++; // consume "-"
+        const maxStart = col;
+        while (col < end && /[0-9]/.test(rawLine[col] ?? '')) {
+          col++;
+        }
+        const maxDigits = rawLine.slice(maxStart, col);
+        tokens.push({
+          kind: 'range',
+          raw: rawLine.slice(start, col),
+          rangeMin: Number.parseInt(digits, 10),
+          rangeMax: Number.parseInt(maxDigits, 10),
+          line: lineNo,
+          column: start + 1,
+        });
+        continue;
+      }
+
       let unit: LengthUnit = 'px';
       if (rawLine.slice(col, col + 2) === 'px') {
         unit = 'px';

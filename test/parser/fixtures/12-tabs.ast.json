@@ -1,0 +1,133 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "tabs",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "tab",
+            "label": "Government",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "active",
+                "position": {
+                  "line": 3,
+                  "column": 22
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Leaders",
+            "attributes": [],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Ministers",
+            "attributes": [],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Diplomats",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "badge",
+                "value": {
+                  "kind": "string",
+                  "value": "3",
+                  "position": {
+                    "line": 6,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 21
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Governors",
+            "attributes": [],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Commanders",
+            "attributes": [],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Currently viewing Government settings.",
+            "attributes": [],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Switch tabs to see other sections.",
+            "attributes": [],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 9,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Colonial Charter"
+  },
+  "sourceLines": 12
+}

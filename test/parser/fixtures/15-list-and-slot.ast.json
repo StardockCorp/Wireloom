@@ -1,0 +1,271 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "section",
+        "title": "Enacted policies",
+        "attributes": [
+          {
+            "kind": "pair",
+            "key": "badge",
+            "value": {
+              "kind": "string",
+              "value": "4 / 7",
+              "position": {
+                "line": 2,
+                "column": 36
+              }
+            },
+            "position": {
+              "line": 2,
+              "column": 30
+            }
+          }
+        ],
+        "children": [
+          {
+            "kind": "list",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "slot",
+                "title": "Colonial Defense Pact",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "+15% Planetary Defense",
+                    "attributes": [],
+                    "position": {
+                      "line": 5,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "All colonies gain defensive bonuses",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 6,
+                          "column": 52
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 6,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "slot",
+                "title": "Free Market Initiative",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "+10% Income, -5% Approval",
+                    "attributes": [],
+                    "position": {
+                      "line": 8,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Deregulated trade increases revenue",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 9,
+                          "column": 52
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 9,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "slot",
+                "title": "Research Subsidies",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "active",
+                    "position": {
+                      "line": 10,
+                      "column": 33
+                    }
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "+20% Research Output",
+                    "attributes": [],
+                    "position": {
+                      "line": 11,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Government funded research programs",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 12,
+                          "column": 52
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 12,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "button",
+                    "label": "Revoke",
+                    "attributes": [],
+                    "position": {
+                      "line": 13,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "slot",
+                "title": "Cultural Exchange",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "+10% Influence, +5% Tourism",
+                    "attributes": [],
+                    "position": {
+                      "line": 15,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Interstellar cultural programs",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 16,
+                          "column": 47
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 16,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 14,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Quick wins",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "list",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "item",
+                "text": "Recruit a Governor on Vega IV",
+                "attributes": [],
+                "position": {
+                  "line": 19,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "item",
+                "text": "Establish trade route with Terran Alliance",
+                "attributes": [],
+                "position": {
+                  "line": 20,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "item",
+                "text": "Upgrade shipyard to tier 2",
+                "attributes": [],
+                "position": {
+                  "line": 21,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 18,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 17,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Policies"
+  },
+  "sourceLines": 22
+}

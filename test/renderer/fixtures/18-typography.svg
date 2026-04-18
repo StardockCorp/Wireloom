@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="351.2" height="412" viewBox="0 0 351.2 412" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="351.2" height="412" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="350.2" height="411" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="351.2" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="175.6" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Typography Showcase</text>
+<rect x="16.5" y="52.5" width="318.2" height="343" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="79" fill="#2d2d2d">Headline weight and size</text>
+<text x="28" y="107" fill="#2d2d2d">Subhead — medium emphasis</text>
+<text x="28" y="135" fill="#2d2d2d">Body text at the default weight and size.</text>
+<text x="28" y="163" fill="#2d2d2d">Muted caption reads quieter than body.</text>
+<text x="28" y="191" fill="#2d2d2d">Italic text for inline emphasis.</text>
+<line x1="28" y1="210" x2="323.2" y2="210" stroke="#c4c4c4" stroke-width="1" />
+<text x="28" y="239" fill="#2d2d2d">LABEL IN SMALL CAPS</text>
+</svg>

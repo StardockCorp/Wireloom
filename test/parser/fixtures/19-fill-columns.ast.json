@@ -1,0 +1,246 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "col",
+            "width": {
+              "kind": "length",
+              "value": 240,
+              "unit": "px"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "panel",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Sidebar",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "bold",
+                        "position": {
+                          "line": 5,
+                          "column": 24
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 5,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "list",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "item",
+                        "text": "Home",
+                        "attributes": [],
+                        "position": {
+                          "line": 7,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "item",
+                        "text": "Search",
+                        "attributes": [],
+                        "position": {
+                          "line": 8,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "item",
+                        "text": "Library",
+                        "attributes": [],
+                        "position": {
+                          "line": 9,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "item",
+                        "text": "Settings",
+                        "attributes": [],
+                        "position": {
+                          "line": 10,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 6,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "col",
+            "width": {
+              "kind": "fill"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "panel",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Main content fills remaining space",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "bold",
+                        "position": {
+                          "line": 13,
+                          "column": 51
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 13,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "This column has no explicit width, so it takes whatever is left after the fixed left and right columns claim theirs.",
+                    "attributes": [],
+                    "position": {
+                      "line": 14,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Resize the viewport and it grows or shrinks.",
+                    "attributes": [],
+                    "position": {
+                      "line": 15,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          },
+          {
+            "kind": "col",
+            "width": {
+              "kind": "length",
+              "value": 280,
+              "unit": "px"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "panel",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Inspector",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "bold",
+                        "position": {
+                          "line": 18,
+                          "column": 26
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 18,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Type",
+                    "value": "Document",
+                    "attributes": [],
+                    "position": {
+                      "line": 19,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Size",
+                    "value": "42 KB",
+                    "attributes": [],
+                    "position": {
+                      "line": 20,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Modified",
+                    "value": "Today, 14:32",
+                    "attributes": [],
+                    "position": {
+                      "line": 21,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 17,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 16,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Three-column app shell"
+  },
+  "sourceLines": 22
+}

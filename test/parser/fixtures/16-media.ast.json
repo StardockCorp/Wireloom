@@ -1,0 +1,293 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Commander Profile",
+            "attributes": [],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "col",
+            "width": {
+              "kind": "length",
+              "value": 200,
+              "unit": "px"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "image",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "label",
+                    "value": {
+                      "kind": "string",
+                      "value": "Portrait",
+                      "position": {
+                        "line": 6,
+                        "column": 19
+                      }
+                    },
+                    "position": {
+                      "line": 6,
+                      "column": 13
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "width",
+                    "value": {
+                      "kind": "number",
+                      "value": 160,
+                      "unit": "px",
+                      "position": {
+                        "line": 6,
+                        "column": 36
+                      }
+                    },
+                    "position": {
+                      "line": 6,
+                      "column": 30
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "height",
+                    "value": {
+                      "kind": "number",
+                      "value": 160,
+                      "unit": "px",
+                      "position": {
+                        "line": 6,
+                        "column": 47
+                      }
+                    },
+                    "position": {
+                      "line": 6,
+                      "column": 40
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 6,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "col",
+            "width": {
+              "kind": "fill"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "panel",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "kv",
+                    "label": "Name",
+                    "value": "Admiral Kade Voss",
+                    "attributes": [],
+                    "position": {
+                      "line": 9,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Rank",
+                    "value": "Fleet Admiral",
+                    "attributes": [],
+                    "position": {
+                      "line": 10,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "kv",
+                    "label": "Homeworld",
+                    "value": "Arcturus Prime",
+                    "attributes": [],
+                    "position": {
+                      "line": 11,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "row",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "icon",
+                        "attributes": [
+                          {
+                            "kind": "pair",
+                            "key": "name",
+                            "value": {
+                              "kind": "string",
+                              "value": "medal",
+                              "position": {
+                                "line": 13,
+                                "column": 21
+                              }
+                            },
+                            "position": {
+                              "line": 13,
+                              "column": 16
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 13,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "icon",
+                        "attributes": [
+                          {
+                            "kind": "pair",
+                            "key": "name",
+                            "value": {
+                              "kind": "string",
+                              "value": "star",
+                              "position": {
+                                "line": 14,
+                                "column": 21
+                              }
+                            },
+                            "position": {
+                              "line": 14,
+                              "column": 16
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 14,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "icon",
+                        "attributes": [
+                          {
+                            "kind": "pair",
+                            "key": "name",
+                            "value": {
+                              "kind": "string",
+                              "value": "shield",
+                              "position": {
+                                "line": 15,
+                                "column": 21
+                              }
+                            },
+                            "position": {
+                              "line": 15,
+                              "column": 16
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 15,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 12,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 4,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "Edit profile",
+            "attributes": [],
+            "position": {
+              "line": 17,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Close",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 18,
+                  "column": 20
+                }
+              }
+            ],
+            "position": {
+              "line": 18,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 16,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Profile"
+  },
+  "sourceLines": 19
+}

@@ -66,6 +66,25 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
       return measureRow(node, theme);
     case 'col':
       return measureCol(node, theme);
+    // v0.2 primitives — stub measurements. Full layout in the layout todo.
+    case 'section':
+      return measurePanel({ ...node, kind: 'panel' } as PanelNode, theme);
+    case 'tabs':
+      return { width: 200, height: theme.buttonHeight + 4 };
+    case 'list':
+      return measurePanel({ ...node, kind: 'panel' } as PanelNode, theme);
+    case 'slot':
+      return measurePanel({ ...node, kind: 'panel' } as PanelNode, theme);
+    case 'kv':
+      return { width: 240, height: theme.lineHeight };
+    case 'combo':
+      return { width: theme.inputMinWidth, height: theme.inputHeight };
+    case 'slider':
+      return { width: 220, height: theme.lineHeight + 4 };
+    case 'image':
+      return { width: 120, height: 80 };
+    case 'icon':
+      return { width: 20, height: 20 };
   }
 }
 
@@ -110,8 +129,8 @@ function measureRow(node: RowNode, theme: Theme): Size {
 
 function measureCol(node: ColNode, theme: Theme): Size {
   const inner = measureStack(node.children, theme, 'vertical');
-  // Explicit width overrides intrinsic.
-  if (node.width !== undefined && node.width.unit === 'px') {
+  // Explicit pixel width overrides intrinsic sizing.
+  if (node.width.kind === 'length' && node.width.unit === 'px') {
     return { width: node.width.value, height: inner.height };
   }
   return inner;
@@ -130,9 +149,9 @@ function measureStack(
     // against the max content width.
     const maxChildWidth = Math.max(
       0,
-      ...sizes.map((s, i) => (children[i]?.kind === 'divider' ? 0 : s.width)),
+      ...sizes.map((s, i) => (children[i]?.kind === 'divider' ? 0 : (s?.width ?? 0))),
     );
-    const totalChildHeight = sizes.reduce((acc, s) => acc + s.height, 0);
+    const totalChildHeight = sizes.reduce((acc, s) => acc + (s?.height ?? 0), 0);
     const gaps = (children.length - 1) * theme.colGap;
     return { width: maxChildWidth, height: totalChildHeight + gaps };
   }
@@ -431,6 +450,22 @@ function positionContainerChild(
       return positionInput(child, x, y, width, theme);
     case 'divider':
       return positionDivider(child, x, y, width, theme);
+    // v0.2 primitives — stub positions. Real layout lands in the layout todo.
+    case 'section':
+    case 'list':
+    case 'slot':
+    case 'tabs': {
+      const size = measureChild(child, theme);
+      return { node: child, x, y, width, height: size.height, children: [] };
+    }
+    case 'kv':
+    case 'combo':
+    case 'slider':
+    case 'image':
+    case 'icon': {
+      const size = measureChild(child, theme);
+      return { node: child, x, y, width: size.width, height: size.height, children: [] };
+    }
   }
 }
 
@@ -495,7 +530,7 @@ function positionCol(
   theme: Theme,
 ): LaidOutNode {
   const colWidth =
-    node.width !== undefined && node.width.unit === 'px'
+    node.width.kind === 'length' && node.width.unit === 'px'
       ? node.width.value
       : measureCol(node, theme).width;
   const children: LaidOutNode[] = [];

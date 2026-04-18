@@ -12,15 +12,27 @@ import type {
   AttributeValue,
   ButtonNode,
   ColNode,
+  ColWidth,
+  ComboNode,
   ContainerChild,
   DividerNode,
   Document,
   FooterNode,
   HeaderNode,
+  IconNode,
+  ImageNode,
   InputNode,
+  ItemNode,
+  KvNode,
+  ListNode,
   PanelNode,
   RowNode,
+  SectionNode,
+  SliderNode,
+  SlotNode,
   SourcePosition,
+  TabNode,
+  TabsNode,
   TextNode,
   WindowChild,
   WindowNode,
@@ -28,37 +40,134 @@ import type {
 import { WireloomError } from './errors.js';
 import { tokenize, type Token, type TokenKind } from './lexer.js';
 
-/** Attribute rule table — which attributes and flags each primitive accepts. */
-type AttrValueKind = 'string' | 'number' | 'ident';
+// ---------------------------------------------------------------------------
+// Attribute rule system
+// ---------------------------------------------------------------------------
+
+type AttrSpec =
+  | { kind: 'string' }
+  | { kind: 'number' }
+  | { kind: 'range' }
+  | { kind: 'ident' }
+  | { kind: 'enum'; values: readonly string[] };
+
 interface AttrRules {
-  attrs: Record<string, AttrValueKind>;
+  attrs: Record<string, AttrSpec>;
   flags: string[];
 }
+
+const WEIGHT_VALUES = ['light', 'regular', 'semibold', 'bold'] as const;
+const SIZE_VALUES = ['small', 'regular', 'large'] as const;
+const ALIGN_VALUES = ['left', 'center', 'right'] as const;
+const INPUT_TYPE_VALUES = ['text', 'password', 'email'] as const;
 
 const ATTR_RULES: Record<string, AttrRules> = {
   window: { attrs: {}, flags: [] },
   header: { attrs: {}, flags: [] },
   footer: { attrs: {}, flags: [] },
   panel: { attrs: {}, flags: [] },
-  row: { attrs: {}, flags: [] },
+  section: {
+    attrs: { badge: { kind: 'string' } },
+    flags: [],
+  },
+  tabs: { attrs: {}, flags: [] },
+  tab: {
+    attrs: { badge: { kind: 'string' } },
+    flags: ['active'],
+  },
+  row: {
+    attrs: { align: { kind: 'enum', values: ALIGN_VALUES } },
+    flags: [],
+  },
   col: { attrs: {}, flags: [] },
-  text: { attrs: {}, flags: [] },
-  button: { attrs: {}, flags: ['primary', 'disabled'] },
-  input: { attrs: { placeholder: 'string', type: 'ident' }, flags: ['disabled'] },
+  list: { attrs: {}, flags: [] },
+  item: { attrs: {}, flags: [] },
+  slot: { attrs: {}, flags: ['active'] },
+  text: {
+    attrs: {
+      weight: { kind: 'enum', values: WEIGHT_VALUES },
+      size: { kind: 'enum', values: SIZE_VALUES },
+    },
+    flags: ['bold', 'italic', 'muted'],
+  },
+  button: {
+    attrs: { badge: { kind: 'string' } },
+    flags: ['primary', 'disabled'],
+  },
+  input: {
+    attrs: {
+      placeholder: { kind: 'string' },
+      type: { kind: 'enum', values: INPUT_TYPE_VALUES },
+    },
+    flags: ['disabled'],
+  },
+  combo: {
+    attrs: {
+      value: { kind: 'string' },
+      options: { kind: 'string' },
+    },
+    flags: ['disabled'],
+  },
+  slider: {
+    attrs: {
+      range: { kind: 'range' },
+      value: { kind: 'number' },
+      label: { kind: 'string' },
+    },
+    flags: ['disabled'],
+  },
+  kv: {
+    attrs: {
+      weight: { kind: 'enum', values: WEIGHT_VALUES },
+      size: { kind: 'enum', values: SIZE_VALUES },
+    },
+    flags: ['bold', 'italic', 'muted'],
+  },
+  image: {
+    attrs: {
+      label: { kind: 'string' },
+      width: { kind: 'number' },
+      height: { kind: 'number' },
+    },
+    flags: [],
+  },
+  icon: {
+    attrs: { name: { kind: 'string' } },
+    flags: [],
+  },
   divider: { attrs: {}, flags: [] },
 };
 
 const VALID_PRIMITIVES = new Set(Object.keys(ATTR_RULES));
 
+/** Primitives allowed as direct children of a general container (panel/section/row/col/slot/header/footer). */
 const CONTAINER_CHILD_PRIMITIVES = new Set([
   'panel',
+  'section',
+  'tabs',
   'row',
   'col',
+  'list',
+  'slot',
   'text',
   'button',
   'input',
+  'combo',
+  'slider',
+  'kv',
+  'image',
+  'icon',
   'divider',
 ]);
+
+const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
+
+const PRIMITIVE_LIST_HUMAN =
+  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, text, button, input, combo, slider, kv, image, icon, divider';
+
+// ---------------------------------------------------------------------------
+// Public entry point
+// ---------------------------------------------------------------------------
 
 export function parse(source: string): Document {
   const tokens = tokenize(source);
@@ -110,10 +219,10 @@ class Parser {
     return { kind: 'document', root, sourceLines };
   }
 
-  // -- Window ----------------------------------------------------------------
+  // --- Window ---------------------------------------------------------------
 
   private parseWindow(): WindowNode {
-    const head = this.consume(); // 'window' ident
+    const head = this.consume();
     const position = positionOf(head);
 
     let title: string | undefined;
@@ -135,8 +244,7 @@ class Parser {
   private parseWindowChildren(): WindowChild[] {
     const children: WindowChild[] = [];
     while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
-      const child = this.parseWindowChild();
-      children.push(child);
+      children.push(this.parseWindowChild());
     }
     this.expectKind('dedent', 'children block did not close cleanly');
     return children;
@@ -162,15 +270,29 @@ class Parser {
         head.column,
       );
     }
+    if (name === 'tab') {
+      throw new WireloomError(
+        '"tab" may only appear inside "tabs"',
+        head.line,
+        head.column,
+      );
+    }
+    if (name === 'item') {
+      throw new WireloomError(
+        '"item" may only appear inside "list"',
+        head.line,
+        head.column,
+      );
+    }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
     return this.parseContainerChildNamed(name);
   }
 
-  // -- Header / Footer -------------------------------------------------------
+  // --- Header / Footer ------------------------------------------------------
 
   private parseHeader(): HeaderNode {
-    const head = this.consume(); // 'header'
+    const head = this.consume();
     const position = positionOf(head);
     const attributes = this.parseAttributes('header');
     const hasChildren = this.parseTerminator('header', head);
@@ -179,7 +301,7 @@ class Parser {
   }
 
   private parseFooter(): FooterNode {
-    const head = this.consume(); // 'footer'
+    const head = this.consume();
     const position = positionOf(head);
     const attributes = this.parseAttributes('footer');
     const hasChildren = this.parseTerminator('footer', head);
@@ -187,13 +309,12 @@ class Parser {
     return { kind: 'footer', attributes, children, position };
   }
 
-  // -- Container children (panel/row/col + leaves) ---------------------------
+  // --- Container children ---------------------------------------------------
 
   private parseContainerChildren(): ContainerChild[] {
     const children: ContainerChild[] = [];
     while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
-      const child = this.parseContainerChild();
-      children.push(child);
+      children.push(this.parseContainerChild());
     }
     this.expectKind('dedent', 'children block did not close cleanly');
     return children;
@@ -213,11 +334,17 @@ class Parser {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      throw new WireloomError(
-        `"${name}" is not allowed here (legal inside a container: panel, row, col, text, button, input, divider)`,
-        head.line,
-        head.column,
-      );
+      const reason =
+        name === 'tab'
+          ? '"tab" may only appear inside "tabs"'
+          : name === 'item'
+            ? '"item" may only appear inside "list"'
+            : name === 'header' || name === 'footer'
+              ? `"${name}" may only appear directly inside "window"`
+              : name === 'window'
+                ? '"window" cannot be nested'
+                : `"${name}" is not allowed here`;
+      throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
   }
@@ -226,16 +353,34 @@ class Parser {
     switch (name) {
       case 'panel':
         return this.parsePanel();
+      case 'section':
+        return this.parseSection();
+      case 'tabs':
+        return this.parseTabs();
       case 'row':
         return this.parseRow();
       case 'col':
         return this.parseCol();
+      case 'list':
+        return this.parseList();
+      case 'slot':
+        return this.parseSlot();
       case 'text':
         return this.parseText();
       case 'button':
         return this.parseButton();
       case 'input':
         return this.parseInput();
+      case 'combo':
+        return this.parseCombo();
+      case 'slider':
+        return this.parseSlider();
+      case 'kv':
+        return this.parseKv();
+      case 'image':
+        return this.parseImage();
+      case 'icon':
+        return this.parseIcon();
       case 'divider':
         return this.parseDivider();
       default: {
@@ -245,6 +390,8 @@ class Parser {
     }
   }
 
+  // --- Panel / Section / Row / Col ------------------------------------------
+
   private parsePanel(): PanelNode {
     const head = this.consume();
     const position = positionOf(head);
@@ -252,6 +399,65 @@ class Parser {
     const hasChildren = this.parseTerminator('panel', head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     return { kind: 'panel', attributes, children, position };
+  }
+
+  private parseSection(): SectionNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const title = this.expectKind(
+      'string',
+      '"section" requires a title string (e.g., section "Economy":)',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('section');
+    const hasChildren = this.parseTerminator('section', head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    return { kind: 'section', title, attributes, children, position };
+  }
+
+  private parseTabs(): TabsNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('tabs');
+    const hasChildren = this.parseTerminator('tabs', head);
+    const children = hasChildren ? this.parseTabChildren() : [];
+    return { kind: 'tabs', attributes, children, position };
+  }
+
+  private parseTabChildren(): TabNode[] {
+    const children: TabNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected a "tab" primitive, got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'tab') {
+        throw new WireloomError(
+          `"tabs" accepts only "tab" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseTab());
+    }
+    this.expectKind('dedent', 'tabs block did not close cleanly');
+    return children;
+  }
+
+  private parseTab(): TabNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"tab" requires a string label (e.g., tab "Government")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('tab');
+    this.parseLeafTerminator('tab', head);
+    return { kind: 'tab', label, attributes, position };
   }
 
   private parseRow(): RowNode {
@@ -266,26 +472,95 @@ class Parser {
   private parseCol(): ColNode {
     const head = this.consume();
     const position = positionOf(head);
-    const node: ColNode = {
-      kind: 'col',
-      attributes: [],
-      children: [],
-      position,
-    };
-    if (this.peek().kind === 'number') {
+
+    let width: ColWidth = { kind: 'fill' };
+
+    // Optional width positional: either a NUMBER or the bare identifier `fill`.
+    const next = this.peek();
+    if (next.kind === 'number') {
       const tok = this.consume();
-      node.width = {
+      width = {
+        kind: 'length',
         value: tok.numericValue ?? 0,
         unit: tok.unit ?? 'px',
       };
+    } else if (next.kind === 'ident' && next.identValue === 'fill') {
+      this.consume();
+      width = { kind: 'fill' };
     }
-    node.attributes = this.parseAttributes('col');
+
+    const attributes = this.parseAttributes('col');
     const hasChildren = this.parseTerminator('col', head);
-    node.children = hasChildren ? this.parseContainerChildren() : [];
-    return node;
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    return { kind: 'col', width, attributes, children, position };
   }
 
-  // -- Leaves ----------------------------------------------------------------
+  // --- List / Item / Slot ---------------------------------------------------
+
+  private parseList(): ListNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('list');
+    const hasChildren = this.parseTerminator('list', head);
+    const children = hasChildren ? this.parseListChildren() : [];
+    return { kind: 'list', attributes, children, position };
+  }
+
+  private parseListChildren(): (ItemNode | SlotNode)[] {
+    const children: (ItemNode | SlotNode)[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "item" or "slot", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (!LIST_CHILD_PRIMITIVES.has(name)) {
+        throw new WireloomError(
+          `"list" accepts only "item" or "slot" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      if (name === 'item') {
+        children.push(this.parseItem());
+      } else {
+        children.push(this.parseSlot());
+      }
+    }
+    this.expectKind('dedent', 'list block did not close cleanly');
+    return children;
+  }
+
+  private parseItem(): ItemNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const text = this.expectKind(
+      'string',
+      '"item" requires a string text argument (e.g., item "Home")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('item');
+    this.parseLeafTerminator('item', head);
+    return { kind: 'item', text, attributes, position };
+  }
+
+  private parseSlot(): SlotNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const title = this.expectKind(
+      'string',
+      '"slot" requires a title string (e.g., slot "Colonial Defense Pact":)',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('slot');
+    const hasChildren = this.parseTerminator('slot', head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    return { kind: 'slot', title, attributes, children, position };
+  }
+
+  // --- Leaves ---------------------------------------------------------------
 
   private parseText(): TextNode {
     const head = this.consume();
@@ -319,6 +594,60 @@ class Parser {
     return { kind: 'input', attributes, position };
   }
 
+  private parseCombo(): ComboNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    let label: string | undefined;
+    if (this.peek().kind === 'string') {
+      label = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes('combo');
+    this.parseLeafTerminator('combo', head);
+    const node: ComboNode = { kind: 'combo', attributes, position };
+    if (label !== undefined) node.label = label;
+    return node;
+  }
+
+  private parseSlider(): SliderNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('slider');
+    this.parseLeafTerminator('slider', head);
+    return { kind: 'slider', attributes, position };
+  }
+
+  private parseKv(): KvNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"kv" requires a label string (e.g., kv "Tax Rate" "30%")',
+    ).stringValue ?? '';
+    const value = this.expectKind(
+      'string',
+      '"kv" requires a value string after the label (e.g., kv "Tax Rate" "30%")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('kv');
+    this.parseLeafTerminator('kv', head);
+    return { kind: 'kv', label, value, attributes, position };
+  }
+
+  private parseImage(): ImageNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('image');
+    this.parseLeafTerminator('image', head);
+    return { kind: 'image', attributes, position };
+  }
+
+  private parseIcon(): IconNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('icon');
+    this.parseLeafTerminator('icon', head);
+    return { kind: 'icon', attributes, position };
+  }
+
   private parseDivider(): DividerNode {
     const head = this.consume();
     const position = positionOf(head);
@@ -327,7 +656,7 @@ class Parser {
     return { kind: 'divider', attributes, position };
   }
 
-  // -- Attributes and terminators -------------------------------------------
+  // --- Attributes / terminators --------------------------------------------
 
   private parseAttributes(primitive: string): Attribute[] {
     const rules = ATTR_RULES[primitive] ?? { attrs: {}, flags: [] };
@@ -340,15 +669,15 @@ class Parser {
 
       if (this.match('equals')) {
         const valueTok = this.consume();
-        const expectedKind = rules.attrs[key];
-        if (expectedKind === undefined) {
+        const spec = rules.attrs[key];
+        if (spec === undefined) {
           throw new WireloomError(
             `unknown attribute "${key}" on "${primitive}"`,
             keyTok.line,
             keyTok.column,
           );
         }
-        const value = coerceAttributeValue(valueTok, expectedKind, key, primitive);
+        const value = coerceAttributeValue(valueTok, spec, key, primitive);
         const pair: AttributePair = { kind: 'pair', key, value, position };
         attrs.push(pair);
       } else {
@@ -395,7 +724,7 @@ class Parser {
     this.expectKind('newline', `expected newline after "${primitive}"`);
   }
 
-  // -- Token helpers ---------------------------------------------------------
+  // --- Token helpers --------------------------------------------------------
 
   private peek(offset = 0): Token {
     const idx = this.pos + offset;
@@ -430,6 +759,10 @@ class Parser {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 function positionOf(token: Token): SourcePosition {
   return { line: token.line, column: token.column };
 }
@@ -442,6 +775,8 @@ function describeToken(token: Token): string {
       return `string ${JSON.stringify(token.stringValue ?? '')}`;
     case 'number':
       return `number ${token.numericValue}`;
+    case 'range':
+      return `range ${token.rangeMin}-${token.rangeMax}`;
     case 'newline':
       return 'end of line';
     case 'eof':
@@ -459,51 +794,95 @@ function describeToken(token: Token): string {
 
 function coerceAttributeValue(
   token: Token,
-  expected: AttrValueKind,
+  spec: AttrSpec,
   key: string,
   primitive: string,
 ): AttributeValue {
   const position = positionOf(token);
-  if (expected === 'string') {
-    if (token.kind !== 'string') {
-      throw new WireloomError(
-        `attribute "${key}" on "${primitive}" expects a string value, got ${describeToken(token)}`,
-        token.line,
-        token.column,
-      );
+
+  switch (spec.kind) {
+    case 'string':
+      if (token.kind !== 'string') {
+        throw new WireloomError(
+          `attribute "${key}" on "${primitive}" expects a string value, got ${describeToken(token)}`,
+          token.line,
+          token.column,
+        );
+      }
+      return { kind: 'string', value: token.stringValue ?? '', position };
+
+    case 'number':
+      if (token.kind !== 'number') {
+        throw new WireloomError(
+          `attribute "${key}" on "${primitive}" expects a number value, got ${describeToken(token)}`,
+          token.line,
+          token.column,
+        );
+      }
+      return {
+        kind: 'number',
+        value: token.numericValue ?? 0,
+        unit: token.unit ?? 'px',
+        position,
+      };
+
+    case 'range':
+      if (token.kind !== 'range') {
+        throw new WireloomError(
+          `attribute "${key}" on "${primitive}" expects a range value like "0-100", got ${describeToken(token)}`,
+          token.line,
+          token.column,
+        );
+      }
+      if ((token.rangeMax ?? 0) <= (token.rangeMin ?? 0)) {
+        throw new WireloomError(
+          `range must be N-M with M > N, got "${token.rangeMin}-${token.rangeMax}"`,
+          token.line,
+          token.column,
+        );
+      }
+      return {
+        kind: 'range',
+        min: token.rangeMin ?? 0,
+        max: token.rangeMax ?? 0,
+        position,
+      };
+
+    case 'ident':
+      if (token.kind !== 'ident') {
+        throw new WireloomError(
+          `attribute "${key}" on "${primitive}" expects an identifier value, got ${describeToken(token)}`,
+          token.line,
+          token.column,
+        );
+      }
+      return {
+        kind: 'identifier',
+        value: token.identValue ?? token.raw,
+        position,
+      };
+
+    case 'enum': {
+      if (token.kind !== 'ident') {
+        throw new WireloomError(
+          `attribute "${key}" on "${primitive}" expects an identifier value, got ${describeToken(token)}`,
+          token.line,
+          token.column,
+        );
+      }
+      const value = token.identValue ?? token.raw;
+      if (!spec.values.includes(value)) {
+        throw new WireloomError(
+          `"${value}" is not a valid ${key} on "${primitive}" (expected one of: ${spec.values.join(', ')})`,
+          token.line,
+          token.column,
+        );
+      }
+      return { kind: 'identifier', value, position };
     }
-    return { kind: 'string', value: token.stringValue ?? '', position };
   }
-  if (expected === 'number') {
-    if (token.kind !== 'number') {
-      throw new WireloomError(
-        `attribute "${key}" on "${primitive}" expects a number value, got ${describeToken(token)}`,
-        token.line,
-        token.column,
-      );
-    }
-    return {
-      kind: 'number',
-      value: token.numericValue ?? 0,
-      unit: token.unit ?? 'px',
-      position,
-    };
-  }
-  // expected === 'ident'
-  if (token.kind !== 'ident') {
-    throw new WireloomError(
-      `attribute "${key}" on "${primitive}" expects an identifier value, got ${describeToken(token)}`,
-      token.line,
-      token.column,
-    );
-  }
-  return {
-    kind: 'identifier',
-    value: token.identValue ?? token.raw,
-    position,
-  };
 }
 
 function unknownPrimitiveMessage(name: string): string {
-  return `unknown primitive "${name}" (valid: window, header, footer, panel, row, col, text, button, input, divider)`;
+  return `unknown primitive "${name}" (valid: ${PRIMITIVE_LIST_HUMAN})`;
 }
