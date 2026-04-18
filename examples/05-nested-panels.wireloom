@@ -1,0 +1,8 @@
+window:
+  panel:
+    text "Outer panel"
+    panel:
+      text "Middle panel"
+      panel:
+        text "Inner panel"
+        text "Three levels deep"

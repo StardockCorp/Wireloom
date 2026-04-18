@@ -1,0 +1,7 @@
+window "Confirm":
+  panel:
+    text "Are you sure you want to continue?"
+    text "This action cannot be undone."
+  footer:
+    button "Cancel"
+    button "Continue" primary

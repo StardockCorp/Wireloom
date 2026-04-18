@@ -1,0 +1,19 @@
+window "Settings":
+  header:
+    text "Application Settings"
+  panel:
+    text "Appearance"
+    row:
+      text "Theme"
+      input placeholder="Dark"
+    row:
+      text "Font size"
+      input placeholder="14"
+  panel:
+    text "Privacy"
+    row:
+      text "Telemetry"
+      input placeholder="Enabled"
+  footer:
+    button "Cancel"
+    button "Save" primary

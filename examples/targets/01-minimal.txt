@@ -1,0 +1,13 @@
+Target rendering for examples/01-minimal.wireloom
+===================================================
+
+┌──────────────────────────────────┐
+│                                  │
+│        Hello, Wireloom           │
+│                                  │
+└──────────────────────────────────┘
+
+Notes:
+- Window is the outermost frame.
+- No title bar since `window` has no positional arg.
+- Single text node is centered vertically; left-padded by default inside the window.

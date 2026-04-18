@@ -1,0 +1,10 @@
+window "Button showcase":
+  panel:
+    text "Default button:"
+    button "Default"
+    text "Primary button:"
+    button "Save" primary
+    text "Disabled button:"
+    button "Unavailable" disabled
+    text "Primary and disabled:"
+    button "Submit" primary disabled

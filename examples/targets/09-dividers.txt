@@ -1,0 +1,24 @@
+Target rendering for examples/09-dividers.wireloom
+===================================================
+
+┌────────────────────────────────────────┐
+│             Divided layout             │
+├────────────────────────────────────────┤
+│                                        │
+│  ┌──────────────────────────────────┐  │
+│  │ Top section                      │  │
+│  │ More top content                 │  │
+│  │ ──────────────────────────────── │  │
+│  │ Middle section                   │  │
+│  │ More middle content              │  │
+│  │ ──────────────────────────────── │  │
+│  │ Bottom section                   │  │
+│  │ Final content                    │  │
+│  └──────────────────────────────────┘  │
+│                                        │
+└────────────────────────────────────────┘
+
+Notes:
+- `divider` renders as a horizontal rule spanning the width of its parent container.
+- Vertical spacing above and below each divider is consistent.
+- Dividers are visual separators only; they do not affect layout geometry beyond their own height.

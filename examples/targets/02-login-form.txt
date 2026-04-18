@@ -1,0 +1,28 @@
+Target rendering for examples/02-login-form.wireloom
+=====================================================
+
+┌──────────────────────────────────────────┐
+│                 Sign in                  │
+├──────────────────────────────────────────┤
+│            Welcome back                  │
+├──────────────────────────────────────────┤
+│                                          │
+│  ┌────────────────────────────────────┐  │
+│  │ Email                              │  │
+│  ├────────────────────────────────────┤  │
+│  │ Password                           │  │
+│  ├────────────────────────────────────┤  │
+│  │              [ Sign in ]           │  │
+│  └────────────────────────────────────┘  │
+│                                          │
+├──────────────────────────────────────────┤
+│        Forgot your password?             │
+└──────────────────────────────────────────┘
+
+Notes:
+- `window "Sign in"` renders the title in a centered title bar at the top.
+- `header:` renders as a separated band below the title bar.
+- `panel:` renders as a dashed-border content area with its children stacked vertically.
+- `input placeholder="Email"` shows the placeholder text inside a bordered field.
+- `button "Sign in" primary` renders with emphasized stroke (depicted here with square brackets).
+- `footer:` renders as a separated band at the bottom.

@@ -1,0 +1,9 @@
+window "Sign in":
+  header:
+    text "Welcome back"
+  panel:
+    input placeholder="Email" type=email
+    input placeholder="Password" type=password
+    button "Sign in" primary
+  footer:
+    text "Forgot your password?"

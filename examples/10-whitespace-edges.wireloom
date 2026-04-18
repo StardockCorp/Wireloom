@@ -1,0 +1,23 @@
+# Comment at the top of the file
+# Multi-line comment block
+# demonstrating that comments stack cleanly
+
+window "Whitespace test":
+
+  # Comment inside the window block
+  header:
+    text "Header text"
+
+  # Blank line above, comment here
+  panel:
+    text "Main content"
+
+    # Comment between leaf nodes
+
+    text "More content below a blank line"
+    # Inline-style comment before a leaf
+    text "Last content item"
+
+  footer:
+    # Comment before a leaf
+    button "OK" primary

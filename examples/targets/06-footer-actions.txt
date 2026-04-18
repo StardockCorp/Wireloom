@@ -1,0 +1,21 @@
+Target rendering for examples/06-footer-actions.wireloom
+=========================================================
+
+┌──────────────────────────────────────────────┐
+│                   Confirm                    │
+├──────────────────────────────────────────────┤
+│                                              │
+│  ┌────────────────────────────────────────┐  │
+│  │ Are you sure you want to continue?     │  │
+│  │ This action cannot be undone.          │  │
+│  └────────────────────────────────────────┘  │
+│                                              │
+├──────────────────────────────────────────────┤
+│                     [ Cancel ] [ Continue ]  │
+└──────────────────────────────────────────────┘
+
+Notes:
+- Footer buttons are laid out horizontally, right-aligned by default.
+- `button "Continue" primary` renders with emphasized stroke (shown as brackets).
+- `button "Cancel"` is the default style (non-emphasized).
+- Panel content is stacked vertically with two text lines.

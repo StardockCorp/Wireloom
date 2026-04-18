@@ -1,0 +1,10 @@
+window "Split View":
+  row:
+    col 240:
+      text "Left column"
+      text "Sidebar content"
+      text "More items"
+    col:
+      text "Right column"
+      text "Main content here"
+      text "Lots of space"

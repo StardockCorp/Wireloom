@@ -1,0 +1,10 @@
+window "Divided layout":
+  panel:
+    text "Top section"
+    text "More top content"
+    divider
+    text "Middle section"
+    text "More middle content"
+    divider
+    text "Bottom section"
+    text "Final content"

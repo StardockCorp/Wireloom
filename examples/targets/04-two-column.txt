@@ -1,0 +1,20 @@
+Target rendering for examples/04-two-column.wireloom
+=====================================================
+
+┌────────────────────────────────────────────────────────┐
+│                      Split View                        │
+├────────────────────────────┬───────────────────────────┤
+│ Left column                │ Right column              │
+│ Sidebar content            │ Main content here         │
+│ More items                 │ Lots of space             │
+│                            │                           │
+│                            │                           │
+│                            │                           │
+└────────────────────────────┴───────────────────────────┘
+
+Notes:
+- `row:` renders its children side-by-side, filling the available width.
+- `col 240:` is a fixed-width column of 240 pixels (depicted here as roughly the left 40% of content width).
+- `col:` with no width takes the remaining space (fills).
+- Both columns stack their children vertically.
+- A vertical divider separates the columns.

@@ -1,0 +1,7 @@
+window "Sign up":
+  panel:
+    input placeholder="Full name"
+    input placeholder="Email address" type=email
+    input placeholder="Password" type=password
+    input placeholder="Confirm password" type=password
+    button "Create account" primary
