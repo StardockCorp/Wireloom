@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="348.8" height="376" viewBox="0 0 348.8 376" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="348.8" height="376" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="347.8" height="375" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="348.8" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="174.4" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Settings</text>
+<line x1="0" y1="76" x2="348.8" y2="76" stroke="#b0b0b0" stroke-width="1" />
+<text x="102.4" y="61" fill="#2d2d2d">Application Settings</text>
+<rect x="16.5" y="92.5" width="315.8" height="123" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="119" fill="#2d2d2d">Appearance</text>
+<text x="28" y="147" fill="#2d2d2d">Theme</text>
+<g opacity="1">
+<rect x="72.5" y="132.5" width="219" height="31" fill="#ffffff" stroke="#8a8a8a" stroke-width="1" rx="2" />
+<text x="84" y="152.66666666666666" fill="#9aa0a6">Dark</text>
+</g>
+<text x="28" y="187" fill="#2d2d2d">Font size</text>
+<g opacity="1">
+<rect x="101.3" y="172.5" width="219" height="31" fill="#ffffff" stroke="#8a8a8a" stroke-width="1" rx="2" />
+<text x="112.8" y="192.66666666666666" fill="#9aa0a6">14</text>
+</g>
+<rect x="16.5" y="224.5" width="315.8" height="83" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="251" fill="#2d2d2d">Privacy</text>
+<text x="28" y="279" fill="#2d2d2d">Telemetry</text>
+<g opacity="1">
+<rect x="101.3" y="264.5" width="219" height="31" fill="#ffffff" stroke="#8a8a8a" stroke-width="1" rx="2" />
+<text x="112.8" y="284.6666666666667" fill="#9aa0a6">Enabled</text>
+</g>
+<line x1="0" y1="324" x2="348.8" y2="324" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="189.3" y="334.5" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="226.4" y="354.6666666666667" text-anchor="middle" fill="#2d2d2d">Cancel</text>
+</g>
+<g opacity="1">
+<rect x="272.5" y="334.5" width="59.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="302.4" y="354.6666666666667" text-anchor="middle" fill="#ffffff">Save</text>
+</g>
+</svg>

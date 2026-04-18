@@ -17,10 +17,12 @@
 import { mergeConfig, type WireloomConfig } from './config.js';
 import type { Document } from './parser/ast.js';
 import { parse as parseSource } from './parser/parser.js';
+import { renderWireframe } from './renderer/index.js';
 
 export type { WireloomConfig, WireloomTheme, WireloomSecurityLevel } from './config.js';
 export type * from './parser/ast.js';
 export { WireloomError } from './parser/errors.js';
+export { DEFAULT_THEME, DARK_THEME, type Theme } from './renderer/themes.js';
 
 export interface RenderResult {
   svg: string;
@@ -44,17 +46,11 @@ export function parse(source: string): Document {
 
 /**
  * Parses and renders a Wireloom source string to an SVG string.
- *
- * v0.1 stub: returns a placeholder SVG. The real renderer lands in the
- * renderer todo, at which point the output will match the visual contract
- * in examples/targets/.
+ * Throws {@link WireloomError} with line/column info on parse failure.
  */
 export async function render(id: string, source: string): Promise<RenderResult> {
-  void id;
-  void source;
-  return {
-    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0"><!-- wireloom stub --></svg>',
-  };
+  const svg = renderWireframe(source, { id });
+  return { svg };
 }
 
 const wireloom = { initialize, parse, render };

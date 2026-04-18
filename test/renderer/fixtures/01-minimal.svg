@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="52" viewBox="0 0 140 52" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="140" height="52" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="139" height="51" fill="none" stroke="#505050" stroke-width="1.25" />
+<text x="16" y="31" fill="#2d2d2d">Hello, Wireloom</text>
+</svg>

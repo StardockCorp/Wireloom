@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300.8" height="192" viewBox="0 0 300.8 192" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="300.8" height="192" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="299.8" height="191" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="300.8" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="150.4" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Confirm</text>
+<rect x="16.5" y="52.5" width="267.8" height="71" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="79" fill="#2d2d2d">Are you sure you want to continue?</text>
+<text x="28" y="107" fill="#2d2d2d">This action cannot be undone.</text>
+<line x1="0" y1="140" x2="300.8" y2="140" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="112.5" y="150.5" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="149.6" y="170.66666666666666" text-anchor="middle" fill="#2d2d2d">Cancel</text>
+</g>
+<g opacity="1">
+<rect x="195.7" y="150.5" width="88.6" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="240" y="170.66666666666666" text-anchor="middle" fill="#ffffff">Continue</text>
+</g>
+</svg>

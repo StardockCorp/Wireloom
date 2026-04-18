@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="226.4" height="208" viewBox="0 0 226.4 208" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="226.4" height="208" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="225.4" height="207" fill="none" stroke="#505050" stroke-width="1.25" />
+<rect x="16.5" y="16.5" width="193.4" height="175" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="43" fill="#2d2d2d">Outer panel</text>
+<rect x="28.5" y="56.5" width="169.4" height="123" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="40" y="83" fill="#2d2d2d">Middle panel</text>
+<rect x="40.5" y="96.5" width="145.4" height="71" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="52" y="123" fill="#2d2d2d">Inner panel</text>
+<text x="52" y="151" fill="#2d2d2d">Three levels deep</text>
+</svg>

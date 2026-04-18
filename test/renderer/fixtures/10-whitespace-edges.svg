@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="279.20000000000005" height="260" viewBox="0 0 279.20000000000005 260" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="279.20000000000005" height="260" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="278.20000000000005" height="259" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="279.20000000000005" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="139.60000000000002" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Whitespace test</text>
+<line x1="0" y1="76" x2="279.20000000000005" y2="76" stroke="#b0b0b0" stroke-width="1" />
+<text x="100.00000000000003" y="61" fill="#2d2d2d">Header text</text>
+<rect x="16.5" y="92.5" width="246.20000000000005" height="99" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="119" fill="#2d2d2d">Main content</text>
+<text x="28" y="147" fill="#2d2d2d">More content below a blank line</text>
+<text x="28" y="175" fill="#2d2d2d">Last content item</text>
+<line x1="0" y1="208" x2="279.20000000000005" y2="208" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="217.30000000000004" y="218.5" width="45.4" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="240.00000000000003" y="238.66666666666666" text-anchor="middle" fill="#ffffff">OK</text>
+</g>
+</svg>

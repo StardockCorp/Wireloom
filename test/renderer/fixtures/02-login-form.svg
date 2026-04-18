@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="284" viewBox="0 0 276 284" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="276" height="284" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="275" height="283" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="276" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="138" y="23.333333333333332" text-anchor="middle" font-size="16" fill="#2d2d2d">Sign in</text>
+<line x1="0" y1="76" x2="276" y2="76" stroke="#b0b0b0" stroke-width="1" />
+<text x="94.8" y="61" fill="#2d2d2d">Welcome back</text>
+<rect x="16.5" y="92.5" width="243" height="135" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<g opacity="1">
+<rect x="28.5" y="104.5" width="219" height="31" fill="#ffffff" stroke="#8a8a8a" stroke-width="1" rx="2" />
+<text x="40" y="124.66666666666667" fill="#9aa0a6">Email</text>
+</g>
+<g opacity="1">
+<rect x="28.5" y="144.5" width="219" height="31" fill="#ffffff" stroke="#8a8a8a" stroke-width="1" rx="2" />
+<text x="40" y="164.66666666666666" fill="#9aa0a6">Password</text>
+</g>
+<g opacity="1">
+<rect x="28.5" y="184.5" width="81.4" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="69.2" y="204.66666666666666" text-anchor="middle" fill="#ffffff">Sign in</text>
+</g>
+<line x1="0" y1="244" x2="276" y2="244" stroke="#b0b0b0" stroke-width="1" />
+<text x="108.79999999999998" y="269" fill="#2d2d2d">Forgot your password?</text>
+</svg>
