@@ -1,0 +1,186 @@
+# Colonial Charter screen from Galactic Civilizations IV
+# Pushes v0.1 thin-slice primitives to their limit. Notes on missing
+# features (right-alignment, kv pairs, tabs, badges, section headers,
+# fill widths) inline below.
+
+window "CIVILIZATION":
+  header:
+    text "Colonial Charter"
+
+  # Tab bar — faked with a row of buttons since v0.1 has no `tabs`.
+  row:
+    button "Government" primary
+    button "Leaders"
+    button "Ministers"
+    button "Diplomats"
+    button "Governors"
+    button "Commanders"
+    button "Institutions"
+    button "Parties"
+
+  row:
+
+    # Left column: ECONOMY, GROSS INCOME, EXPENSES, NET INCOME, CIVILIZATION.
+    col 340:
+
+      panel:
+        text "ECONOMY"
+        row:
+          text "Tax Rate"
+          text "30%"
+        row:
+          text "Approval"
+          text "Content (72%)"
+
+      panel:
+        text "GROSS INCOME"
+        row:
+          text "Colony Income"
+          text "+612"
+        row:
+          text "Trade Routes"
+          text "+145"
+        row:
+          text "Treaty Income"
+          text "+62"
+        row:
+          text "Tax Rate (30%)"
+          text "+28"
+        divider
+        row:
+          text "Total Income"
+          text "+847 bc"
+
+      panel:
+        text "EXPENSES"
+        row:
+          text "Ship Maintenance"
+          text "-245"
+        row:
+          text "Colony Maintenance"
+          text "-180"
+        row:
+          text "Starbase Maintenance"
+          text "-95"
+        row:
+          text "Treaty Maintenance"
+          text "-52"
+        row:
+          text "Policy Maintenance"
+          text "-40"
+        divider
+        row:
+          text "Total Expenses"
+          text "-612 bc"
+
+      panel:
+        row:
+          text "NET INCOME"
+          text "+235 bc"
+        row:
+          text "Treasury"
+          text "4,250 bc"
+
+      panel:
+        text "CIVILIZATION"
+        row:
+          text "Government"
+          text "Colonial Charter"
+        row:
+          text "Colonies"
+          text "12"
+        row:
+          text "Citizens"
+          text "24.5B"
+
+    # Center column: ENACTED POLICIES list. The "4 of 7 slots filled"
+    # counter would be a `badge` in v0.2; today it's appended to the
+    # section title as plain text.
+    col 520:
+      panel:
+        text "ENACTED POLICIES — 4 of 7 slots filled"
+
+        panel:
+          text "Colonial Defense Pact"
+          text "+15% Planetary Defense"
+          text "All colonies gain defensive bonuses"
+
+        panel:
+          text "Free Market Initiative"
+          text "+10% Income, -5% Approval"
+          text "Deregulated trade increases revenue"
+
+        panel:
+          text "Research Subsidies"
+          text "+20% Research Output"
+          text "Government funded research programs"
+          button "Revoke"
+
+        panel:
+          text "Cultural Exchange"
+          text "+10% Influence, +5% Tourism"
+          text "Interstellar cultural programs"
+
+        panel:
+          text "Empty Policy Slot"
+
+        panel:
+          text "Empty Policy Slot"
+
+        panel:
+          text "Empty Policy Slot"
+
+    # Right column: AVAILABLE POLICIES. Each entry would be a `slot`
+    # primitive in v0.2 (name / effect / description / cost / action).
+    col 360:
+      panel:
+        text "AVAILABLE POLICIES"
+
+        panel:
+          text "Frontier Expansion"
+          text "+20% Colony Speed, +10% Growth"
+          text "Prioritize outward expansion"
+          row:
+            text "2 Admin"
+            button "Enact" primary
+
+        panel:
+          text "Militia Training"
+          text "+15% Planetary Defense, +10% Military"
+          text "Arm the colonists"
+          row:
+            text "3 Admin"
+            button "Enact" primary
+
+        panel:
+          text "Trade Agreements"
+          text "+20% Trade Route Income"
+          text "Establish favorable trade terms"
+          row:
+            text "2 Admin"
+            button "Enact" primary
+
+        panel:
+          text "Infrastructure Investment"
+          text "+15% Manufacturing, +10% Growth"
+          text "Build foundational industry"
+          row:
+            text "3 Admin"
+            button "Enact" primary
+
+        panel:
+          text "Diplomatic Corps"
+          text "+15% Influence, +10% Diplomacy"
+          text "Invest in foreign relations"
+          row:
+            text "2 Admin"
+            button "Enact" primary
+
+        panel:
+          text "Pioneer Spirit"
+          text "+15% Approval, +10% Morale"
+          text "Foster community and purpose"
+
+  footer:
+    button "Change Government"
+    button "Done" primary
