@@ -1,6 +1,6 @@
 {
   "name": "wireloom",
-  "version": "0.0.1",
+  "version": "0.3.0",
   "description": "UI wireframe mockups from a Markdown-embedded DSL, rendered as inline SVG.",
   "license": "MIT",
   "author": "Brad Wardell",
@@ -18,7 +18,8 @@
   "files": [
     "dist",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsup",

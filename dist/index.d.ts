@@ -278,16 +278,13 @@ declare const DARK_THEME: Theme;
  * Wireloom — UI wireframe mockups from a Markdown-embedded DSL,
  * rendered as inline SVG.
  *
- * Public API (three calls, matching the well-established text-diagram-library
- * shape):
+ * Public API, shaped like other text-to-diagram libraries:
  *
  *   import wireloom from 'wireloom';
  *   wireloom.initialize({ theme: 'default' });
- *   const ast = wireloom.parse(source);
+ *   const doc = wireloom.parse(source);
  *   const { svg } = await wireloom.render('id', source);
- *
- * The parser and renderer are currently stubs. Real implementations land in
- * the parser and renderer todos.
+ *   const canonical = wireloom.serialize(doc);
  */
 
 interface RenderResult {
@@ -323,6 +320,7 @@ declare function render(id: string, source: string, options?: RenderOptions): Pr
 declare const wireloom: {
     initialize: typeof initialize;
     parse: typeof parse;
+    serialize: typeof serialize;
     render: typeof render;
 };
 

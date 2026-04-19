@@ -648,11 +648,15 @@ var Parser = class {
     const next = this.peek();
     if (next.kind === "number") {
       const tok = this.consume();
-      width = {
-        kind: "length",
-        value: tok.numericValue ?? 0,
-        unit: tok.unit ?? "px"
-      };
+      const unit = tok.unit ?? "px";
+      if (unit !== "px") {
+        throw new WireloomError(
+          `"col" positional width must be a pixel number or "fill"; got "${tok.raw}"`,
+          tok.line,
+          tok.column
+        );
+      }
+      width = { kind: "length", value: tok.numericValue ?? 0, unit: "px" };
     } else if (next.kind === "ident" && next.identValue === "fill") {
       this.consume();
       width = { kind: "fill" };
@@ -2375,7 +2379,7 @@ async function render(id, source, options) {
   const svg = renderWireframe(source, rwOpts);
   return { svg };
 }
-var wireloom = { initialize, parse: parse2, render };
+var wireloom = { initialize, parse: parse2, serialize: serialize2, render };
 var index_default = wireloom;
 
 export { DARK_THEME, DEFAULT_THEME, WireloomError, index_default as default, initialize, parse2 as parse, render, serialize2 as serialize };

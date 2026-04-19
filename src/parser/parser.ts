@@ -475,15 +475,21 @@ class Parser {
 
     let width: ColWidth = { kind: 'fill' };
 
-    // Optional width positional: either a NUMBER or the bare identifier `fill`.
+    // Optional width positional: either a pixel NUMBER or the bare identifier
+    // `fill`. Percent / fr units are not accepted as a positional — they're
+    // grammar errors here, not a silently-different sizing mode.
     const next = this.peek();
     if (next.kind === 'number') {
       const tok = this.consume();
-      width = {
-        kind: 'length',
-        value: tok.numericValue ?? 0,
-        unit: tok.unit ?? 'px',
-      };
+      const unit = tok.unit ?? 'px';
+      if (unit !== 'px') {
+        throw new WireloomError(
+          `"col" positional width must be a pixel number or "fill"; got "${tok.raw}"`,
+          tok.line,
+          tok.column,
+        );
+      }
+      width = { kind: 'length', value: tok.numericValue ?? 0, unit: 'px' };
     } else if (next.kind === 'ident' && next.identValue === 'fill') {
       this.consume();
       width = { kind: 'fill' };

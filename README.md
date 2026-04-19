@@ -15,7 +15,7 @@ Since everything in Clairvoyance flows through Markdown and SVG is already the c
 
 ## Status
 
-**v0.2 — pre-npm-release.** The full v1 primitive set is implemented, tested, and rendering. Install via GitHub until the first npm publish lands.
+**v0.3 — first public release.** Full v1 primitive set, flexible 2- or 4-space indentation, and friendly "did you mean?" error messages. Available on npm.
 
 ## What it looks like
 
@@ -66,15 +66,11 @@ The source for that render is in [`examples/11-colonial-charter.wireloom`](examp
 
 ## Install
 
-Wireloom isn't on npm yet. Install directly from GitHub:
-
 ```bash
-npm install github:StardockCorp/Wireloom
+npm install wireloom
 ```
 
-Works the same with `pnpm add github:StardockCorp/Wireloom` or `yarn add github:StardockCorp/Wireloom`.
-
-Once the package is published to npm you'll be able to install it the normal way — `npm install wireloom` — and this section will be updated.
+Works the same with `pnpm add wireloom` or `yarn add wireloom`. Zero runtime dependencies; ships dual ESM/CJS with full TypeScript types.
 
 ## Usage
 
@@ -154,7 +150,7 @@ Wireloom is text-first, SVG-output, Markdown-native.
 - **Small core.** Fewer primitives, composed well. No feature creep.
 - **Public package.** MIT-licensed. Built to be depended on.
 
-## Primitive set (v0.2)
+## Primitive set
 
 20 primitives, grouped:
 
@@ -170,7 +166,8 @@ Full reference at [`design/grammar.md`](design/grammar.md).
 
 - ✅ **v0.1** — Thin slice: `window`, `header`, `footer`, `row`, `col`, `panel`, `text`, `button`, `input`, `divider`. Default theme.
 - ✅ **v0.2** — Full v1 token set: `tabs`, `section`, `list`, `slot`, `kv`, `combo`, `slider`, `image`, `icon`, badges, alignment, typography, dark theme, roundtrip serializer.
-- **v0.3** — Published to npm. Documentation site with live editor. Visual regression via headless Chromium.
+- ✅ **v0.3** — Published to npm. Flexible 2- or 4-space indentation, "did you mean?" suggestions, targeted `kv` hint.
+- **v0.4** — Documentation site with live editor. Visual regression via headless Chromium.
 - **v1.0** — Stable public API, ecosystem adapters (`remark-wireloom`, `markdown-it-wireloom`), VS Code extension.
 
 ## Links

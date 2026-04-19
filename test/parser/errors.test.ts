@@ -222,6 +222,17 @@ describe('parser — error messages', () => {
     expect(col.width.kind).toBe('fill');
   });
 
+  it('rejects non-pixel positional width on col (50%)', () => {
+    const err = expectParseError('window:\n  row:\n    col 50%:\n      text "x"');
+    expect(err.message).toContain('"col" positional width must be a pixel number or "fill"');
+    expect(err.message).toContain('50%');
+  });
+
+  it('rejects non-pixel positional width on col (1fr)', () => {
+    const err = expectParseError('window:\n  row:\n    col 1fr:\n      text "x"');
+    expect(err.message).toContain('"col" positional width must be a pixel number or "fill"');
+  });
+
   // ---------------------------------------------------------------------------
   // v0.3 — "did you mean?" suggestions
   // ---------------------------------------------------------------------------

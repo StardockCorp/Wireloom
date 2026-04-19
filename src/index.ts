@@ -2,16 +2,13 @@
  * Wireloom — UI wireframe mockups from a Markdown-embedded DSL,
  * rendered as inline SVG.
  *
- * Public API (three calls, matching the well-established text-diagram-library
- * shape):
+ * Public API, shaped like other text-to-diagram libraries:
  *
  *   import wireloom from 'wireloom';
  *   wireloom.initialize({ theme: 'default' });
- *   const ast = wireloom.parse(source);
+ *   const doc = wireloom.parse(source);
  *   const { svg } = await wireloom.render('id', source);
- *
- * The parser and renderer are currently stubs. Real implementations land in
- * the parser and renderer todos.
+ *   const canonical = wireloom.serialize(doc);
  */
 
 import { mergeConfig, type WireloomConfig } from './config.js';
@@ -76,5 +73,5 @@ export async function render(
   return { svg };
 }
 
-const wireloom = { initialize, parse, render };
+const wireloom = { initialize, parse, serialize, render };
 export default wireloom;
