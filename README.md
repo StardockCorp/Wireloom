@@ -74,7 +74,7 @@ Works the same with `pnpm add wireloom` or `yarn add wireloom`. Zero runtime dep
 
 ## Usage
 
-Three public calls, same shape as other text-to-diagram libraries:
+Four public calls, same shape as other text-to-diagram libraries:
 
 ```ts
 import wireloom from 'wireloom';
@@ -144,7 +144,7 @@ Wireloom is text-first, SVG-output, Markdown-native.
 
 ## Design principles
 
-- **Text in, SVG out.** One API call: `render(source) → svg`.
+- **Text in, SVG out.** One core call: `render(id, source) → { svg }`.
 - **Works anywhere Markdown + SVG works.** No JavaScript runtime required for rendered output.
 - **Readable source.** If you squint at a `.wireloom` file, you should be able to see the layout.
 - **Small core.** Fewer primitives, composed well. No feature creep.

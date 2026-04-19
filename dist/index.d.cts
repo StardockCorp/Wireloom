@@ -25,11 +25,17 @@ interface LengthValue {
     value: number;
     unit: LengthUnit;
 }
-/** Column width — fixed pixel length, or "fill remaining space". */
+/**
+ * Column width — fixed pixel length, or "fill remaining space".
+ *
+ * Positional column widths are pixel-only; percent and fr are intentionally
+ * not representable here so hand-built ASTs can't construct values the
+ * serializer would silently discard.
+ */
 type ColWidth = {
     kind: 'length';
     value: number;
-    unit: LengthUnit;
+    unit: 'px';
 } | {
     kind: 'fill';
 };

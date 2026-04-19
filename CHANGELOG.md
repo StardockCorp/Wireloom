@@ -13,7 +13,8 @@ First public npm release. Rolls up the v0.2 primitive set plus error-DX improvem
 - `serialize` is now reachable on the default export (`wireloom.serialize(doc)`), matching the README.
 
 ### Changed
-- `col` positional width is now strictly a pixel number or `fill`. `col 50%:` and `col 1fr:` — which previously parsed but didn't round-trip correctly — now emit a clear parse error. Use the `width=` attribute for percent / fr sizing.
+- `col` positional width is now strictly a pixel number or `fill` — matching the documented grammar. `col 50%:` and `col 1fr:`, which previously parsed but didn't round-trip correctly, now emit a clear parse error. Fluid sizing is expressed with `col fill:` (or bare `col:`), which distributes remaining horizontal space in the enclosing row.
+- Public `ColWidth` type narrowed to `unit: 'px'` so hand-built ASTs can't construct percent/fr column widths the serializer would silently discard.
 
 ### Fixed
 - Tab-in-indentation error message now says "use 2 or 4 spaces" instead of "use 2 spaces".

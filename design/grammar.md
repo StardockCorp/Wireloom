@@ -6,7 +6,7 @@ v0.2 is a superset of v0.1 — every v0.1 source continues to parse. Behaviorall
 
 ## Primitives
 
-Nineteen primitives total in v0.2. Grouped for readability.
+Twenty primitives total in v0.2. Grouped for readability.
 
 ### Structural containers
 
