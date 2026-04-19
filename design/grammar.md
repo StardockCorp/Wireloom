@@ -60,11 +60,11 @@ Wireloom source is processed line by line. Each non-blank, non-comment line is e
 ### Indentation
 
 - Indentation is **significant**.
-- Exactly **two spaces** per level. No other amount is valid.
+- Each file uses **either 2 or 4 spaces** per level. The unit is detected from the first indented line and locked for the rest of the file. Mixing units within one file produces a parse error.
 - **Tabs are forbidden** in leading whitespace. A tab in indentation produces a parse error.
 - Blank lines and comment-only lines do not affect indentation level.
 - The first node in a file must have zero indentation.
-- Children of a node are indented exactly one level (two spaces) deeper than their parent.
+- Children of a node are indented exactly one level (one unit) deeper than their parent.
 
 ### Comments
 
@@ -260,9 +260,13 @@ The parser produces human-readable errors with line and column information:
 
 | Input problem | Expected error message |
 |---------------|------------------------|
-| Tab in leading whitespace | `Line {n}, col 1: tab in indentation (use 2 spaces, not tabs)` |
-| Odd number of leading spaces | `Line {n}, col 1: indentation of {k} spaces is not a multiple of 2` |
-| Unknown primitive | `Line {n}, col {c}: unknown primitive "{name}" (valid: window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, text, button, input, combo, slider, kv, image, icon, divider)` |
+| Tab in leading whitespace | `Line {n}, col 1: tab in indentation (use 2 or 4 spaces, not tabs)` |
+| First indented line uses neither 2 nor 4 spaces | `Line {n}, col 1: first indented line uses {k} spaces; Wireloom accepts 2 or 4 spaces per level (pick one and use it consistently)` |
+| Indentation inconsistent with the detected unit | `Line {n}, col 1: indentation of {k} spaces is not a multiple of {u} (this file uses {u}-space indentation)` |
+| Unknown primitive (with optional suggestion) | `Line {n}, col {c}: unknown primitive "{name}" (valid: …). Did you mean "{closest}"?` |
+| Unknown attribute or flag with close typo | `Line {n}, col {c}: unknown attribute "{key}" on "{primitive}". Did you mean "{closest}"?` |
+| Invalid enum value with close typo | `Line {n}, col {c}: "{value}" is not a valid {attr} on "{primitive}" (expected one of: …). Did you mean "{closest}"?` |
+| `kv` given a single string with embedded `=` or `:` | `Line {n}, col {c}: "kv" needs two separate strings (label, value). Got only "{combined}" — if you meant to split on "{sep}", try: kv "{left}" "{right}"` |
 | Missing required positional | `Line {n}, col {c}: "{primitive}" requires {expected}` |
 | Unterminated string | `Line {n}, col {c}: unterminated string literal` |
 | Unknown attribute on primitive | `Line {n}, col {c}: unknown attribute "{key}" on "{primitive}"` |
@@ -281,7 +285,7 @@ The parser produces human-readable errors with line and column information:
 ## Design Rationale
 
 - **Indentation over braces.** Wireframes nest deeply; braces at four levels look like soup. Indentation is readable and matches how people already write the DSL by hand.
-- **Two spaces, not flexible.** YAML's indentation flexibility is the source of most YAML bugs. Pick a number, enforce it.
+- **Two or four spaces, consistent per-file.** Two spaces was the v0.2 hard rule; v0.3 relaxes it to accept 4-space indentation (common in code-heavy projects) while still enforcing consistency within a single file. YAML's full flexibility (any indent, mix at will) is still rejected — pick one of 2 or 4 and the file locks.
 - **Tabs are errors.** Tabs in indentation are the classic invisible-bug generator. We fail fast and loudly.
 - **No inline children syntax.** `row: a b c` saves typing but makes error messages terrible. Worth the verbosity.
 - **`window` as required root.** Every wireframe depicts something, and that something has outer bounds.

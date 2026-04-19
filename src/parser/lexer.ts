@@ -41,7 +41,7 @@ export interface Token {
   column: number;
 }
 
-const INDENT_SIZE = 2;
+const ALLOWED_INDENT_SIZES = [2, 4] as const;
 
 export function tokenize(source: string): Token[] {
   const tokens: Token[] = [];
@@ -49,6 +49,9 @@ export function tokenize(source: string): Token[] {
   const src = source.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const lines = src.split('\n');
   const indentStack: number[] = [0];
+  // The file's indent unit is detected on the first indented line (must be
+  // 2 or 4 spaces). All subsequent lines must use multiples of this unit.
+  let indentUnit: number | null = null;
 
   for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
     const rawLine = lines[lineIdx] ?? '';
@@ -59,7 +62,7 @@ export function tokenize(source: string): Token[] {
     if (leadingWhitespace.includes('\t')) {
       const tabColumn = leadingWhitespace.indexOf('\t') + 1;
       throw new WireloomError(
-        'tab in indentation (use 2 spaces, not tabs)',
+        'tab in indentation (use 2 or 4 spaces, not tabs)',
         lineNo,
         tabColumn,
       );
@@ -73,9 +76,24 @@ export function tokenize(source: string): Token[] {
     }
 
     const indentSpaces = leadingWhitespace.length;
-    if (indentSpaces % INDENT_SIZE !== 0) {
+
+    // Detect the file's indent unit on the first indented line.
+    if (indentUnit === null && indentSpaces > 0) {
+      if (!ALLOWED_INDENT_SIZES.includes(indentSpaces as 2 | 4)) {
+        throw new WireloomError(
+          `first indented line uses ${indentSpaces} spaces; Wireloom accepts 2 or 4 spaces per level (pick one and use it consistently)`,
+          lineNo,
+          1,
+        );
+      }
+      indentUnit = indentSpaces;
+    }
+
+    const unit = indentUnit ?? 2;
+
+    if (indentSpaces % unit !== 0) {
       throw new WireloomError(
-        `indentation of ${indentSpaces} spaces is not a multiple of ${INDENT_SIZE}`,
+        `indentation of ${indentSpaces} spaces is not a multiple of ${unit} (this file uses ${unit}-space indentation)`,
         lineNo,
         1,
       );
@@ -84,9 +102,9 @@ export function tokenize(source: string): Token[] {
     const currentLevel = indentStack[indentStack.length - 1] ?? 0;
 
     if (indentSpaces > currentLevel) {
-      if (indentSpaces - currentLevel !== INDENT_SIZE) {
+      if (indentSpaces - currentLevel !== unit) {
         throw new WireloomError(
-          `indentation jumped ${indentSpaces - currentLevel} spaces (only one level at a time is allowed)`,
+          `indentation jumped ${indentSpaces - currentLevel} spaces (only one level of ${unit} at a time is allowed)`,
           lineNo,
           1,
         );
@@ -94,7 +112,7 @@ export function tokenize(source: string): Token[] {
       indentStack.push(indentSpaces);
       tokens.push({
         kind: 'indent',
-        raw: ' '.repeat(INDENT_SIZE),
+        raw: ' '.repeat(unit),
         line: lineNo,
         column: 1,
       });

@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — Unreleased
+
+Error-DX improvements aimed at making the grammar friendlier for AI staff and hand-writers. No breaking changes relative to v0.2.
+
+### Added
+- **Flexible indentation**: files can use either 2-space or 4-space indentation. The unit is detected from the first indented line and locked for the rest of the file. Mixing units within a single file is a parse error.
+- **"Did you mean?" suggestions** on error messages for typos in primitive names, attribute keys, bare flags, and enum values (weight, size, align, type). Uses Levenshtein distance with a conservative threshold so wildly-off inputs don't produce noisy suggestions.
+- **`kv` single-string hint**: writing `kv "Label=Value"` (one combined string with an embedded separator) emits a targeted hint suggesting the split, e.g., `kv "Label" "Value"`.
+
+### Fixed
+- Tab-in-indentation error message now says "use 2 or 4 spaces" instead of "use 2 spaces".
+
+### Tests
+- **158 tests passing** (up from 146). 9 new tests cover 2- vs 4-space detection, unit-locking, did-you-mean suggestions across four error paths, and the kv hint.
+
 ## [0.2.0] — Unreleased
 
 Full v1 primitive set, controls, and typography. This is the release planned to go out as the first public npm publish.

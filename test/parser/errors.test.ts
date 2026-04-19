@@ -17,13 +17,32 @@ describe('parser — error messages', () => {
     const err = expectParseError('window:\n\ttext "hi"');
     expect(err.line).toBe(2);
     expect(err.message).toContain('tab in indentation');
-    expect(err.message).toContain('use 2 spaces');
+    expect(err.message).toContain('2 or 4 spaces');
   });
 
-  it('rejects odd indentation with the actual count', () => {
+  it('rejects odd indentation at first-line detection', () => {
     const err = expectParseError('window:\n   text "hi"');
     expect(err.line).toBe(2);
-    expect(err.message).toContain('3 spaces is not a multiple of 2');
+    expect(err.message).toContain('3 spaces');
+    expect(err.message).toContain('2 or 4 spaces');
+  });
+
+  it('rejects an inconsistent indent unit once the unit is locked', () => {
+    // First indented line uses 2 → file locks to 2-space. A later line using
+    // 3 must fail as "not a multiple of 2".
+    const err = expectParseError('window:\n  panel:\n   text "wrong"');
+    expect(err.line).toBe(3);
+    expect(err.message).toContain('not a multiple of 2');
+  });
+
+  it('accepts 4-space indentation when used consistently', () => {
+    const doc = parse('window:\n    text "four-space"');
+    expect(doc.root?.children.length).toBe(1);
+  });
+
+  it('locks to 4-space once detected; rejects 2-space inside a 4-space file', () => {
+    const err = expectParseError('window:\n    panel:\n        text "a"\n  text "b"');
+    expect(err.message).toContain('multiple of 4');
   });
 
   it('rejects unknown primitives with the full valid list', () => {
@@ -99,8 +118,10 @@ describe('parser — error messages', () => {
   });
 
   it('rejects indentation that jumps multiple levels at once', () => {
-    const err = expectParseError('window:\n      text "too deep"');
-    expect(err.line).toBe(2);
+    // Detection sees 2 on panel line; text line jumps from 2 to 6 which is
+    // both a multiple of 2 AND a jump of two levels — must fail.
+    const err = expectParseError('window:\n  panel:\n      text "too deep"');
+    expect(err.line).toBe(3);
     expect(err.message).toContain('indentation jumped');
   });
 
@@ -199,5 +220,66 @@ describe('parser — error messages', () => {
     const col = row.children[0];
     if (col?.kind !== 'col') throw new Error('expected col');
     expect(col.width.kind).toBe('fill');
+  });
+
+  // ---------------------------------------------------------------------------
+  // v0.3 — "did you mean?" suggestions
+  // ---------------------------------------------------------------------------
+
+  it('suggests the closest primitive for a typo', () => {
+    const err = expectParseError('window:\n  sectoin "Economy":\n    text "x"');
+    expect(err.message).toContain('unknown primitive "sectoin"');
+    expect(err.message).toContain('Did you mean "section"?');
+  });
+
+  it('suggests the closest primitive for a single-character typo', () => {
+    const err = expectParseError('window:\n  secton "Economy":\n    text "x"');
+    expect(err.message).toContain('Did you mean "section"?');
+  });
+
+  it('does not suggest anything for completely unrelated input', () => {
+    const err = expectParseError('window:\n  xyzzyzy "blah"');
+    expect(err.message).toContain('unknown primitive');
+    expect(err.message).not.toContain('Did you mean');
+  });
+
+  it('suggests the closest attribute for a typo', () => {
+    const err = expectParseError('window:\n  input plcaeholder="Email"');
+    expect(err.message).toContain('unknown attribute "plcaeholder"');
+    expect(err.message).toContain('Did you mean "placeholder"?');
+  });
+
+  it('suggests the closest flag for a typo', () => {
+    const err = expectParseError('window:\n  button "X" prmary');
+    expect(err.message).toContain('unknown flag "prmary"');
+    expect(err.message).toContain('Did you mean "primary"?');
+  });
+
+  it('suggests the closest enum value for weight typo', () => {
+    const err = expectParseError('window:\n  text "x" weight=bld');
+    expect(err.message).toContain('"bld"');
+    expect(err.message).toContain('Did you mean "bold"?');
+  });
+
+  // ---------------------------------------------------------------------------
+  // v0.3 — kv hint for single-string-with-separator mistake
+  // ---------------------------------------------------------------------------
+
+  it('emits a targeted hint when kv is given a single string with embedded =', () => {
+    const err = expectParseError('window:\n  kv "Tax Rate=30%"');
+    expect(err.message).toContain('"kv" needs two separate strings');
+    expect(err.message).toContain('kv "Tax Rate" "30%"');
+  });
+
+  it('emits a targeted hint when kv is given a single string with embedded :', () => {
+    const err = expectParseError('window:\n  kv "Name: Admiral Voss"');
+    expect(err.message).toContain('"kv" needs two separate strings');
+    expect(err.message).toContain('kv "Name" "Admiral Voss"');
+  });
+
+  it('still emits the generic kv error when no separator is present', () => {
+    const err = expectParseError('window:\n  kv "LonelyLabel"');
+    expect(err.message).toContain('"kv" requires a value string after the label');
+    expect(err.message).not.toContain('split on');
   });
 });

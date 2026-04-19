@@ -24,12 +24,13 @@ var WireloomError = class extends Error {
 };
 
 // src/parser/lexer.ts
-var INDENT_SIZE = 2;
+var ALLOWED_INDENT_SIZES = [2, 4];
 function tokenize(source) {
   const tokens = [];
   const src = source.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const lines = src.split("\n");
   const indentStack = [0];
+  let indentUnit = null;
   for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
     const rawLine = lines[lineIdx] ?? "";
     const lineNo = lineIdx + 1;
@@ -37,7 +38,7 @@ function tokenize(source) {
     if (leadingWhitespace.includes("	")) {
       const tabColumn = leadingWhitespace.indexOf("	") + 1;
       throw new WireloomError(
-        "tab in indentation (use 2 spaces, not tabs)",
+        "tab in indentation (use 2 or 4 spaces, not tabs)",
         lineNo,
         tabColumn
       );
@@ -47,18 +48,29 @@ function tokenize(source) {
       continue;
     }
     const indentSpaces = leadingWhitespace.length;
-    if (indentSpaces % INDENT_SIZE !== 0) {
+    if (indentUnit === null && indentSpaces > 0) {
+      if (!ALLOWED_INDENT_SIZES.includes(indentSpaces)) {
+        throw new WireloomError(
+          `first indented line uses ${indentSpaces} spaces; Wireloom accepts 2 or 4 spaces per level (pick one and use it consistently)`,
+          lineNo,
+          1
+        );
+      }
+      indentUnit = indentSpaces;
+    }
+    const unit = indentUnit ?? 2;
+    if (indentSpaces % unit !== 0) {
       throw new WireloomError(
-        `indentation of ${indentSpaces} spaces is not a multiple of ${INDENT_SIZE}`,
+        `indentation of ${indentSpaces} spaces is not a multiple of ${unit} (this file uses ${unit}-space indentation)`,
         lineNo,
         1
       );
     }
     const currentLevel = indentStack[indentStack.length - 1] ?? 0;
     if (indentSpaces > currentLevel) {
-      if (indentSpaces - currentLevel !== INDENT_SIZE) {
+      if (indentSpaces - currentLevel !== unit) {
         throw new WireloomError(
-          `indentation jumped ${indentSpaces - currentLevel} spaces (only one level at a time is allowed)`,
+          `indentation jumped ${indentSpaces - currentLevel} spaces (only one level of ${unit} at a time is allowed)`,
           lineNo,
           1
         );
@@ -66,7 +78,7 @@ function tokenize(source) {
       indentStack.push(indentSpaces);
       tokens.push({
         kind: "indent",
-        raw: " ".repeat(INDENT_SIZE),
+        raw: " ".repeat(unit),
         line: lineNo,
         column: 1
       });
@@ -763,10 +775,22 @@ var Parser = class {
   parseKv() {
     const head = this.consume();
     const position = positionOf(head);
-    const label = this.expectKind(
+    const labelTok = this.expectKind(
       "string",
       '"kv" requires a label string (e.g., kv "Tax Rate" "30%")'
-    ).stringValue ?? "";
+    );
+    const label = labelTok.stringValue ?? "";
+    if (this.peek().kind !== "string" && /[=:]/.test(label)) {
+      const splitChar = label.includes("=") ? "=" : ":";
+      const idx = label.indexOf(splitChar);
+      const left = label.slice(0, idx).trim();
+      const right = label.slice(idx + 1).trim();
+      throw new WireloomError(
+        `"kv" needs two separate strings (label, value). Got only "${label}" \u2014 if you meant to split on "${splitChar}", try: kv "${left}" "${right}"`,
+        labelTok.line,
+        labelTok.column
+      );
+    }
     const value = this.expectKind(
       "string",
       '"kv" requires a value string after the label (e.g., kv "Tax Rate" "30%")'
@@ -808,8 +832,10 @@ var Parser = class {
         const valueTok = this.consume();
         const spec = rules.attrs[key];
         if (spec === void 0) {
+          const suggestion = suggestMatch(key, Object.keys(rules.attrs));
+          const hint = suggestion ? `. Did you mean "${suggestion}"?` : "";
           throw new WireloomError(
-            `unknown attribute "${key}" on "${primitive}"`,
+            `unknown attribute "${key}" on "${primitive}"${hint}`,
             keyTok.line,
             keyTok.column
           );
@@ -819,8 +845,10 @@ var Parser = class {
         attrs.push(pair);
       } else {
         if (!rules.flags.includes(key)) {
+          const suggestion = suggestMatch(key, rules.flags);
+          const hint = suggestion ? `. Did you mean "${suggestion}"?` : "";
           throw new WireloomError(
-            `unknown flag "${key}" on "${primitive}"`,
+            `unknown flag "${key}" on "${primitive}"${hint}`,
             keyTok.line,
             keyTok.column
           );
@@ -984,8 +1012,10 @@ function coerceAttributeValue(token, spec, key, primitive) {
       }
       const value = token.identValue ?? token.raw;
       if (!spec.values.includes(value)) {
+        const suggestion = suggestMatch(value, spec.values);
+        const hint = suggestion ? ` Did you mean "${suggestion}"?` : "";
         throw new WireloomError(
-          `"${value}" is not a valid ${key} on "${primitive}" (expected one of: ${spec.values.join(", ")})`,
+          `"${value}" is not a valid ${key} on "${primitive}" (expected one of: ${spec.values.join(", ")}).${hint}`,
           token.line,
           token.column
         );
@@ -995,7 +1025,45 @@ function coerceAttributeValue(token, spec, key, primitive) {
   }
 }
 function unknownPrimitiveMessage(name) {
-  return `unknown primitive "${name}" (valid: ${PRIMITIVE_LIST_HUMAN})`;
+  const suggestion = suggestMatch(name, Object.keys(ATTR_RULES));
+  const base = `unknown primitive "${name}" (valid: ${PRIMITIVE_LIST_HUMAN})`;
+  return suggestion ? `${base}. Did you mean "${suggestion}"?` : base;
+}
+function suggestMatch(input, candidates) {
+  if (input.length < 2 || candidates.length === 0) return void 0;
+  let best;
+  let bestDist = Infinity;
+  for (const cand of candidates) {
+    const d = levenshtein(input, cand);
+    if (d < bestDist) {
+      bestDist = d;
+      best = cand;
+    }
+  }
+  const threshold = Math.min(2, Math.floor(input.length / 2));
+  if (best !== void 0 && bestDist <= threshold) return best;
+  return void 0;
+}
+function levenshtein(a, b) {
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  const curr = new Array(n + 1).fill(0);
+  for (let i = 1; i <= m; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const cost = a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1;
+      curr[j] = Math.min(
+        (prev[j] ?? 0) + 1,
+        (curr[j - 1] ?? 0) + 1,
+        (prev[j - 1] ?? 0) + cost
+      );
+    }
+    prev = [...curr];
+  }
+  return prev[n] ?? 0;
 }
 
 // src/parser/serializer.ts
