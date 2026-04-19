@@ -14,11 +14,14 @@ import type {
   AttributePair,
   AttributeValue,
   ButtonNode,
+  CellNode,
+  ChartNode,
   ColNode,
   ComboNode,
   ContainerChild,
   DividerNode,
   FooterNode,
+  GridNode,
   HeaderNode,
   IconNode,
   ImageNode,
@@ -27,10 +30,16 @@ import type {
   KvNode,
   ListNode,
   PanelNode,
+  ProgressNode,
+  ResourceBarNode,
+  ResourceNode,
   RowNode,
   SectionNode,
   SliderNode,
+  SlotFooterNode,
   SlotNode,
+  StatNode,
+  StatsNode,
   TabNode,
   TabsNode,
   TextNode,
@@ -99,6 +108,16 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
       return measureImage(node, theme);
     case 'icon':
       return measureIcon(theme);
+    case 'grid':
+      return measureGrid(node, theme);
+    case 'resourcebar':
+      return measureResourceBar(node, theme);
+    case 'stats':
+      return measureStats(node, theme);
+    case 'progress':
+      return measureProgress(node, theme);
+    case 'chart':
+      return measureChart(node, theme);
   }
 }
 
@@ -212,14 +231,118 @@ function measureItem(node: ItemNode, theme: Theme): Size {
 function measureSlot(node: SlotNode, theme: Theme): Size {
   const inner = measureStack(node.children, theme, 'vertical');
   const titleW = node.title.length * theme.averageCharWidth;
+  let footerH = 0;
+  let footerW = 0;
+  if (node.slotFooter) {
+    const f = measureSlotFooter(node.slotFooter, theme);
+    footerH = f.height + theme.colGap;
+    footerW = f.width;
+  }
   return {
-    width: Math.max(inner.width, titleW) + theme.slotPadding * 2,
+    width: Math.max(inner.width, titleW, footerW) + theme.slotPadding * 2,
     height:
       theme.slotTitleHeight +
       theme.sectionTitlePaddingBottom +
       inner.height +
+      footerH +
       theme.slotPadding * 2,
   };
+}
+
+function measureSlotFooter(node: SlotFooterNode, theme: Theme): Size {
+  return measureStack(node.children, theme, 'horizontal');
+}
+
+// --- Grid / Cell ----------------------------------------------------------
+
+function measureGrid(node: GridNode, theme: Theme): Size {
+  const cellSize = preferredCellSize(node, theme);
+  const width = node.cols * cellSize.width + (node.cols - 1) * theme.rowGap;
+  const height = node.rows * cellSize.height + (node.rows - 1) * theme.colGap;
+  return { width, height };
+}
+
+function preferredCellSize(node: GridNode, theme: Theme): Size {
+  // Cell size is the max intrinsic of any child cell, with a minimum for
+  // aesthetic consistency (matrix-style grids look odd if cells are tiny).
+  let maxW = theme.cellMinSize;
+  let maxH = theme.cellMinSize;
+  for (const c of node.children) {
+    const s = measureCell(c, theme);
+    if (s.width > maxW) maxW = s.width;
+    if (s.height > maxH) maxH = s.height;
+  }
+  return { width: maxW, height: maxH };
+}
+
+function measureCell(node: CellNode, theme: Theme): Size {
+  const inner = measureStack(node.children, theme, 'vertical');
+  const labelW = node.label ? node.label.length * theme.averageCharWidth : 0;
+  const labelH = node.label ? theme.lineHeight : 0;
+  return {
+    width: Math.max(inner.width, labelW) + theme.cellPadding * 2,
+    height: inner.height + labelH + theme.cellPadding * 2,
+  };
+}
+
+// --- ResourceBar ----------------------------------------------------------
+
+function measureResourceBar(node: ResourceBarNode, theme: Theme): Size {
+  if (node.children.length === 0) {
+    return { width: 0, height: theme.resourceBarHeight };
+  }
+  const sizes = node.children.map((r) => measureResource(r, theme));
+  const total = sizes.reduce((acc, s) => acc + s.width, 0) +
+    (node.children.length - 1) * theme.resourceBarItemGap;
+  return { width: total, height: theme.resourceBarHeight };
+}
+
+function measureResource(node: ResourceNode, theme: Theme): Size {
+  const text = `${node.name}: ${node.value}`;
+  const textW = text.length * theme.averageCharWidth;
+  // Icon + small gap + text
+  return {
+    width: theme.resourceBarIconSize + 6 + textW,
+    height: theme.resourceBarHeight,
+  };
+}
+
+// --- Stats ----------------------------------------------------------------
+
+function measureStats(node: StatsNode, theme: Theme): Size {
+  if (node.children.length === 0) return { width: 0, height: 0 };
+  const sizes = node.children.map((s) => measureStat(s, theme));
+  const total = sizes.reduce((acc, s) => acc + s.width, 0) +
+    (node.children.length - 1) * theme.statsGap;
+  const h = Math.max(...sizes.map((s) => s.height));
+  return { width: total, height: h };
+}
+
+function measureStat(node: StatNode, theme: Theme): Size {
+  // "LABEL value" — inline compact form.
+  const labelW = node.label.length * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize);
+  const valueW = node.value.length * theme.averageCharWidth;
+  return {
+    width: labelW + 6 + valueW,
+    height: theme.lineHeight,
+  };
+}
+
+// --- Progress / Chart -----------------------------------------------------
+
+function measureProgress(node: ProgressNode, theme: Theme): Size {
+  const label = getAttrString(node.attributes, 'label');
+  const labelH = label !== undefined ? theme.smallFontSize + 4 : 0;
+  return {
+    width: theme.progressDefaultWidth,
+    height: labelH + theme.progressHeight,
+  };
+}
+
+function measureChart(node: ChartNode, theme: Theme): Size {
+  const width = getAttrNumber(node.attributes, 'width') ?? theme.chartDefaultWidth;
+  const height = getAttrNumber(node.attributes, 'height') ?? theme.chartDefaultHeight;
+  return { width, height };
 }
 
 function measureKv(node: KvNode, theme: Theme): Size {
@@ -537,6 +660,16 @@ function positionContainerChild(
       return positionIcon(child, x, y, theme);
     case 'divider':
       return positionDivider(child, x, y, width, theme);
+    case 'grid':
+      return positionGrid(child, x, y, width, theme);
+    case 'resourcebar':
+      return positionResourceBar(child, x, y, width, theme);
+    case 'stats':
+      return positionStats(child, x, y, width, theme);
+    case 'progress':
+      return positionProgress(child, x, y, width, theme);
+    case 'chart':
+      return positionChart(child, x, y, theme);
   }
 }
 
@@ -766,8 +899,218 @@ function positionSlot(
     cursorY += laidChild.height;
     if (i < node.children.length - 1) cursorY += theme.colGap;
   }
+
+  if (node.slotFooter) {
+    cursorY += theme.colGap;
+    const laidFooter = positionSlotFooter(
+      node.slotFooter,
+      innerX,
+      cursorY,
+      innerWidth,
+      theme,
+    );
+    children.push(laidFooter);
+    cursorY += laidFooter.height;
+  }
+
   const height = cursorY - y + theme.slotPadding;
   return { node, x, y, width, height, children };
+}
+
+function positionSlotFooter(
+  node: SlotFooterNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  // Right-align children horizontally.
+  const sizes = node.children.map((c) => measureChild(c, theme));
+  const totalWidth =
+    sizes.reduce((acc, s) => acc + s.width, 0) +
+    Math.max(0, node.children.length - 1) * theme.rowGap;
+  let cursorX = x + width - totalWidth;
+  const children: LaidOutNode[] = [];
+  let maxH = 0;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i]!;
+    const size = sizes[i]!;
+    const laid = positionContainerChild(child, cursorX, y, size.width, theme);
+    children.push(laid);
+    if (laid.height > maxH) maxH = laid.height;
+    cursorX += size.width + theme.rowGap;
+  }
+  return { node, x, y, width, height: maxH, children };
+}
+
+function positionGrid(
+  node: GridNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  void width;
+  const cellSize = preferredCellSize(node, theme);
+  const children: LaidOutNode[] = [];
+
+  // Auto-flow tracker: walks cells L→R, T→B, skipping positions already
+  // claimed by explicit row/col attributes.
+  const claimed = new Set<string>();
+  for (const c of node.children) {
+    if (c.row !== undefined && c.col !== undefined) {
+      claimed.add(`${c.row}:${c.col}`);
+    }
+  }
+  let flowRow = 1;
+  let flowCol = 1;
+  const advanceFlow = (): void => {
+    while (true) {
+      if (flowCol > node.cols) {
+        flowCol = 1;
+        flowRow++;
+      }
+      if (flowRow > node.rows) return;
+      if (!claimed.has(`${flowRow}:${flowCol}`)) return;
+      flowCol++;
+    }
+  };
+
+  for (const cell of node.children) {
+    let r = cell.row;
+    let c = cell.col;
+    if (r === undefined || c === undefined) {
+      advanceFlow();
+      r = flowRow;
+      c = flowCol;
+      flowCol++;
+    }
+    // Clamp into grid bounds so out-of-range explicit positions still render.
+    const clampedR = Math.min(Math.max(1, r), node.rows);
+    const clampedC = Math.min(Math.max(1, c), node.cols);
+    const cellX = x + (clampedC - 1) * (cellSize.width + theme.rowGap);
+    const cellY = y + (clampedR - 1) * (cellSize.height + theme.colGap);
+    children.push(positionCell(cell, cellX, cellY, cellSize.width, cellSize.height, theme));
+  }
+
+  return {
+    node,
+    x,
+    y,
+    width: node.cols * cellSize.width + (node.cols - 1) * theme.rowGap,
+    height: node.rows * cellSize.height + (node.rows - 1) * theme.colGap,
+    children,
+  };
+}
+
+function positionCell(
+  node: CellNode,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  theme: Theme,
+): LaidOutNode {
+  const innerX = x + theme.cellPadding;
+  const innerWidth = width - theme.cellPadding * 2;
+  let cursorY = y + theme.cellPadding;
+  if (node.label !== undefined) {
+    cursorY += theme.lineHeight;
+  }
+  const children: LaidOutNode[] = [];
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i]!;
+    const laid = positionContainerChild(child, innerX, cursorY, innerWidth, theme);
+    children.push(laid);
+    cursorY += laid.height;
+    if (i < node.children.length - 1) cursorY += theme.colGap;
+  }
+  return { node, x, y, width, height, children };
+}
+
+function positionResourceBar(
+  node: ResourceBarNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  void width;
+  const sizes = node.children.map((r) => measureResource(r, theme));
+  const children: LaidOutNode[] = [];
+  let cursorX = x;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i]!;
+    const size = sizes[i]!;
+    children.push({
+      node: child,
+      x: cursorX,
+      y,
+      width: size.width,
+      height: size.height,
+      children: [],
+    });
+    cursorX += size.width + theme.resourceBarItemGap;
+  }
+  return {
+    node,
+    x,
+    y,
+    width: cursorX - x - (node.children.length > 0 ? theme.resourceBarItemGap : 0),
+    height: theme.resourceBarHeight,
+    children,
+  };
+}
+
+function positionStats(
+  node: StatsNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  void width;
+  const sizes = node.children.map((s) => measureStat(s, theme));
+  const children: LaidOutNode[] = [];
+  let cursorX = x;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i]!;
+    const size = sizes[i]!;
+    children.push({
+      node: child,
+      x: cursorX,
+      y,
+      width: size.width,
+      height: size.height,
+      children: [],
+    });
+    cursorX += size.width + theme.statsGap;
+  }
+  const used = node.children.length > 0 ? cursorX - x - theme.statsGap : 0;
+  return { node, x, y, width: used, height: theme.lineHeight, children };
+}
+
+function positionProgress(
+  node: ProgressNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  const size = measureProgress(node, theme);
+  // Expand to available width up to a reasonable cap so progress bars can stretch.
+  const w = Math.max(size.width, Math.min(width, theme.progressMaxWidth));
+  return { node, x, y, width: w, height: size.height, children: [] };
+}
+
+function positionChart(
+  node: ChartNode,
+  x: number,
+  y: number,
+  theme: Theme,
+): LaidOutNode {
+  const size = measureChart(node, theme);
+  return { node, x, y, width: size.width, height: size.height, children: [] };
 }
 
 function positionText(

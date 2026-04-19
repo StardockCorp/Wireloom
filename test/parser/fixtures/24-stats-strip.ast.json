@@ -1,0 +1,152 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Admiral Kade Voss",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "bold",
+                "position": {
+                  "line": 3,
+                  "column": 30
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "large",
+                  "position": {
+                    "line": 3,
+                    "column": 40
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 35
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "stats",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "stat",
+                "label": "INT",
+                "value": "4",
+                "attributes": [],
+                "position": {
+                  "line": 5,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "stat",
+                "label": "CHA",
+                "value": "3",
+                "attributes": [],
+                "position": {
+                  "line": 6,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "stat",
+                "label": "MIL",
+                "value": "5",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "bold",
+                    "position": {
+                      "line": 7,
+                      "column": 22
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "stat",
+                "label": "LOY",
+                "value": "75",
+                "attributes": [],
+                "position": {
+                  "line": 8,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "text",
+            "content": "Fleet Admiral, Arcturus Prime",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "muted",
+                "position": {
+                  "line": 9,
+                  "column": 42
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "small",
+                  "position": {
+                    "line": 9,
+                    "column": 53
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 48
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Leader Card"
+  },
+  "sourceLines": 10
+}

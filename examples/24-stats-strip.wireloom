@@ -1,0 +1,9 @@
+window "Leader Card":
+  panel:
+    text "Admiral Kade Voss" bold size=large
+    stats:
+      stat "INT" "4"
+      stat "CHA" "3"
+      stat "MIL" "5" bold
+      stat "LOY" "75"
+    text "Fleet Admiral, Arcturus Prime" muted size=small

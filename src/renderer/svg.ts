@@ -13,20 +13,27 @@ import type {
   AttributePair,
   AttributeValue,
   ButtonNode,
+  CellNode,
+  ChartNode,
   ComboNode,
+  IconNode,
   ImageNode,
   InputNode,
   ItemNode,
   KvNode,
+  ProgressNode,
+  ResourceNode,
   SectionNode,
   SliderNode,
   SlotNode,
+  StatNode,
   TabNode,
   TextNode,
   WindowNode,
 } from '../parser/ast.js';
 import type { LaidOutNode } from './layout.js';
-import type { Theme } from './themes.js';
+import type { AccentName, StateName, Theme } from './themes.js';
+import { emitIconByName, hasIcon } from './icons.js';
 
 export interface EmitOptions {
   id?: string;
@@ -134,6 +141,33 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
     case 'divider':
       emitDivider(laid, theme, out);
       break;
+    case 'grid':
+      emitGrid(laid, theme, out);
+      break;
+    case 'cell':
+      emitCell(laid, theme, out);
+      break;
+    case 'resourcebar':
+      emitResourceBar(laid, theme, out);
+      break;
+    case 'resource':
+      emitResource(laid, theme, out);
+      break;
+    case 'stats':
+      emitStats(laid, theme, out);
+      break;
+    case 'stat':
+      emitStat(laid, theme, out);
+      break;
+    case 'progress':
+      emitProgress(laid, theme, out);
+      break;
+    case 'chart':
+      emitChart(laid, theme, out);
+      break;
+    case 'slotFooter':
+      for (const c of laid.children) emitNode(c, theme, out);
+      break;
   }
 }
 
@@ -195,12 +229,14 @@ function emitPanel(laid: LaidOutNode, theme: Theme, out: string[]): void {
 function emitSection(laid: LaidOutNode, theme: Theme, out: string[]): void {
   const node = laid.node as SectionNode;
   const titleY = laid.y + theme.sectionTitleHeight - 4;
+  const accent = getAccent(node.attributes, theme);
+  const titleColor = accent ?? theme.sectionTitleColor;
 
   // Section title in small caps-like muted style.
   out.push(
     `<text x="${laid.x}" y="${titleY}" ` +
       `font-size="${theme.sectionTitleFontSize}" font-weight="700" letter-spacing="0.8" ` +
-      `fill="${theme.sectionTitleColor}">${escapeText(node.title.toUpperCase())}</text>`,
+      `fill="${titleColor}">${escapeText(node.title.toUpperCase())}</text>`,
   );
 
   // Optional badge pill aligned right.
@@ -213,6 +249,7 @@ function emitSection(laid: LaidOutNode, theme: Theme, out: string[]): void {
       badge,
       theme,
       out,
+      accent,
     );
   }
 
@@ -220,7 +257,7 @@ function emitSection(laid: LaidOutNode, theme: Theme, out: string[]): void {
   const lineY = laid.y + theme.sectionTitleHeight;
   out.push(
     `<line x1="${laid.x}" y1="${lineY}" x2="${laid.x + laid.width}" y2="${lineY}" ` +
-      `stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" opacity="0.6" />`,
+      `stroke="${accent ?? theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" opacity="${accent ? '0.8' : '0.6'}" />`,
   );
 
   for (const c of laid.children) emitNode(c, theme, out);
@@ -293,20 +330,54 @@ function emitItem(laid: LaidOutNode, theme: Theme, out: string[]): void {
 function emitSlot(laid: LaidOutNode, theme: Theme, out: string[]): void {
   const node = laid.node as SlotNode;
   const isActive = hasFlag(node.attributes, 'active');
-  const stroke = isActive ? theme.slotActiveBorderColor : theme.slotBorderColor;
-  const strokeWidth = isActive ? theme.slotActiveStrokeWidth : theme.slotStrokeWidth;
+  const state = getState(node.attributes);
+  const accent = getAccent(node.attributes, theme);
+
+  let stroke: string;
+  let strokeWidth: number;
+  let fill: string;
+  let textColor: string;
+  let badgeIcon: string | undefined;
+
+  if (state !== undefined) {
+    const s = theme.states[state];
+    stroke = accent ?? s.border;
+    fill = s.fill;
+    textColor = s.text;
+    strokeWidth = state === 'active' ? theme.slotActiveStrokeWidth : theme.slotStrokeWidth;
+    badgeIcon = s.badge;
+  } else if (isActive) {
+    stroke = accent ?? theme.slotActiveBorderColor;
+    fill = theme.slotFillColor;
+    textColor = theme.textColor;
+    strokeWidth = theme.slotActiveStrokeWidth;
+  } else {
+    stroke = accent ?? theme.slotBorderColor;
+    fill = theme.slotFillColor;
+    textColor = theme.textColor;
+    strokeWidth = theme.slotStrokeWidth;
+  }
 
   out.push(
     `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" ` +
-      `fill="${theme.slotFillColor}" stroke="${stroke}" stroke-width="${strokeWidth}" rx="4" />`,
+      `fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" rx="4" />`,
   );
 
   // Title
   const titleX = laid.x + theme.slotPadding;
   const titleY = laid.y + theme.slotPadding + theme.slotTitleHeight * 0.7;
   out.push(
-    `<text x="${titleX}" y="${titleY}" font-weight="600" fill="${theme.textColor}">${escapeText(node.title)}</text>`,
+    `<text x="${titleX}" y="${titleY}" font-weight="600" fill="${textColor}">${escapeText(node.title)}</text>`,
   );
+
+  // State badge in the top-right corner (lock/check/star, if the state supplies one).
+  if (badgeIcon !== undefined) {
+    const sz = 14;
+    const bx = laid.x + laid.width - theme.slotPadding - sz;
+    const by = laid.y + theme.slotPadding + (theme.slotTitleHeight - sz) / 2;
+    const iconMarkup = emitIconByName(badgeIcon, bx, by, sz, stroke);
+    if (iconMarkup) out.push(iconMarkup);
+  }
 
   for (const c of laid.children) emitNode(c, theme, out);
 }
@@ -328,9 +399,20 @@ function emitButton(laid: LaidOutNode, theme: Theme, out: string[]): void {
   const node = laid.node as ButtonNode;
   const isPrimary = hasFlag(node.attributes, 'primary');
   const isDisabled = hasFlag(node.attributes, 'disabled');
-  const fill = isPrimary ? theme.primaryButtonFill : theme.buttonFill;
-  const textFill = isPrimary ? theme.primaryButtonText : theme.buttonText;
-  const stroke = isDisabled ? theme.disabledColor : theme.buttonBorderColor;
+  const accent = getAccent(node.attributes, theme);
+  let fill = isPrimary ? theme.primaryButtonFill : theme.buttonFill;
+  let textFill = isPrimary ? theme.primaryButtonText : theme.buttonText;
+  let stroke = isDisabled ? theme.disabledColor : theme.buttonBorderColor;
+  if (accent !== undefined && !isDisabled) {
+    if (isPrimary) {
+      fill = accent;
+      textFill = '#ffffff';
+      stroke = accent;
+    } else {
+      stroke = accent;
+      textFill = accent;
+    }
+  }
   const opacity = isDisabled ? '0.55' : '1';
   const badge = getAttrString(node.attributes, 'badge');
 
@@ -468,19 +550,29 @@ function emitImage(laid: LaidOutNode, theme: Theme, out: string[]): void {
 }
 
 function emitIcon(laid: LaidOutNode, theme: Theme, out: string[]): void {
-  const node = laid.node as ImageNode; // shares `name` extraction shape
-  const name = getAttrString((node as unknown as { attributes: Attribute[] }).attributes, 'name') ?? '?';
+  const node = laid.node as IconNode;
+  const name = getAttrString(node.attributes, 'name') ?? '';
+  const accent = getAccent(node.attributes, theme);
+  const color = accent ?? theme.iconStrokeColor;
 
-  // Rounded square
+  if (name && hasIcon(name)) {
+    const markup = emitIconByName(name, laid.x, laid.y, laid.width, color);
+    if (markup !== undefined) {
+      out.push(markup);
+      return;
+    }
+  }
+
+  // Fallback: boxed first-letter placeholder (preserves v0.3 behavior for unknown names).
+  const fallback = name || '?';
   out.push(
     `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" ` +
-      `fill="none" stroke="${theme.iconStrokeColor}" stroke-width="1" rx="3" />`,
+      `fill="none" stroke="${color}" stroke-width="1" rx="3" />`,
   );
-  // Single glyph (first letter of name) centered
-  const glyph = name.charAt(0).toUpperCase();
+  const glyph = fallback.charAt(0).toUpperCase();
   out.push(
     `<text x="${laid.x + laid.width / 2}" y="${laid.y + laid.height / 2 + theme.fontSize / 3}" ` +
-      `text-anchor="middle" font-size="${theme.smallFontSize}" fill="${theme.iconStrokeColor}">${escapeText(glyph)}</text>`,
+      `text-anchor="middle" font-size="${theme.smallFontSize}" fill="${color}">${escapeText(glyph)}</text>`,
   );
 }
 
@@ -490,6 +582,260 @@ function emitDivider(laid: LaidOutNode, theme: Theme, out: string[]): void {
     `<line x1="${laid.x}" y1="${y}" x2="${laid.x + laid.width}" y2="${y}" ` +
       `stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" />`,
   );
+}
+
+function emitGrid(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  // The grid itself is a transparent container; children (cells) paint themselves.
+  void theme;
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+
+function emitCell(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as CellNode;
+  const state = getState(node.attributes);
+  const accent = getAccent(node.attributes, theme);
+  let stroke: string;
+  let fill: string;
+  let textColor: string;
+  let badgeIcon: string | undefined;
+  let strokeWidth = theme.slotStrokeWidth;
+
+  if (state !== undefined) {
+    const s = theme.states[state];
+    stroke = accent ?? s.border;
+    fill = s.fill;
+    textColor = s.text;
+    badgeIcon = s.badge;
+    if (state === 'active' || state === 'purchased' || state === 'ripe' || state === 'maxed') {
+      strokeWidth = theme.slotActiveStrokeWidth;
+    }
+  } else {
+    stroke = accent ?? theme.slotBorderColor;
+    fill = theme.slotFillColor;
+    textColor = theme.textColor;
+  }
+
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" ` +
+      `fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" rx="3" />`,
+  );
+
+  if (node.label !== undefined) {
+    out.push(
+      `<text x="${laid.x + theme.cellPadding}" y="${laid.y + theme.cellPadding + theme.fontSize}" ` +
+        `font-weight="600" font-size="${theme.smallFontSize}" fill="${textColor}">${escapeText(node.label)}</text>`,
+    );
+  }
+
+  if (badgeIcon !== undefined) {
+    const sz = 12;
+    const bx = laid.x + laid.width - theme.cellPadding - sz;
+    const by = laid.y + theme.cellPadding;
+    const iconMarkup = emitIconByName(badgeIcon, bx, by, sz, stroke);
+    if (iconMarkup) out.push(iconMarkup);
+  }
+
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+
+function emitResourceBar(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  // Subtle background band so the bar reads as a unit.
+  out.push(
+    `<rect x="${laid.x - 4}" y="${laid.y - 4}" width="${laid.width + 8}" height="${laid.height + 8}" ` +
+      `fill="${theme.slotFillColor}" stroke="${theme.panelBorderColor}" stroke-width="0.5" rx="3" opacity="0.6" />`,
+  );
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+
+function emitResource(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as ResourceNode;
+  const iconName = getAttrString(node.attributes, 'icon') ?? inferResourceIcon(node.name);
+  const iconColor = theme.iconStrokeColor;
+  if (iconName && hasIcon(iconName)) {
+    const markup = emitIconByName(
+      iconName,
+      laid.x,
+      laid.y + (laid.height - theme.resourceBarIconSize) / 2,
+      theme.resourceBarIconSize,
+      iconColor,
+    );
+    if (markup) out.push(markup);
+  } else {
+    // Small boxed fallback
+    out.push(
+      `<rect x="${laid.x + 0.5}" y="${laid.y + (laid.height - theme.resourceBarIconSize) / 2 + 0.5}" ` +
+        `width="${theme.resourceBarIconSize - 1}" height="${theme.resourceBarIconSize - 1}" ` +
+        `fill="none" stroke="${iconColor}" stroke-width="1" rx="2" />`,
+    );
+  }
+  const textX = laid.x + theme.resourceBarIconSize + 6;
+  const textY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${textX}" y="${textY}" font-size="${theme.smallFontSize}" fill="${theme.mutedTextColor}">` +
+      `${escapeText(node.name)}: </text>` +
+      `<text x="${textX + (node.name.length + 2) * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize)}" y="${textY}" ` +
+      `font-size="${theme.smallFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(node.value)}</text>`,
+  );
+}
+
+function inferResourceIcon(name: string): string | undefined {
+  const lower = name.toLowerCase();
+  if (hasIcon(lower)) return lower;
+  // Lightweight heuristics so authors get sensible glyphs without specifying `icon=`.
+  if (/credit|coin|money|gold|cash/.test(lower)) return 'credits';
+  if (/research|science|lab/.test(lower)) return 'research';
+  if (/military|army|fleet|defense/.test(lower)) return 'military';
+  if (/industry|production|manufactur|factory/.test(lower)) return 'industry';
+  if (/influence|diplo/.test(lower)) return 'influence';
+  if (/approval|happy|morale/.test(lower)) return 'approval';
+  if (/faith|ideology|religion/.test(lower)) return 'faith';
+  if (/admin|authority|governance/.test(lower)) return 'authority';
+  if (/compute|computation|ai/.test(lower)) return 'computation';
+  if (/tech/.test(lower)) return 'tech';
+  if (/policy|law/.test(lower)) return 'policy';
+  return undefined;
+}
+
+function emitStats(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  void theme;
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+
+function emitStat(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as StatNode;
+  const isBold = hasFlag(node.attributes, 'bold');
+  const isMuted = hasFlag(node.attributes, 'muted');
+  const labelColor = isMuted ? theme.mutedTextColor : theme.mutedTextColor;
+  const valueColor = isMuted ? theme.mutedTextColor : theme.textColor;
+  const valueWeight = isBold ? '700' : '500';
+  const baseline = laid.y + laid.height * 0.75;
+  const labelW =
+    node.label.length * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize);
+
+  out.push(
+    `<text x="${laid.x}" y="${baseline}" font-size="${theme.smallFontSize}" ` +
+      `letter-spacing="0.5" fill="${labelColor}">${escapeText(node.label.toUpperCase())}</text>`,
+  );
+  out.push(
+    `<text x="${laid.x + labelW + 6}" y="${baseline}" font-weight="${valueWeight}" fill="${valueColor}">${escapeText(node.value)}</text>`,
+  );
+}
+
+function emitProgress(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as ProgressNode;
+  const label = getAttrString(node.attributes, 'label');
+  const accent = getAccent(node.attributes, theme);
+  const value = getAttrNumber(node.attributes, 'value') ?? 0;
+  const max = Math.max(1, getAttrNumber(node.attributes, 'max') ?? 100);
+  const frac = clamp01(value / max);
+
+  const barY = label !== undefined ? laid.y + theme.smallFontSize + 4 : laid.y;
+  const barHeight = theme.progressHeight;
+
+  if (label !== undefined) {
+    // Label on the left, "value / max" on the right, both small.
+    out.push(
+      `<text x="${laid.x}" y="${laid.y + theme.smallFontSize}" ` +
+        `font-size="${theme.smallFontSize}" fill="${theme.mutedTextColor}">${escapeText(label)}</text>`,
+    );
+    const right = `${value} / ${max}`;
+    out.push(
+      `<text x="${laid.x + laid.width}" y="${laid.y + theme.smallFontSize}" ` +
+        `text-anchor="end" font-size="${theme.smallFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(right)}</text>`,
+    );
+  }
+
+  // Track
+  out.push(
+    `<rect x="${laid.x}" y="${barY}" width="${laid.width}" height="${barHeight}" ` +
+      `fill="${theme.sliderTrackColor}" rx="${barHeight / 2}" />`,
+  );
+  // Fill
+  const fillColor = accent ?? theme.sliderFillColor;
+  out.push(
+    `<rect x="${laid.x}" y="${barY}" width="${laid.width * frac}" height="${barHeight}" ` +
+      `fill="${fillColor}" rx="${barHeight / 2}" />`,
+  );
+}
+
+function emitChart(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as ChartNode;
+  const kindAttr = getAttrIdent(node.attributes, 'kind');
+  const kind: 'bar' | 'line' | 'pie' =
+    kindAttr === 'line' || kindAttr === 'pie' ? kindAttr : 'bar';
+  const label = getAttrString(node.attributes, 'label');
+  const accent = getAccent(node.attributes, theme);
+  const stroke = accent ?? theme.panelBorderColor;
+  const fill = theme.slotFillColor;
+
+  // Dashed bordered rect — this is a placeholder, not a real chart.
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" ` +
+      `fill="${fill}" stroke="${stroke}" stroke-width="${theme.panelStrokeWidth}" ` +
+      `stroke-dasharray="${theme.panelStrokeDasharray}" rx="3" />`,
+  );
+
+  // Glyph that signals the chart kind.
+  const inset = 12;
+  const gx = laid.x + inset;
+  const gy = laid.y + inset;
+  const gw = laid.width - inset * 2;
+  const gh = laid.height - inset * 2 - (label !== undefined ? theme.smallFontSize + 4 : 0);
+  const glyphStroke = accent ?? theme.mutedTextColor;
+
+  if (kind === 'bar') {
+    const bars = 4;
+    const barW = gw / (bars * 2);
+    const heights = [0.4, 0.75, 0.55, 0.9];
+    for (let i = 0; i < bars; i++) {
+      const bh = gh * (heights[i] ?? 0.5);
+      const bx = gx + i * barW * 2 + barW * 0.5;
+      const by = gy + gh - bh;
+      out.push(
+        `<rect x="${bx}" y="${by}" width="${barW}" height="${bh}" fill="${glyphStroke}" opacity="0.75" />`,
+      );
+    }
+  } else if (kind === 'line') {
+    const points = [
+      { x: 0, y: 0.7 },
+      { x: 0.25, y: 0.45 },
+      { x: 0.5, y: 0.55 },
+      { x: 0.75, y: 0.2 },
+      { x: 1, y: 0.3 },
+    ];
+    const path = points
+      .map((p, i) => `${i === 0 ? 'M' : 'L'} ${gx + p.x * gw} ${gy + p.y * gh}`)
+      .join(' ');
+    out.push(
+      `<path d="${path}" fill="none" stroke="${glyphStroke}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />`,
+    );
+    for (const p of points) {
+      out.push(
+        `<circle cx="${gx + p.x * gw}" cy="${gy + p.y * gh}" r="2" fill="${glyphStroke}" />`,
+      );
+    }
+  } else {
+    // pie
+    const cx = gx + gw / 2;
+    const cy = gy + gh / 2;
+    const r = Math.min(gw, gh) / 2;
+    out.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${glyphStroke}" opacity="0.75" />`);
+    // Slice indicator — a wedge from 12 o'clock sweeping ~120°
+    const endX = cx + r * Math.cos(-Math.PI / 2 + (2 * Math.PI) / 3);
+    const endY = cy + r * Math.sin(-Math.PI / 2 + (2 * Math.PI) / 3);
+    out.push(
+      `<path d="M ${cx} ${cy} L ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${endX} ${endY} Z" ` +
+        `fill="${theme.background}" opacity="0.7" />`,
+    );
+  }
+
+  // Optional label beneath the glyph.
+  if (label !== undefined) {
+    out.push(
+      `<text x="${laid.x + laid.width / 2}" y="${laid.y + laid.height - 8}" ` +
+        `text-anchor="middle" font-size="${theme.smallFontSize}" fill="${theme.mutedTextColor}">${escapeText(label)}</text>`,
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -538,15 +884,30 @@ function renderBadgePill(
   text: string,
   theme: Theme,
   out: string[],
+  accent?: string,
 ): void {
   const w = badgeRenderWidth(text, theme);
   const h = theme.badgeHeight;
+  const fill = accent ?? theme.badgeFill;
+  const textFill = accent ? '#ffffff' : theme.badgeText;
   out.push(
-    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="${theme.badgeFill}" />`,
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="${fill}" />`,
     `<text x="${x + w / 2}" y="${y + h / 2 + theme.badgeFontSize / 3}" ` +
       `text-anchor="middle" font-size="${theme.badgeFontSize}" font-weight="600" ` +
-      `fill="${theme.badgeText}">${escapeText(text)}</text>`,
+      `fill="${textFill}">${escapeText(text)}</text>`,
   );
+}
+
+function getAccent(attrs: readonly Attribute[], theme: Theme): string | undefined {
+  const v = getAttrIdent(attrs, 'accent');
+  if (v === undefined) return undefined;
+  return theme.accents[v as AccentName];
+}
+
+function getState(attrs: readonly Attribute[]): StateName | undefined {
+  const v = getAttrIdent(attrs, 'state');
+  if (v === undefined) return undefined;
+  return v as StateName;
 }
 
 function badgeRenderWidth(text: string, theme: Theme): number {

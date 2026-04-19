@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="244.05714285714285" height="170.85714285714286" viewBox="0 0 244.05714285714285 170.85714285714286" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="244.05714285714285" height="170.85714285714286" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="243.05714285714285" height="169.85714285714286" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="244.05714285714285" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="122.02857142857142" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Leader Card</text>
+<rect x="16.5" y="52.5" width="211.05714285714285" height="101.85714285714286" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="83.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">Admiral Kade Voss</text>
+<text x="28" y="112.71428571428572" font-size="12" letter-spacing="0.5" fill="#7a7f87">INT</text>
+<text x="52.51428571428572" y="112.71428571428572" font-weight="500" fill="#2d2d2d">4</text>
+<text x="77.71428571428572" y="112.71428571428572" font-size="12" letter-spacing="0.5" fill="#7a7f87">CHA</text>
+<text x="102.22857142857144" y="112.71428571428572" font-weight="500" fill="#2d2d2d">3</text>
+<text x="127.42857142857144" y="112.71428571428572" font-size="12" letter-spacing="0.5" fill="#7a7f87">MIL</text>
+<text x="151.94285714285715" y="112.71428571428572" font-weight="700" fill="#2d2d2d">5</text>
+<text x="177.14285714285717" y="112.71428571428572" font-size="12" letter-spacing="0.5" fill="#7a7f87">LOY</text>
+<text x="201.65714285714287" y="112.71428571428572" font-weight="500" fill="#2d2d2d">75</text>
+<text x="28" y="138.57142857142858" font-size="12" fill="#7a7f87">Fleet Admiral, Arcturus Prime</text>
+</svg>

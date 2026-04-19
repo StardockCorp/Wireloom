@@ -18,8 +18,9 @@
 <text x="436" y="175" text-anchor="end" fill="#2d2d2d">Arcturus Prime</text>
 <rect x="236.5" y="188.5" width="23" height="23" fill="none" stroke="#6b7078" stroke-width="1" rx="3" />
 <text x="248" y="204.66666666666666" text-anchor="middle" font-size="12" fill="#6b7078">M</text>
-<rect x="268.5" y="188.5" width="23" height="23" fill="none" stroke="#6b7078" stroke-width="1" rx="3" />
-<text x="280" y="204.66666666666666" text-anchor="middle" font-size="12" fill="#6b7078">S</text>
+<g transform="translate(268 188) scale(1.5)" color="#6b7078">
+<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="currentColor" stroke="none" />
+</g>
 <rect x="300.5" y="188.5" width="23" height="23" fill="none" stroke="#6b7078" stroke-width="1" rx="3" />
 <text x="312" y="204.66666666666666" text-anchor="middle" font-size="12" fill="#6b7078">S</text>
 <line x1="0" y1="268" x2="464" y2="268" stroke="#b0b0b0" stroke-width="1" />

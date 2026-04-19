@@ -5,6 +5,36 @@
  * object consumed by the layout engine and SVG emitter.
  */
 
+export type AccentName =
+  | 'research'
+  | 'military'
+  | 'industry'
+  | 'wealth'
+  | 'approval'
+  | 'warning'
+  | 'danger'
+  | 'success';
+
+export type StateName =
+  | 'locked'
+  | 'available'
+  | 'active'
+  | 'purchased'
+  | 'maxed'
+  | 'growing'
+  | 'ripe'
+  | 'withering'
+  | 'cashed';
+
+/** Rendering style for a cell/slot in a given state. */
+export interface StateStyle {
+  border: string;
+  fill: string;
+  text: string;
+  /** Optional right-shoulder badge glyph rendered on the node (e.g. 🔒, ✓). */
+  badge?: string;
+}
+
 export interface Theme {
   name: string;
 
@@ -100,6 +130,24 @@ export interface Theme {
   badgePaddingX: number;
   kvMinWidth: number;
   colFillMinWidth: number;
+
+  // v0.4 additions
+  cellMinSize: number;
+  cellPadding: number;
+  resourceBarHeight: number;
+  resourceBarItemGap: number;
+  resourceBarIconSize: number;
+  statsGap: number;
+  progressDefaultWidth: number;
+  progressMaxWidth: number;
+  progressHeight: number;
+  chartDefaultWidth: number;
+  chartDefaultHeight: number;
+
+  /** Maps accent name → color used for borders, fills, and text treatments. */
+  accents: Readonly<Record<AccentName, string>>;
+  /** Maps state name → visual treatment applied to slots and cells. */
+  states: Readonly<Record<StateName, StateStyle>>;
 }
 
 export const DEFAULT_THEME: Theme = Object.freeze({
@@ -192,6 +240,80 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   badgePaddingX: 8,
   kvMinWidth: 200,
   colFillMinWidth: 220,
+
+  cellMinSize: 80,
+  cellPadding: 8,
+  resourceBarHeight: 28,
+  resourceBarItemGap: 16,
+  resourceBarIconSize: 18,
+  statsGap: 18,
+  progressDefaultWidth: 200,
+  progressMaxWidth: 600,
+  progressHeight: 18,
+  chartDefaultWidth: 220,
+  chartDefaultHeight: 120,
+
+  accents: Object.freeze({
+    research: '#3f7cc2',
+    military: '#b55442',
+    industry: '#c28a3a',
+    wealth: '#3f8f5c',
+    approval: '#7a56b0',
+    warning: '#c79a2e',
+    danger: '#b0413c',
+    success: '#3f8f5c',
+  }),
+  states: Object.freeze({
+    locked: {
+      border: '#b8b8b8',
+      fill: '#f0f0f0',
+      text: '#8a8f97',
+      badge: 'lock',
+    },
+    available: {
+      border: '#7a7f87',
+      fill: '#fafbfc',
+      text: '#2d2d2d',
+    },
+    active: {
+      border: '#3a3a3a',
+      fill: '#fafbfc',
+      text: '#2d2d2d',
+    },
+    purchased: {
+      border: '#3f8f5c',
+      fill: '#e8f3ec',
+      text: '#205537',
+      badge: 'check',
+    },
+    maxed: {
+      border: '#c28a3a',
+      fill: '#f7efdc',
+      text: '#6b4e15',
+      badge: 'star',
+    },
+    growing: {
+      border: '#7a9a5a',
+      fill: '#edf4e2',
+      text: '#44552a',
+    },
+    ripe: {
+      border: '#3f8f5c',
+      fill: '#d9eedf',
+      text: '#205537',
+      badge: 'check',
+    },
+    withering: {
+      border: '#a07245',
+      fill: '#f0e4d5',
+      text: '#6b4e2e',
+    },
+    cashed: {
+      border: '#b8b8b8',
+      fill: '#ededed',
+      text: '#7a7f87',
+    },
+  }),
 }) as Theme;
 
 export const DARK_THEME: Theme = Object.freeze({
@@ -226,6 +348,68 @@ export const DARK_THEME: Theme = Object.freeze({
   comboChevronColor: '#8a9099',
   bulletColor: '#707780',
   iconStrokeColor: '#8a9099',
+
+  accents: Object.freeze({
+    research: '#6ba4e8',
+    military: '#d47967',
+    industry: '#e2aa57',
+    wealth: '#6bbd86',
+    approval: '#a58fd0',
+    warning: '#e2b84a',
+    danger: '#d66863',
+    success: '#6bbd86',
+  }),
+  states: Object.freeze({
+    locked: {
+      border: '#5a5a5a',
+      fill: '#2a2a2a',
+      text: '#707780',
+      badge: 'lock',
+    },
+    available: {
+      border: '#8a9099',
+      fill: '#252525',
+      text: '#e0e0e0',
+    },
+    active: {
+      border: '#d4d4d4',
+      fill: '#252525',
+      text: '#f0f0f0',
+    },
+    purchased: {
+      border: '#6bbd86',
+      fill: '#1f2e24',
+      text: '#b0e0c2',
+      badge: 'check',
+    },
+    maxed: {
+      border: '#e2aa57',
+      fill: '#3a2f1c',
+      text: '#f0d79a',
+      badge: 'star',
+    },
+    growing: {
+      border: '#9abb6f',
+      fill: '#242d1c',
+      text: '#c5d9a7',
+    },
+    ripe: {
+      border: '#6bbd86',
+      fill: '#1f3528',
+      text: '#b0e0c2',
+      badge: 'check',
+    },
+    withering: {
+      border: '#b58a5c',
+      fill: '#332a22',
+      text: '#d1b89a',
+    },
+    cashed: {
+      border: '#5a5a5a',
+      fill: '#2a2a2a',
+      text: '#8a9099',
+    },
+  }),
 }) as Theme;
 
 export function getTheme(name: 'default' | 'dark'): Theme {

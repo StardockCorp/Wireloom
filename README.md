@@ -15,7 +15,7 @@ Since everything in Clairvoyance flows through Markdown and SVG is already the c
 
 ## Status
 
-**v0.3 — first public release.** Full v1 primitive set, flexible 2- or 4-space indentation, and friendly "did you mean?" error messages. Available on npm.
+**v0.4 — game-UI primitive set.** Adds `grid`/`cell`, `progress`, `chart` (placeholder), `resourcebar`/`resource`, `stats`/`stat`, unified `state=` / `accent=` treatments for slots and cells, slot footers, and a real named icon library. No breaking changes to v0.3 sources except that custom themes must provide the new token set.
 
 ## What it looks like
 
@@ -167,7 +167,8 @@ Full reference at [`design/grammar.md`](design/grammar.md).
 - ✅ **v0.1** — Thin slice: `window`, `header`, `footer`, `row`, `col`, `panel`, `text`, `button`, `input`, `divider`. Default theme.
 - ✅ **v0.2** — Full v1 token set: `tabs`, `section`, `list`, `slot`, `kv`, `combo`, `slider`, `image`, `icon`, badges, alignment, typography, dark theme, roundtrip serializer.
 - ✅ **v0.3** — Published to npm. Flexible 2- or 4-space indentation, "did you mean?" suggestions, targeted `kv` hint.
-- **v0.4** — Documentation site with live editor. Visual regression via headless Chromium.
+- ✅ **v0.4** — Game-UI primitives: `grid`/`cell`, `progress`, `chart` placeholder, `resourcebar`, `stats`/`stat`, slot `footer`, unified `state=`/`accent=`, real named icon library.
+- **v0.5** — Documentation site with live editor. Visual regression via headless Chromium.
 - **v1.0** — Stable public API, ecosystem adapters (`remark-wireloom`, `markdown-it-wireloom`), VS Code extension.
 
 ## Links

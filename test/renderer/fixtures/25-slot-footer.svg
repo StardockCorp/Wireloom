@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="777.3714285714286" height="203.14285714285714" viewBox="0 0 777.3714285714286 203.14285714285714" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="777.3714285714286" height="203.14285714285714" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="776.3714285714286" height="202.14285714285714" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="777.3714285714286" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="388.6857142857143" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Oligarchy — Investments</text>
+<rect x="16.5" y="52.5" width="370.7714285714286" height="134.14285714285714" fill="#edf4e2" stroke="#c28a3a" stroke-width="1" rx="4" />
+<text x="26" y="77.4" font-weight="600" fill="#44552a">Corellian Shipyards</text>
+<text x="26" y="107" font-size="12" letter-spacing="0.5" fill="#7a7f87">YIELD</text>
+<text x="62.857142857142854" y="107" font-weight="500" fill="#2d2d2d">+12/turn</text>
+<text x="138.45714285714286" y="107" font-size="12" letter-spacing="0.5" fill="#7a7f87">RIPENS</text>
+<text x="181.4857142857143" y="107" font-weight="500" fill="#2d2d2d">T+6</text>
+<text x="26" y="132.85714285714286" font-size="12" fill="#7a7f87">Growing investment — pulls in shipyard revenue over time.</text>
+<g opacity="1">
+<rect x="227.0714285714286" y="145.64285714285714" width="59.8" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="256.9714285714286" y="165.8095238095238" text-anchor="middle" font-weight="500" fill="#2d2d2d">Sell</text>
+</g>
+<g opacity="1">
+<rect x="295.8714285714286" y="145.64285714285714" width="81.4" height="31" fill="#3f8f5c" stroke="#3f8f5c" stroke-width="1.25" rx="3" />
+<text x="336.5714285714286" y="165.8095238095238" text-anchor="middle" font-weight="500" fill="#ffffff">Harvest</text>
+</g>
+<rect x="396.2714285714286" y="52.5" width="364.59999999999997" height="134.14285714285714" fill="#d9eedf" stroke="#3f8f5c" stroke-width="1" rx="4" />
+<text x="405.7714285714286" y="77.4" font-weight="600" fill="#205537">Arcturus Mining Guild</text>
+<g transform="translate(737.3714285714286 66) scale(0.875)" color="#3f8f5c">
+<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="405.7714285714286" y="107" font-size="12" letter-spacing="0.5" fill="#7a7f87">YIELD</text>
+<text x="442.62857142857143" y="107" font-weight="500" fill="#2d2d2d">+40/turn</text>
+<text x="518.2285714285715" y="107" font-size="12" letter-spacing="0.5" fill="#7a7f87">RIPENS</text>
+<text x="561.257142857143" y="107" font-weight="500" fill="#2d2d2d">NOW</text>
+<text x="405.7714285714286" y="132.85714285714286" font-size="12" fill="#7a7f87">Ripe — cash out for a lump sum or let it mature further.</text>
+<g opacity="1">
+<rect x="600.6714285714286" y="145.64285714285714" width="59.8" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="630.5714285714286" y="165.8095238095238" text-anchor="middle" font-weight="500" fill="#2d2d2d">Sell</text>
+</g>
+<g opacity="1">
+<rect x="669.4714285714285" y="145.64285714285714" width="81.4" height="31" fill="#3f8f5c" stroke="#3f8f5c" stroke-width="1.25" rx="3" />
+<text x="710.1714285714286" y="165.8095238095238" text-anchor="middle" font-weight="500" fill="#ffffff">Harvest</text>
+</g>
+</svg>

@@ -1,0 +1,764 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "section",
+        "title": "Economy",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "credits",
+                      "position": {
+                        "line": 4,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 4,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "credits",
+                      "position": {
+                        "line": 5,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 5,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "wealth",
+                      "position": {
+                        "line": 5,
+                        "column": 34
+                      }
+                    },
+                    "position": {
+                      "line": 5,
+                      "column": 27
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 5,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "industry",
+                      "position": {
+                        "line": 6,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 6,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "industry",
+                      "position": {
+                        "line": 6,
+                        "column": 35
+                      }
+                    },
+                    "position": {
+                      "line": 6,
+                      "column": 28
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 6,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "research",
+                      "position": {
+                        "line": 7,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 7,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "research",
+                      "position": {
+                        "line": 7,
+                        "column": 35
+                      }
+                    },
+                    "position": {
+                      "line": 7,
+                      "column": 28
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Military",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "military",
+                      "position": {
+                        "line": 10,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 10,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "military",
+                      "position": {
+                        "line": 10,
+                        "column": 35
+                      }
+                    },
+                    "position": {
+                      "line": 10,
+                      "column": 28
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "ship",
+                      "position": {
+                        "line": 11,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 11,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 11,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "warning",
+                      "position": {
+                        "line": 12,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 12,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "warning",
+                      "position": {
+                        "line": 12,
+                        "column": 34
+                      }
+                    },
+                    "position": {
+                      "line": 12,
+                      "column": 27
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "warning",
+                      "position": {
+                        "line": 13,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 13,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "danger",
+                      "position": {
+                        "line": 13,
+                        "column": 34
+                      }
+                    },
+                    "position": {
+                      "line": 13,
+                      "column": 27
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 13,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 8,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Governance",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "authority",
+                      "position": {
+                        "line": 16,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 16,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 16,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "policy",
+                      "position": {
+                        "line": 17,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 17,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 17,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "leader",
+                      "position": {
+                        "line": 18,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 18,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 18,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "approval",
+                      "position": {
+                        "line": 19,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 19,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "approval",
+                      "position": {
+                        "line": 19,
+                        "column": 35
+                      }
+                    },
+                    "position": {
+                      "line": 19,
+                      "column": 28
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 19,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 15,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 14,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Tech",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "tech",
+                      "position": {
+                        "line": 22,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 22,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 22,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "computation",
+                      "position": {
+                        "line": 23,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 23,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "research",
+                      "position": {
+                        "line": 23,
+                        "column": 38
+                      }
+                    },
+                    "position": {
+                      "line": 23,
+                      "column": 31
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 23,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "gear",
+                      "position": {
+                        "line": 24,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 24,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 24,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "planet",
+                      "position": {
+                        "line": 25,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 25,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 25,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 21,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 20,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "UI chrome",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "lock",
+                      "position": {
+                        "line": 28,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 28,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 28,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "check",
+                      "position": {
+                        "line": 29,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 29,
+                      "column": 12
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 29,
+                        "column": 32
+                      }
+                    },
+                    "position": {
+                      "line": 29,
+                      "column": 25
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 29,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "star",
+                      "position": {
+                        "line": 30,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 30,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 30,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "icon",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "name",
+                    "value": {
+                      "kind": "string",
+                      "value": "plus",
+                      "position": {
+                        "line": 31,
+                        "column": 17
+                      }
+                    },
+                    "position": {
+                      "line": 31,
+                      "column": 12
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 31,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 27,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 26,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Icon Library"
+  },
+  "sourceLines": 32
+}

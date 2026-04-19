@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1027.1999999999998" height="148" viewBox="0 0 1027.1999999999998 148" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="1027.1999999999998" height="148" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="1026.1999999999998" height="147" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="1027.1999999999998" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="513.5999999999999" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Colonial Charter</text>
+<rect x="12" y="48" width="1003.2" height="36" fill="#fafbfc" stroke="#8a8a8a" stroke-width="0.5" rx="3" opacity="0.6" />
+<g transform="translate(16 57) scale(1.125)" color="#6b7078">
+<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4" />
+<text x="8" y="11.3" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="700" fill="currentColor">$</text>
+</g>
+<text x="40" y="70.66666666666667" font-size="12" fill="#7a7f87">Credits: </text>
+<text x="95.54285714285714" y="70.66666666666667" font-size="12" font-weight="600" fill="#2d2d2d">1,500</text>
+<g transform="translate(156.8 57) scale(1.125)" color="#6b7078">
+<path d="M 6 2 L 6 6 L 3 13 Q 3 14 4 14 L 12 14 Q 13 14 13 13 L 10 6 L 10 2 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="5.5" y1="2" x2="10.5" y2="2" stroke="currentColor" stroke-width="1.4" />
+</g>
+<text x="180.8" y="70.66666666666667" font-size="12" fill="#7a7f87">Research: </text>
+<text x="242.51428571428573" y="70.66666666666667" font-size="12" font-weight="600" fill="#2d2d2d">240</text>
+<g transform="translate(290.40000000000003 57) scale(1.125)" color="#6b7078">
+<path d="M 2 14 L 2 8 L 7 10 L 7 7 L 12 10 L 12 4 L 14 4 L 14 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+</g>
+<text x="314.40000000000003" y="70.66666666666667" font-size="12" fill="#7a7f87">Production: </text>
+<text x="388.4571428571429" y="70.66666666666667" font-size="12" font-weight="600" fill="#2d2d2d">88</text>
+<g transform="translate(431.20000000000005 57) scale(1.125)" color="#6b7078">
+<path d="M 3 4 L 13 4 Q 14 4 14 5 L 14 10 Q 14 11 13 11 L 8 11 L 5 14 L 5 11 L 3 11 Q 2 11 2 10 L 2 5 Q 2 4 3 4 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+</g>
+<text x="455.20000000000005" y="70.66666666666667" font-size="12" fill="#7a7f87">Influence: </text>
+<text x="523.0857142857143" y="70.66666666666667" font-size="12" font-weight="600" fill="#2d2d2d">55</text>
+<g transform="translate(564.8000000000001 57) scale(1.125)" color="#6b7078">
+<path d="M 8 14 Q 2 10 2 6 Q 2 3 5 3 Q 7 3 8 5 Q 9 3 11 3 Q 14 3 14 6 Q 14 10 8 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+</g>
+<text x="588.8000000000001" y="70.66666666666667" font-size="12" fill="#7a7f87">Approval: </text>
+<text x="650.5142857142857" y="70.66666666666667" font-size="12" font-weight="600" fill="#2d2d2d">72%</text>
+<g transform="translate(698.4000000000001 57) scale(1.125)" color="#6b7078">
+<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+</g>
+<text x="722.4000000000001" y="70.66666666666667" font-size="12" fill="#7a7f87">Faith: </text>
+<text x="765.6000000000001" y="70.66666666666667" font-size="12" font-weight="600" fill="#2d2d2d">12</text>
+<g transform="translate(803.2 57) scale(1.125)" color="#6b7078">
+<path d="M 3 4 L 13 4 Q 14 4 14 5 L 14 10 Q 14 11 13 11 L 8 11 L 5 14 L 5 11 L 3 11 Q 2 11 2 10 L 2 5 Q 2 4 3 4 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+</g>
+<text x="827.2" y="70.66666666666667" font-size="12" fill="#7a7f87">Diplo: </text>
+<text x="870.4000000000001" y="70.66666666666667" font-size="12" font-weight="600" fill="#2d2d2d">4</text>
+<g transform="translate(900.8000000000001 57) scale(1.125)" color="#6b7078">
+<path d="M 3 14 L 3 5 L 5 5 L 5 3 L 11 3 L 11 5 L 13 5 L 13 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="8" y1="5" x2="8" y2="14" stroke="currentColor" stroke-width="1" />
+</g>
+<text x="924.8000000000001" y="70.66666666666667" font-size="12" fill="#7a7f87">Authority: </text>
+<text x="992.6857142857143" y="70.66666666666667" font-size="12" font-weight="600" fill="#2d2d2d">9</text>
+<rect x="16.5" y="88.5" width="994.1999999999998" height="43" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="115" fill="#2d2d2d">Top-of-screen resource strip above.</text>
+</svg>

@@ -1,0 +1,1137 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "grid",
+        "cols": 5,
+        "rows": 5,
+        "attributes": [
+          {
+            "kind": "pair",
+            "key": "cols",
+            "value": {
+              "kind": "number",
+              "value": 5,
+              "unit": "px",
+              "position": {
+                "line": 3,
+                "column": 13
+              }
+            },
+            "position": {
+              "line": 3,
+              "column": 8
+            }
+          },
+          {
+            "kind": "pair",
+            "key": "rows",
+            "value": {
+              "kind": "number",
+              "value": 5,
+              "unit": "px",
+              "position": {
+                "line": 3,
+                "column": 20
+              }
+            },
+            "position": {
+              "line": 3,
+              "column": 15
+            }
+          }
+        ],
+        "children": [
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "purchased",
+                  "position": {
+                    "line": 4,
+                    "column": 28
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "research",
+                  "position": {
+                    "line": 4,
+                    "column": 45
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 38
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 4,
+              "column": 5
+            },
+            "label": "Compute I"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "purchased",
+                  "position": {
+                    "line": 5,
+                    "column": 29
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 23
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "research",
+                  "position": {
+                    "line": 5,
+                    "column": 46
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 39
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 5,
+              "column": 5
+            },
+            "label": "Compute II"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "available",
+                  "position": {
+                    "line": 6,
+                    "column": 30
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 24
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "research",
+                  "position": {
+                    "line": 6,
+                    "column": 47
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 40
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 6,
+              "column": 5
+            },
+            "label": "Compute III"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 7,
+                    "column": 29
+                  }
+                },
+                "position": {
+                  "line": 7,
+                  "column": 23
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "research",
+                  "position": {
+                    "line": 7,
+                    "column": 43
+                  }
+                },
+                "position": {
+                  "line": 7,
+                  "column": 36
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 7,
+              "column": 5
+            },
+            "label": "Compute IV"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 8,
+                    "column": 28
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "research",
+                  "position": {
+                    "line": 8,
+                    "column": 42
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 35
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 8,
+              "column": 5
+            },
+            "label": "Compute V"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "purchased",
+                  "position": {
+                    "line": 10,
+                    "column": 24
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 18
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "wealth",
+                  "position": {
+                    "line": 10,
+                    "column": 41
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 34
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 10,
+              "column": 5
+            },
+            "label": "Tax I"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "available",
+                  "position": {
+                    "line": 11,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 11,
+                  "column": 19
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "wealth",
+                  "position": {
+                    "line": 11,
+                    "column": 42
+                  }
+                },
+                "position": {
+                  "line": 11,
+                  "column": 35
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 11,
+              "column": 5
+            },
+            "label": "Tax II"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 12,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 12,
+                  "column": 20
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "wealth",
+                  "position": {
+                    "line": 12,
+                    "column": 40
+                  }
+                },
+                "position": {
+                  "line": 12,
+                  "column": 33
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 12,
+              "column": 5
+            },
+            "label": "Tax III"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 13,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 13,
+                  "column": 19
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "wealth",
+                  "position": {
+                    "line": 13,
+                    "column": 39
+                  }
+                },
+                "position": {
+                  "line": 13,
+                  "column": 32
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 13,
+              "column": 5
+            },
+            "label": "Tax IV"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 14,
+                    "column": 24
+                  }
+                },
+                "position": {
+                  "line": 14,
+                  "column": 18
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "wealth",
+                  "position": {
+                    "line": 14,
+                    "column": 38
+                  }
+                },
+                "position": {
+                  "line": 14,
+                  "column": 31
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 14,
+              "column": 5
+            },
+            "label": "Tax V"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "available",
+                  "position": {
+                    "line": 16,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 16,
+                  "column": 20
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "military",
+                  "position": {
+                    "line": 16,
+                    "column": 43
+                  }
+                },
+                "position": {
+                  "line": 16,
+                  "column": 36
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 16,
+              "column": 5
+            },
+            "label": "Fleet I"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 17,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 17,
+                  "column": 21
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "military",
+                  "position": {
+                    "line": 17,
+                    "column": 41
+                  }
+                },
+                "position": {
+                  "line": 17,
+                  "column": 34
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 17,
+              "column": 5
+            },
+            "label": "Fleet II"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 18,
+                    "column": 28
+                  }
+                },
+                "position": {
+                  "line": 18,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "military",
+                  "position": {
+                    "line": 18,
+                    "column": 42
+                  }
+                },
+                "position": {
+                  "line": 18,
+                  "column": 35
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 18,
+              "column": 5
+            },
+            "label": "Fleet III"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 19,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 19,
+                  "column": 21
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "military",
+                  "position": {
+                    "line": 19,
+                    "column": 41
+                  }
+                },
+                "position": {
+                  "line": 19,
+                  "column": 34
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 19,
+              "column": 5
+            },
+            "label": "Fleet IV"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 20,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 20,
+                  "column": 20
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "military",
+                  "position": {
+                    "line": 20,
+                    "column": 40
+                  }
+                },
+                "position": {
+                  "line": 20,
+                  "column": 33
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 20,
+              "column": 5
+            },
+            "label": "Fleet V"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "maxed",
+                  "position": {
+                    "line": 22,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 22,
+                  "column": 19
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "industry",
+                  "position": {
+                    "line": 22,
+                    "column": 38
+                  }
+                },
+                "position": {
+                  "line": 22,
+                  "column": 31
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 22,
+              "column": 5
+            },
+            "label": "Prod I"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "maxed",
+                  "position": {
+                    "line": 23,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 23,
+                  "column": 20
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "industry",
+                  "position": {
+                    "line": 23,
+                    "column": 39
+                  }
+                },
+                "position": {
+                  "line": 23,
+                  "column": 32
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 23,
+              "column": 5
+            },
+            "label": "Prod II"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "purchased",
+                  "position": {
+                    "line": 24,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 24,
+                  "column": 21
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "industry",
+                  "position": {
+                    "line": 24,
+                    "column": 44
+                  }
+                },
+                "position": {
+                  "line": 24,
+                  "column": 37
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 24,
+              "column": 5
+            },
+            "label": "Prod III"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "available",
+                  "position": {
+                    "line": 25,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 25,
+                  "column": 20
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "industry",
+                  "position": {
+                    "line": 25,
+                    "column": 43
+                  }
+                },
+                "position": {
+                  "line": 25,
+                  "column": 36
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 25,
+              "column": 5
+            },
+            "label": "Prod IV"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 26,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 26,
+                  "column": 19
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "industry",
+                  "position": {
+                    "line": 26,
+                    "column": 39
+                  }
+                },
+                "position": {
+                  "line": 26,
+                  "column": 32
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 26,
+              "column": 5
+            },
+            "label": "Prod V"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "purchased",
+                  "position": {
+                    "line": 28,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 28,
+                  "column": 21
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "approval",
+                  "position": {
+                    "line": 28,
+                    "column": 44
+                  }
+                },
+                "position": {
+                  "line": 28,
+                  "column": 37
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 28,
+              "column": 5
+            },
+            "label": "Morale I"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "available",
+                  "position": {
+                    "line": 29,
+                    "column": 28
+                  }
+                },
+                "position": {
+                  "line": 29,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "approval",
+                  "position": {
+                    "line": 29,
+                    "column": 45
+                  }
+                },
+                "position": {
+                  "line": 29,
+                  "column": 38
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 29,
+              "column": 5
+            },
+            "label": "Morale II"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 30,
+                    "column": 29
+                  }
+                },
+                "position": {
+                  "line": 30,
+                  "column": 23
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "approval",
+                  "position": {
+                    "line": 30,
+                    "column": 43
+                  }
+                },
+                "position": {
+                  "line": 30,
+                  "column": 36
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 30,
+              "column": 5
+            },
+            "label": "Morale III"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 31,
+                    "column": 28
+                  }
+                },
+                "position": {
+                  "line": 31,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "approval",
+                  "position": {
+                    "line": 31,
+                    "column": 42
+                  }
+                },
+                "position": {
+                  "line": 31,
+                  "column": 35
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 31,
+              "column": 5
+            },
+            "label": "Morale IV"
+          },
+          {
+            "kind": "cell",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "locked",
+                  "position": {
+                    "line": 32,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 32,
+                  "column": 21
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "approval",
+                  "position": {
+                    "line": 32,
+                    "column": 41
+                  }
+                },
+                "position": {
+                  "line": 32,
+                  "column": 34
+                }
+              }
+            ],
+            "children": [],
+            "position": {
+              "line": 32,
+              "column": 5
+            },
+            "label": "Morale V"
+          }
+        ],
+        "position": {
+          "line": 3,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 2,
+      "column": 1
+    },
+    "title": "Technocracy — Optimization Matrix"
+  },
+  "sourceLines": 33
+}

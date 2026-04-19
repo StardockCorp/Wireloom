@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="152" height="430" viewBox="0 0 152 430" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="152" height="430" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="151" height="429" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="152" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="76" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Icon Library</text>
+<text x="16" y="70" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">ECONOMY</text>
+<line x1="16" y1="74" x2="136" y2="74" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g transform="translate(16 82) scale(1.5)" color="#6b7078">
+<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4" />
+<text x="8" y="11.3" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="700" fill="currentColor">$</text>
+</g>
+<g transform="translate(48 82) scale(1.5)" color="#3f8f5c">
+<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4" />
+<text x="8" y="11.3" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="700" fill="currentColor">$</text>
+</g>
+<g transform="translate(80 82) scale(1.5)" color="#c28a3a">
+<path d="M 2 14 L 2 8 L 7 10 L 7 7 L 12 10 L 12 4 L 14 4 L 14 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+</g>
+<g transform="translate(112 82) scale(1.5)" color="#3f7cc2">
+<path d="M 6 2 L 6 6 L 3 13 Q 3 14 4 14 L 12 14 Q 13 14 13 13 L 10 6 L 10 2 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="5.5" y1="2" x2="10.5" y2="2" stroke="currentColor" stroke-width="1.4" />
+</g>
+<text x="16" y="144" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">MILITARY</text>
+<line x1="16" y1="148" x2="136" y2="148" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g transform="translate(16 156) scale(1.5)" color="#b55442">
+<path d="M 8 2 L 13 4 L 13 8 Q 13 12 8 14 Q 3 12 3 8 L 3 4 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+</g>
+<g transform="translate(48 156) scale(1.5)" color="#6b7078">
+<path d="M 2 10 L 14 10 L 12 14 L 4 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="8" y1="2" x2="8" y2="10" stroke="currentColor" stroke-width="1.4" />
+<path d="M 8 3 L 12 7 L 8 7 Z" fill="currentColor" />
+</g>
+<g transform="translate(80 156) scale(1.5)" color="#c79a2e">
+<path d="M 8 2 L 14 13 L 2 13 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="8" y1="6" x2="8" y2="9" stroke="currentColor" stroke-width="1.6" />
+<circle cx="8" cy="11" r="0.8" fill="currentColor" />
+</g>
+<g transform="translate(112 156) scale(1.5)" color="#b0413c">
+<path d="M 8 2 L 14 13 L 2 13 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="8" y1="6" x2="8" y2="9" stroke="currentColor" stroke-width="1.6" />
+<circle cx="8" cy="11" r="0.8" fill="currentColor" />
+</g>
+<text x="16" y="218" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">GOVERNANCE</text>
+<line x1="16" y1="222" x2="136" y2="222" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g transform="translate(16 230) scale(1.5)" color="#6b7078">
+<path d="M 3 14 L 3 5 L 5 5 L 5 3 L 11 3 L 11 5 L 13 5 L 13 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="8" y1="5" x2="8" y2="14" stroke="currentColor" stroke-width="1" />
+</g>
+<g transform="translate(48 230) scale(1.5)" color="#6b7078">
+<path d="M 4 2 L 11 2 L 13 4 L 13 14 L 4 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="6" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1" />
+<line x1="6" y1="10" x2="11" y2="10" stroke="currentColor" stroke-width="1" />
+</g>
+<g transform="translate(80 230) scale(1.5)" color="#6b7078">
+<circle cx="8" cy="6" r="2.5" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 3 14 Q 3 9 8 9 Q 13 9 13 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+</g>
+<g transform="translate(112 230) scale(1.5)" color="#7a56b0">
+<path d="M 8 14 Q 2 10 2 6 Q 2 3 5 3 Q 7 3 8 5 Q 9 3 11 3 Q 14 3 14 6 Q 14 10 8 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+</g>
+<text x="16" y="292" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">TECH</text>
+<line x1="16" y1="296" x2="136" y2="296" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g transform="translate(16 304) scale(1.5)" color="#6b7078">
+<polygon points="8,2 14,6 14,10 8,14 2,10 2,6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<circle cx="8" cy="8" r="2" fill="currentColor" />
+</g>
+<g transform="translate(48 304) scale(1.5)" color="#3f7cc2">
+<rect x="4" y="4" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<line x1="2" y1="6" x2="4" y2="6" stroke="currentColor" stroke-width="1" />
+<line x1="2" y1="10" x2="4" y2="10" stroke="currentColor" stroke-width="1" />
+<line x1="12" y1="6" x2="14" y2="6" stroke="currentColor" stroke-width="1" />
+<line x1="12" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1" />
+<line x1="6" y1="2" x2="6" y2="4" stroke="currentColor" stroke-width="1" />
+<line x1="10" y1="2" x2="10" y2="4" stroke="currentColor" stroke-width="1" />
+<line x1="6" y1="12" x2="6" y2="14" stroke="currentColor" stroke-width="1" />
+<line x1="10" y1="12" x2="10" y2="14" stroke="currentColor" stroke-width="1" />
+</g>
+<g transform="translate(80 304) scale(1.5)" color="#6b7078">
+<path d="M 8 2 L 9 3.5 L 11 3 L 11.5 5 L 13 6 L 12.5 8 L 13 10 L 11.5 11 L 11 13 L 9 12.5 L 8 14 L 7 12.5 L 5 13 L 4.5 11 L 3 10 L 3.5 8 L 3 6 L 4.5 5 L 5 3 L 7 3.5 Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+<circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.2" />
+</g>
+<g transform="translate(112 304) scale(1.5)" color="#6b7078">
+<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.4" />
+<ellipse cx="8" cy="8" rx="7" ry="2" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(-20 8 8)" />
+</g>
+<text x="16" y="366" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">UI CHROME</text>
+<line x1="16" y1="370" x2="136" y2="370" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g transform="translate(16 378) scale(1.5)" color="#6b7078">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<g transform="translate(48 378) scale(1.5)" color="#3f8f5c">
+<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<g transform="translate(80 378) scale(1.5)" color="#6b7078">
+<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="currentColor" stroke="none" />
+</g>
+<g transform="translate(112 378) scale(1.5)" color="#6b7078">
+<line x1="8" y1="3" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+<line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+</g>
+</svg>

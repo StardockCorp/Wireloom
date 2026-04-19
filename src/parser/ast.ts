@@ -1,5 +1,5 @@
 /**
- * AST type definitions for the Wireloom v0.2 grammar.
+ * AST type definitions for the Wireloom v0.4 grammar.
  *
  * The parser produces a `Document` whose optional `root` is the required
  * `WindowNode`. Every node carries a source position so errors and tooling
@@ -115,6 +115,45 @@ export interface SlotNode extends NodeBase {
   kind: 'slot';
   title: string;
   children: ContainerChild[];
+  /** Optional right-aligned footer, added v0.4. Rendered below main content. */
+  slotFooter?: SlotFooterNode;
+}
+
+/**
+ * Inline footer block inside a `slot`. Syntactically written as a bare
+ * `footer:` child of a slot. Unlike the top-level window footer, this is
+ * always right-aligned and intended for action buttons + secondary text.
+ */
+export interface SlotFooterNode extends NodeBase {
+  kind: 'slotFooter';
+  children: ContainerChild[];
+}
+
+export interface GridNode extends NodeBase {
+  kind: 'grid';
+  cols: number;
+  rows: number;
+  children: CellNode[];
+}
+
+export interface CellNode extends NodeBase {
+  kind: 'cell';
+  /** Optional positional label string. */
+  label?: string;
+  /** 1-indexed grid position. `undefined` means auto-flow. */
+  row?: number;
+  col?: number;
+  children: ContainerChild[];
+}
+
+export interface ResourceBarNode extends NodeBase {
+  kind: 'resourcebar';
+  children: ResourceNode[];
+}
+
+export interface StatsNode extends NodeBase {
+  kind: 'stats';
+  children: StatNode[];
 }
 
 // ---------------------------------------------------------------------------
@@ -172,6 +211,26 @@ export interface DividerNode extends NodeBase {
   kind: 'divider';
 }
 
+export interface ProgressNode extends NodeBase {
+  kind: 'progress';
+}
+
+export interface ChartNode extends NodeBase {
+  kind: 'chart';
+}
+
+export interface ResourceNode extends NodeBase {
+  kind: 'resource';
+  name: string;
+  value: string;
+}
+
+export interface StatNode extends NodeBase {
+  kind: 'stat';
+  label: string;
+  value: string;
+}
+
 // ---------------------------------------------------------------------------
 // Unions
 // ---------------------------------------------------------------------------
@@ -189,7 +248,9 @@ export type LeafNode =
   | KvNode
   | ImageNode
   | IconNode
-  | DividerNode;
+  | DividerNode
+  | ProgressNode
+  | ChartNode;
 
 export type ContainerChild =
   | PanelNode
@@ -199,6 +260,9 @@ export type ContainerChild =
   | ColNode
   | ListNode
   | SlotNode
+  | GridNode
+  | ResourceBarNode
+  | StatsNode
   | LeafNode;
 
 export type WindowChild =
@@ -211,12 +275,16 @@ export type WindowChild =
   | ColNode
   | ListNode
   | SlotNode
+  | GridNode
+  | ResourceBarNode
+  | StatsNode
   | LeafNode;
 
 export type AnyNode =
   | WindowNode
   | HeaderNode
   | FooterNode
+  | SlotFooterNode
   | PanelNode
   | SectionNode
   | TabsNode
@@ -226,6 +294,12 @@ export type AnyNode =
   | ListNode
   | ItemNode
   | SlotNode
+  | GridNode
+  | CellNode
+  | ResourceBarNode
+  | ResourceNode
+  | StatsNode
+  | StatNode
   | LeafNode;
 
 export interface Document {

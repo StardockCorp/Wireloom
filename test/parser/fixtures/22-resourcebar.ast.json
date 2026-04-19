@@ -1,0 +1,388 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "resourcebar",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "resource",
+            "name": "Credits",
+            "value": "1,500",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "name",
+                "value": {
+                  "kind": "string",
+                  "value": "Credits",
+                  "position": {
+                    "line": 4,
+                    "column": 19
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "string",
+                  "value": "1,500",
+                  "position": {
+                    "line": 4,
+                    "column": 35
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 29
+                }
+              }
+            ],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "resource",
+            "name": "Research",
+            "value": "240",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "name",
+                "value": {
+                  "kind": "string",
+                  "value": "Research",
+                  "position": {
+                    "line": 5,
+                    "column": 19
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "string",
+                  "value": "240",
+                  "position": {
+                    "line": 5,
+                    "column": 36
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 30
+                }
+              }
+            ],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "resource",
+            "name": "Production",
+            "value": "88",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "name",
+                "value": {
+                  "kind": "string",
+                  "value": "Production",
+                  "position": {
+                    "line": 6,
+                    "column": 19
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "string",
+                  "value": "88",
+                  "position": {
+                    "line": 6,
+                    "column": 38
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 32
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "resource",
+            "name": "Influence",
+            "value": "55",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "name",
+                "value": {
+                  "kind": "string",
+                  "value": "Influence",
+                  "position": {
+                    "line": 7,
+                    "column": 19
+                  }
+                },
+                "position": {
+                  "line": 7,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "string",
+                  "value": "55",
+                  "position": {
+                    "line": 7,
+                    "column": 37
+                  }
+                },
+                "position": {
+                  "line": 7,
+                  "column": 31
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          },
+          {
+            "kind": "resource",
+            "name": "Approval",
+            "value": "72%",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "name",
+                "value": {
+                  "kind": "string",
+                  "value": "Approval",
+                  "position": {
+                    "line": 8,
+                    "column": 19
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "string",
+                  "value": "72%",
+                  "position": {
+                    "line": 8,
+                    "column": 36
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 30
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          },
+          {
+            "kind": "resource",
+            "name": "Faith",
+            "value": "12",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "name",
+                "value": {
+                  "kind": "string",
+                  "value": "Faith",
+                  "position": {
+                    "line": 9,
+                    "column": 19
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "string",
+                  "value": "12",
+                  "position": {
+                    "line": 9,
+                    "column": 33
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 27
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          },
+          {
+            "kind": "resource",
+            "name": "Diplo",
+            "value": "4",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "name",
+                "value": {
+                  "kind": "string",
+                  "value": "Diplo",
+                  "position": {
+                    "line": 10,
+                    "column": 19
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "string",
+                  "value": "4",
+                  "position": {
+                    "line": 10,
+                    "column": 33
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 27
+                }
+              }
+            ],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          },
+          {
+            "kind": "resource",
+            "name": "Authority",
+            "value": "9",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "name",
+                "value": {
+                  "kind": "string",
+                  "value": "Authority",
+                  "position": {
+                    "line": 11,
+                    "column": 19
+                  }
+                },
+                "position": {
+                  "line": 11,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "string",
+                  "value": "9",
+                  "position": {
+                    "line": 11,
+                    "column": 37
+                  }
+                },
+                "position": {
+                  "line": 11,
+                  "column": 31
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 3,
+          "column": 3
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Top-of-screen resource strip above.",
+            "attributes": [],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 12,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 2,
+      "column": 1
+    },
+    "title": "Colonial Charter"
+  },
+  "sourceLines": 14
+}

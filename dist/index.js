@@ -282,13 +282,38 @@ var WEIGHT_VALUES = ["light", "regular", "semibold", "bold"];
 var SIZE_VALUES = ["small", "regular", "large"];
 var ALIGN_VALUES = ["left", "center", "right"];
 var INPUT_TYPE_VALUES = ["text", "password", "email"];
+var ACCENT_VALUES = [
+  "research",
+  "military",
+  "industry",
+  "wealth",
+  "approval",
+  "warning",
+  "danger",
+  "success"
+];
+var STATE_VALUES = [
+  "locked",
+  "available",
+  "active",
+  "purchased",
+  "maxed",
+  "growing",
+  "ripe",
+  "withering",
+  "cashed"
+];
+var CHART_KIND_VALUES = ["bar", "line", "pie"];
 var ATTR_RULES = {
   window: { attrs: {}, flags: [] },
   header: { attrs: {}, flags: [] },
   footer: { attrs: {}, flags: [] },
   panel: { attrs: {}, flags: [] },
   section: {
-    attrs: { badge: { kind: "string" } },
+    attrs: {
+      badge: { kind: "string" },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
     flags: []
   },
   tabs: { attrs: {}, flags: [] },
@@ -303,7 +328,44 @@ var ATTR_RULES = {
   col: { attrs: {}, flags: [] },
   list: { attrs: {}, flags: [] },
   item: { attrs: {}, flags: [] },
-  slot: { attrs: {}, flags: ["active"] },
+  slot: {
+    attrs: {
+      state: { kind: "enum", values: STATE_VALUES },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
+    flags: ["active"]
+  },
+  slotFooter: { attrs: {}, flags: [] },
+  grid: {
+    attrs: {
+      cols: { kind: "number" },
+      rows: { kind: "number" }
+    },
+    flags: []
+  },
+  cell: {
+    attrs: {
+      row: { kind: "number" },
+      col: { kind: "number" },
+      state: { kind: "enum", values: STATE_VALUES },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
+    flags: []
+  },
+  resourcebar: { attrs: {}, flags: [] },
+  resource: {
+    attrs: {
+      name: { kind: "string" },
+      value: { kind: "string" },
+      icon: { kind: "string" }
+    },
+    flags: []
+  },
+  stats: { attrs: {}, flags: [] },
+  stat: {
+    attrs: {},
+    flags: ["bold", "muted"]
+  },
   text: {
     attrs: {
       weight: { kind: "enum", values: WEIGHT_VALUES },
@@ -312,7 +374,10 @@ var ATTR_RULES = {
     flags: ["bold", "italic", "muted"]
   },
   button: {
-    attrs: { badge: { kind: "string" } },
+    attrs: {
+      badge: { kind: "string" },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
     flags: ["primary", "disabled"]
   },
   input: {
@@ -353,10 +418,32 @@ var ATTR_RULES = {
     flags: []
   },
   icon: {
-    attrs: { name: { kind: "string" } },
+    attrs: {
+      name: { kind: "string" },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
     flags: []
   },
-  divider: { attrs: {}, flags: [] }
+  divider: { attrs: {}, flags: [] },
+  progress: {
+    attrs: {
+      value: { kind: "number" },
+      max: { kind: "number" },
+      label: { kind: "string" },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
+    flags: []
+  },
+  chart: {
+    attrs: {
+      kind: { kind: "enum", values: CHART_KIND_VALUES },
+      label: { kind: "string" },
+      width: { kind: "number" },
+      height: { kind: "number" },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
+    flags: []
+  }
 };
 var VALID_PRIMITIVES = new Set(Object.keys(ATTR_RULES));
 var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
@@ -367,6 +454,9 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "col",
   "list",
   "slot",
+  "grid",
+  "resourcebar",
+  "stats",
   "text",
   "button",
   "input",
@@ -375,10 +465,12 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "kv",
   "image",
   "icon",
-  "divider"
+  "divider",
+  "progress",
+  "chart"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, text, button, input, combo, slider, kv, image, icon, divider";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -480,6 +572,27 @@ var Parser = class {
         head.column
       );
     }
+    if (name === "cell") {
+      throw new WireloomError(
+        '"cell" may only appear inside "grid"',
+        head.line,
+        head.column
+      );
+    }
+    if (name === "resource") {
+      throw new WireloomError(
+        '"resource" may only appear inside "resourcebar"',
+        head.line,
+        head.column
+      );
+    }
+    if (name === "stat") {
+      throw new WireloomError(
+        '"stat" may only appear inside "stats"',
+        head.line,
+        head.column
+      );
+    }
     if (name === "header") return this.parseHeader();
     if (name === "footer") return this.parseFooter();
     return this.parseContainerChildNamed(name);
@@ -524,7 +637,7 @@ var Parser = class {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" || name === "footer" ? `"${name}" may only appear directly inside "window"` : name === "window" ? '"window" cannot be nested' : `"${name}" is not allowed here`;
+      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -563,6 +676,16 @@ var Parser = class {
         return this.parseIcon();
       case "divider":
         return this.parseDivider();
+      case "grid":
+        return this.parseGrid();
+      case "resourcebar":
+        return this.parseResourceBar();
+      case "stats":
+        return this.parseStats();
+      case "progress":
+        return this.parseProgress();
+      case "chart":
+        return this.parseChart();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -723,8 +846,51 @@ var Parser = class {
     ).stringValue ?? "";
     const attributes = this.parseAttributes("slot");
     const hasChildren = this.parseTerminator("slot", head);
+    const { children, slotFooter } = hasChildren ? this.parseSlotChildren() : { children: [], slotFooter: void 0 };
+    const node = { kind: "slot", title, attributes, children, position };
+    if (slotFooter) node.slotFooter = slotFooter;
+    return node;
+  }
+  /**
+   * Parse children of a `slot`. Accepts standard container children plus an
+   * optional trailing `footer:` block (at most one, must be the last child).
+   */
+  parseSlotChildren() {
+    const children = [];
+    let slotFooter;
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      const name = head.kind === "ident" ? head.identValue ?? head.raw : void 0;
+      if (name === "footer") {
+        if (slotFooter !== void 0) {
+          throw new WireloomError(
+            '"slot" may contain at most one "footer" block',
+            head.line,
+            head.column
+          );
+        }
+        slotFooter = this.parseSlotFooter();
+        continue;
+      }
+      if (slotFooter !== void 0) {
+        throw new WireloomError(
+          '"footer" inside "slot" must be the last child',
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseContainerChild());
+    }
+    this.expectKind("dedent", "slot children block did not close cleanly");
+    return slotFooter ? { children, slotFooter } : { children };
+  }
+  parseSlotFooter() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("slotFooter");
+    const hasChildren = this.parseTerminator("footer", head);
     const children = hasChildren ? this.parseContainerChildren() : [];
-    return { kind: "slot", title, attributes, children, position };
+    return { kind: "slotFooter", attributes, children, position };
   }
   // --- Leaves ---------------------------------------------------------------
   parseText() {
@@ -824,6 +990,191 @@ var Parser = class {
     this.parseLeafTerminator("divider", head);
     return { kind: "divider", attributes, position };
   }
+  parseProgress() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("progress");
+    this.parseLeafTerminator("progress", head);
+    return { kind: "progress", attributes, position };
+  }
+  parseChart() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("chart");
+    this.parseLeafTerminator("chart", head);
+    return { kind: "chart", attributes, position };
+  }
+  // --- Grid / Cell ----------------------------------------------------------
+  parseGrid() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("grid");
+    const cols = getAttrNumberValue(attributes, "cols");
+    const rows = getAttrNumberValue(attributes, "rows");
+    if (cols === void 0 || cols < 1) {
+      throw new WireloomError(
+        '"grid" requires cols=N with N>=1 (e.g., grid cols=5 rows=5:)',
+        head.line,
+        head.column
+      );
+    }
+    if (rows === void 0 || rows < 1) {
+      throw new WireloomError(
+        '"grid" requires rows=N with N>=1 (e.g., grid cols=5 rows=5:)',
+        head.line,
+        head.column
+      );
+    }
+    const hasChildren = this.parseTerminator("grid", head);
+    const children = hasChildren ? this.parseGridChildren() : [];
+    return { kind: "grid", cols, rows, attributes, children, position };
+  }
+  parseGridChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "cell", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "cell") {
+        throw new WireloomError(
+          `"grid" accepts only "cell" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseCell());
+    }
+    this.expectKind("dedent", "grid block did not close cleanly");
+    return children;
+  }
+  parseCell() {
+    const head = this.consume();
+    const position = positionOf(head);
+    let label;
+    if (this.peek().kind === "string") {
+      label = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes("cell");
+    const rowAttr = getAttrNumberValue(attributes, "row");
+    const colAttr = getAttrNumberValue(attributes, "col");
+    const hasChildren = this.parseTerminator("cell", head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const node = { kind: "cell", attributes, children, position };
+    if (label !== void 0) node.label = label;
+    if (rowAttr !== void 0) node.row = rowAttr;
+    if (colAttr !== void 0) node.col = colAttr;
+    return node;
+  }
+  // --- ResourceBar / Resource ----------------------------------------------
+  parseResourceBar() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("resourcebar");
+    const hasChildren = this.parseTerminator("resourcebar", head);
+    const children = hasChildren ? this.parseResourceChildren() : [];
+    return { kind: "resourcebar", attributes, children, position };
+  }
+  parseResourceChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "resource", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "resource") {
+        throw new WireloomError(
+          `"resourcebar" accepts only "resource" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseResource());
+    }
+    this.expectKind("dedent", "resourcebar block did not close cleanly");
+    return children;
+  }
+  parseResource() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("resource");
+    const name = getAttrStringValue(attributes, "name");
+    const value = getAttrStringValue(attributes, "value");
+    if (name === void 0) {
+      throw new WireloomError(
+        '"resource" requires name="\u2026" (e.g., resource name="Credits" value="1,500")',
+        head.line,
+        head.column
+      );
+    }
+    if (value === void 0) {
+      throw new WireloomError(
+        '"resource" requires value="\u2026" (e.g., resource name="Credits" value="1,500")',
+        head.line,
+        head.column
+      );
+    }
+    this.parseLeafTerminator("resource", head);
+    return { kind: "resource", name, value, attributes, position };
+  }
+  // --- Stats / Stat --------------------------------------------------------
+  parseStats() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("stats");
+    const hasChildren = this.parseTerminator("stats", head);
+    const children = hasChildren ? this.parseStatChildren() : [];
+    return { kind: "stats", attributes, children, position };
+  }
+  parseStatChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "stat", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "stat") {
+        throw new WireloomError(
+          `"stats" accepts only "stat" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseStat());
+    }
+    this.expectKind("dedent", "stats block did not close cleanly");
+    return children;
+  }
+  parseStat() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"stat" requires a label string (e.g., stat "INT" "4")'
+    ).stringValue ?? "";
+    const value = this.expectKind(
+      "string",
+      '"stat" requires a value string after the label (e.g., stat "INT" "4")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("stat");
+    this.parseLeafTerminator("stat", head);
+    return { kind: "stat", label, value, attributes, position };
+  }
   // --- Attributes / terminators --------------------------------------------
   parseAttributes(primitive) {
     const rules = ATTR_RULES[primitive] ?? { attrs: {}, flags: [] };
@@ -921,6 +1272,22 @@ var Parser = class {
 };
 function positionOf(token) {
   return { line: token.line, column: token.column };
+}
+function getAttrStringValue(attrs, key) {
+  for (const a of attrs) {
+    if (a.kind === "pair" && a.key === key && a.value.kind === "string") {
+      return a.value.value;
+    }
+  }
+  return void 0;
+}
+function getAttrNumberValue(attrs, key) {
+  for (const a of attrs) {
+    if (a.kind === "pair" && a.key === key && a.value.kind === "number") {
+      return a.value.value;
+    }
+  }
+  return void 0;
 }
 function describeToken(token) {
   switch (token.kind) {
@@ -1079,7 +1446,8 @@ function serialize(doc) {
 }
 function serializeNode(node, depth, out) {
   const indent = "  ".repeat(depth);
-  const parts = [node.kind];
+  const keyword = node.kind === "slotFooter" ? "footer" : node.kind;
+  const parts = [keyword];
   switch (node.kind) {
     case "window":
       if (node.title !== void 0) {
@@ -1120,6 +1488,17 @@ function serializeNode(node, depth, out) {
       }
       break;
     }
+    case "cell": {
+      const cell = node;
+      if (cell.label !== void 0) {
+        parts.push(quoteString(cell.label));
+      }
+      break;
+    }
+    case "stat":
+      parts.push(quoteString(node.label));
+      parts.push(quoteString(node.value));
+      break;
   }
   for (const attr of node.attributes) {
     parts.push(serializeAttribute(attr));
@@ -1135,6 +1514,14 @@ function serializeNode(node, depth, out) {
   }
 }
 function nodeChildren(node) {
+  if (node.kind === "slot") {
+    const slot = node;
+    const kids = [...slot.children];
+    if (slot.slotFooter) kids.push(slot.slotFooter);
+    return kids;
+  }
+  if (node.kind === "grid") return node.children;
+  if (node.kind === "resource") return [];
   if ("children" in node && Array.isArray(node.children)) {
     return node.children;
   }
@@ -1250,7 +1637,79 @@ var DEFAULT_THEME = Object.freeze({
   badgeHeight: 18,
   badgePaddingX: 8,
   kvMinWidth: 200,
-  colFillMinWidth: 220
+  colFillMinWidth: 220,
+  cellMinSize: 80,
+  cellPadding: 8,
+  resourceBarHeight: 28,
+  resourceBarItemGap: 16,
+  resourceBarIconSize: 18,
+  statsGap: 18,
+  progressDefaultWidth: 200,
+  progressMaxWidth: 600,
+  progressHeight: 18,
+  chartDefaultWidth: 220,
+  chartDefaultHeight: 120,
+  accents: Object.freeze({
+    research: "#3f7cc2",
+    military: "#b55442",
+    industry: "#c28a3a",
+    wealth: "#3f8f5c",
+    approval: "#7a56b0",
+    warning: "#c79a2e",
+    danger: "#b0413c",
+    success: "#3f8f5c"
+  }),
+  states: Object.freeze({
+    locked: {
+      border: "#b8b8b8",
+      fill: "#f0f0f0",
+      text: "#8a8f97",
+      badge: "lock"
+    },
+    available: {
+      border: "#7a7f87",
+      fill: "#fafbfc",
+      text: "#2d2d2d"
+    },
+    active: {
+      border: "#3a3a3a",
+      fill: "#fafbfc",
+      text: "#2d2d2d"
+    },
+    purchased: {
+      border: "#3f8f5c",
+      fill: "#e8f3ec",
+      text: "#205537",
+      badge: "check"
+    },
+    maxed: {
+      border: "#c28a3a",
+      fill: "#f7efdc",
+      text: "#6b4e15",
+      badge: "star"
+    },
+    growing: {
+      border: "#7a9a5a",
+      fill: "#edf4e2",
+      text: "#44552a"
+    },
+    ripe: {
+      border: "#3f8f5c",
+      fill: "#d9eedf",
+      text: "#205537",
+      badge: "check"
+    },
+    withering: {
+      border: "#a07245",
+      fill: "#f0e4d5",
+      text: "#6b4e2e"
+    },
+    cashed: {
+      border: "#b8b8b8",
+      fill: "#ededed",
+      text: "#7a7f87"
+    }
+  })
 });
 var DARK_THEME = Object.freeze({
   ...DEFAULT_THEME,
@@ -1283,7 +1742,68 @@ var DARK_THEME = Object.freeze({
   sliderThumbColor: "#d4d4d4",
   comboChevronColor: "#8a9099",
   bulletColor: "#707780",
-  iconStrokeColor: "#8a9099"
+  iconStrokeColor: "#8a9099",
+  accents: Object.freeze({
+    research: "#6ba4e8",
+    military: "#d47967",
+    industry: "#e2aa57",
+    wealth: "#6bbd86",
+    approval: "#a58fd0",
+    warning: "#e2b84a",
+    danger: "#d66863",
+    success: "#6bbd86"
+  }),
+  states: Object.freeze({
+    locked: {
+      border: "#5a5a5a",
+      fill: "#2a2a2a",
+      text: "#707780",
+      badge: "lock"
+    },
+    available: {
+      border: "#8a9099",
+      fill: "#252525",
+      text: "#e0e0e0"
+    },
+    active: {
+      border: "#d4d4d4",
+      fill: "#252525",
+      text: "#f0f0f0"
+    },
+    purchased: {
+      border: "#6bbd86",
+      fill: "#1f2e24",
+      text: "#b0e0c2",
+      badge: "check"
+    },
+    maxed: {
+      border: "#e2aa57",
+      fill: "#3a2f1c",
+      text: "#f0d79a",
+      badge: "star"
+    },
+    growing: {
+      border: "#9abb6f",
+      fill: "#242d1c",
+      text: "#c5d9a7"
+    },
+    ripe: {
+      border: "#6bbd86",
+      fill: "#1f3528",
+      text: "#b0e0c2",
+      badge: "check"
+    },
+    withering: {
+      border: "#b58a5c",
+      fill: "#332a22",
+      text: "#d1b89a"
+    },
+    cashed: {
+      border: "#5a5a5a",
+      fill: "#2a2a2a",
+      text: "#8a9099"
+    }
+  })
 });
 function getTheme(name) {
   return name === "dark" ? DARK_THEME : DEFAULT_THEME;
@@ -1328,6 +1848,16 @@ function measureChild(node, theme) {
       return measureImage(node, theme);
     case "icon":
       return measureIcon(theme);
+    case "grid":
+      return measureGrid(node, theme);
+    case "resourcebar":
+      return measureResourceBar(node, theme);
+    case "stats":
+      return measureStats(node, theme);
+    case "progress":
+      return measureProgress(node, theme);
+    case "chart":
+      return measureChart(node, theme);
   }
 }
 function measureText(node, theme) {
@@ -1418,10 +1948,89 @@ function measureItem(node, theme) {
 function measureSlot(node, theme) {
   const inner = measureStack(node.children, theme, "vertical");
   const titleW = node.title.length * theme.averageCharWidth;
+  let footerH = 0;
+  let footerW = 0;
+  if (node.slotFooter) {
+    const f = measureSlotFooter(node.slotFooter, theme);
+    footerH = f.height + theme.colGap;
+    footerW = f.width;
+  }
   return {
-    width: Math.max(inner.width, titleW) + theme.slotPadding * 2,
-    height: theme.slotTitleHeight + theme.sectionTitlePaddingBottom + inner.height + theme.slotPadding * 2
+    width: Math.max(inner.width, titleW, footerW) + theme.slotPadding * 2,
+    height: theme.slotTitleHeight + theme.sectionTitlePaddingBottom + inner.height + footerH + theme.slotPadding * 2
   };
+}
+function measureSlotFooter(node, theme) {
+  return measureStack(node.children, theme, "horizontal");
+}
+function measureGrid(node, theme) {
+  const cellSize = preferredCellSize(node, theme);
+  const width = node.cols * cellSize.width + (node.cols - 1) * theme.rowGap;
+  const height = node.rows * cellSize.height + (node.rows - 1) * theme.colGap;
+  return { width, height };
+}
+function preferredCellSize(node, theme) {
+  let maxW = theme.cellMinSize;
+  let maxH = theme.cellMinSize;
+  for (const c of node.children) {
+    const s = measureCell(c, theme);
+    if (s.width > maxW) maxW = s.width;
+    if (s.height > maxH) maxH = s.height;
+  }
+  return { width: maxW, height: maxH };
+}
+function measureCell(node, theme) {
+  const inner = measureStack(node.children, theme, "vertical");
+  const labelW = node.label ? node.label.length * theme.averageCharWidth : 0;
+  const labelH = node.label ? theme.lineHeight : 0;
+  return {
+    width: Math.max(inner.width, labelW) + theme.cellPadding * 2,
+    height: inner.height + labelH + theme.cellPadding * 2
+  };
+}
+function measureResourceBar(node, theme) {
+  if (node.children.length === 0) {
+    return { width: 0, height: theme.resourceBarHeight };
+  }
+  const sizes = node.children.map((r) => measureResource(r, theme));
+  const total = sizes.reduce((acc, s) => acc + s.width, 0) + (node.children.length - 1) * theme.resourceBarItemGap;
+  return { width: total, height: theme.resourceBarHeight };
+}
+function measureResource(node, theme) {
+  const text = `${node.name}: ${node.value}`;
+  const textW = text.length * theme.averageCharWidth;
+  return {
+    width: theme.resourceBarIconSize + 6 + textW,
+    height: theme.resourceBarHeight
+  };
+}
+function measureStats(node, theme) {
+  if (node.children.length === 0) return { width: 0, height: 0 };
+  const sizes = node.children.map((s) => measureStat(s, theme));
+  const total = sizes.reduce((acc, s) => acc + s.width, 0) + (node.children.length - 1) * theme.statsGap;
+  const h = Math.max(...sizes.map((s) => s.height));
+  return { width: total, height: h };
+}
+function measureStat(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize);
+  const valueW = node.value.length * theme.averageCharWidth;
+  return {
+    width: labelW + 6 + valueW,
+    height: theme.lineHeight
+  };
+}
+function measureProgress(node, theme) {
+  const label = getAttrString(node.attributes, "label");
+  const labelH = label !== void 0 ? theme.smallFontSize + 4 : 0;
+  return {
+    width: theme.progressDefaultWidth,
+    height: labelH + theme.progressHeight
+  };
+}
+function measureChart(node, theme) {
+  const width = getAttrNumber(node.attributes, "width") ?? theme.chartDefaultWidth;
+  const height = getAttrNumber(node.attributes, "height") ?? theme.chartDefaultHeight;
+  return { width, height };
 }
 function measureKv(node, theme) {
   const labelW = node.label.length * theme.averageCharWidth;
@@ -1657,6 +2266,16 @@ function positionContainerChild(child, x, y, width, theme) {
       return positionIcon(child, x, y, theme);
     case "divider":
       return positionDivider(child, x, y, width, theme);
+    case "grid":
+      return positionGrid(child, x, y, width, theme);
+    case "resourcebar":
+      return positionResourceBar(child, x, y, width, theme);
+    case "stats":
+      return positionStats(child, x, y, width, theme);
+    case "progress":
+      return positionProgress(child, x, y, width, theme);
+    case "chart":
+      return positionChart(child, x, y, theme);
   }
 }
 function positionPanel(node, x, y, width, theme) {
@@ -1812,8 +2431,154 @@ function positionSlot(node, x, y, width, theme) {
     cursorY += laidChild.height;
     if (i < node.children.length - 1) cursorY += theme.colGap;
   }
+  if (node.slotFooter) {
+    cursorY += theme.colGap;
+    const laidFooter = positionSlotFooter(
+      node.slotFooter,
+      innerX,
+      cursorY,
+      innerWidth,
+      theme
+    );
+    children.push(laidFooter);
+    cursorY += laidFooter.height;
+  }
   const height = cursorY - y + theme.slotPadding;
   return { node, x, y, width, height, children };
+}
+function positionSlotFooter(node, x, y, width, theme) {
+  const sizes = node.children.map((c) => measureChild(c, theme));
+  const totalWidth = sizes.reduce((acc, s) => acc + s.width, 0) + Math.max(0, node.children.length - 1) * theme.rowGap;
+  let cursorX = x + width - totalWidth;
+  const children = [];
+  let maxH = 0;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const size = sizes[i];
+    const laid = positionContainerChild(child, cursorX, y, size.width, theme);
+    children.push(laid);
+    if (laid.height > maxH) maxH = laid.height;
+    cursorX += size.width + theme.rowGap;
+  }
+  return { node, x, y, width, height: maxH, children };
+}
+function positionGrid(node, x, y, width, theme) {
+  const cellSize = preferredCellSize(node, theme);
+  const children = [];
+  const claimed = /* @__PURE__ */ new Set();
+  for (const c of node.children) {
+    if (c.row !== void 0 && c.col !== void 0) {
+      claimed.add(`${c.row}:${c.col}`);
+    }
+  }
+  let flowRow = 1;
+  let flowCol = 1;
+  const advanceFlow = () => {
+    while (true) {
+      if (flowCol > node.cols) {
+        flowCol = 1;
+        flowRow++;
+      }
+      if (flowRow > node.rows) return;
+      if (!claimed.has(`${flowRow}:${flowCol}`)) return;
+      flowCol++;
+    }
+  };
+  for (const cell of node.children) {
+    let r = cell.row;
+    let c = cell.col;
+    if (r === void 0 || c === void 0) {
+      advanceFlow();
+      r = flowRow;
+      c = flowCol;
+      flowCol++;
+    }
+    const clampedR = Math.min(Math.max(1, r), node.rows);
+    const clampedC = Math.min(Math.max(1, c), node.cols);
+    const cellX = x + (clampedC - 1) * (cellSize.width + theme.rowGap);
+    const cellY = y + (clampedR - 1) * (cellSize.height + theme.colGap);
+    children.push(positionCell(cell, cellX, cellY, cellSize.width, cellSize.height, theme));
+  }
+  return {
+    node,
+    x,
+    y,
+    width: node.cols * cellSize.width + (node.cols - 1) * theme.rowGap,
+    height: node.rows * cellSize.height + (node.rows - 1) * theme.colGap,
+    children
+  };
+}
+function positionCell(node, x, y, width, height, theme) {
+  const innerX = x + theme.cellPadding;
+  const innerWidth = width - theme.cellPadding * 2;
+  let cursorY = y + theme.cellPadding;
+  if (node.label !== void 0) {
+    cursorY += theme.lineHeight;
+  }
+  const children = [];
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const laid = positionContainerChild(child, innerX, cursorY, innerWidth, theme);
+    children.push(laid);
+    cursorY += laid.height;
+    if (i < node.children.length - 1) cursorY += theme.colGap;
+  }
+  return { node, x, y, width, height, children };
+}
+function positionResourceBar(node, x, y, width, theme) {
+  const sizes = node.children.map((r) => measureResource(r, theme));
+  const children = [];
+  let cursorX = x;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const size = sizes[i];
+    children.push({
+      node: child,
+      x: cursorX,
+      y,
+      width: size.width,
+      height: size.height,
+      children: []
+    });
+    cursorX += size.width + theme.resourceBarItemGap;
+  }
+  return {
+    node,
+    x,
+    y,
+    width: cursorX - x - (node.children.length > 0 ? theme.resourceBarItemGap : 0),
+    height: theme.resourceBarHeight,
+    children
+  };
+}
+function positionStats(node, x, y, width, theme) {
+  const sizes = node.children.map((s) => measureStat(s, theme));
+  const children = [];
+  let cursorX = x;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const size = sizes[i];
+    children.push({
+      node: child,
+      x: cursorX,
+      y,
+      width: size.width,
+      height: size.height,
+      children: []
+    });
+    cursorX += size.width + theme.statsGap;
+  }
+  const used = node.children.length > 0 ? cursorX - x - theme.statsGap : 0;
+  return { node, x, y, width: used, height: theme.lineHeight, children };
+}
+function positionProgress(node, x, y, width, theme) {
+  const size = measureProgress(node, theme);
+  const w = Math.max(size.width, Math.min(width, theme.progressMaxWidth));
+  return { node, x, y, width: w, height: size.height, children: [] };
+}
+function positionChart(node, x, y, theme) {
+  const size = measureChart(node, theme);
+  return { node, x, y, width: size.width, height: size.height, children: [] };
 }
 function positionText(node, x, y, width, theme) {
   return {
@@ -1931,6 +2696,60 @@ function badgeWidthOf(attrs, theme) {
   return badge.length * theme.averageCharWidth * (theme.badgeFontSize / theme.fontSize) + theme.badgePaddingX * 2;
 }
 
+// src/renderer/icons.ts
+var ICON_PATHS = {
+  // Economy / wealth
+  credits: '<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.4" /><text x="8" y="11.3" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="700" fill="currentColor">$</text>',
+  // Research / science
+  research: '<path d="M 6 2 L 6 6 L 3 13 Q 3 14 4 14 L 12 14 Q 13 14 13 13 L 10 6 L 10 2 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><line x1="5.5" y1="2" x2="10.5" y2="2" stroke="currentColor" stroke-width="1.4" />',
+  // Military / combat
+  military: '<path d="M 8 2 L 13 4 L 13 8 Q 13 12 8 14 Q 3 12 3 8 L 3 4 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />',
+  // Industry / production
+  industry: '<path d="M 2 14 L 2 8 L 7 10 L 7 7 L 12 10 L 12 4 L 14 4 L 14 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />',
+  // Influence / speech
+  influence: '<path d="M 3 4 L 13 4 Q 14 4 14 5 L 14 10 Q 14 11 13 11 L 8 11 L 5 14 L 5 11 L 3 11 Q 2 11 2 10 L 2 5 Q 2 4 3 4 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />',
+  // Approval / loyalty (simple heart)
+  approval: '<path d="M 8 14 Q 2 10 2 6 Q 2 3 5 3 Q 7 3 8 5 Q 9 3 11 3 Q 14 3 14 6 Q 14 10 8 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />',
+  // Faith / ideology
+  faith: '<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />',
+  // Authority / admin
+  authority: '<path d="M 3 14 L 3 5 L 5 5 L 5 3 L 11 3 L 11 5 L 13 5 L 13 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><line x1="8" y1="5" x2="8" y2="14" stroke="currentColor" stroke-width="1" />',
+  // Computation / AI compute
+  computation: '<rect x="4" y="4" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" /><line x1="2" y1="6" x2="4" y2="6" stroke="currentColor" stroke-width="1" /><line x1="2" y1="10" x2="4" y2="10" stroke="currentColor" stroke-width="1" /><line x1="12" y1="6" x2="14" y2="6" stroke="currentColor" stroke-width="1" /><line x1="12" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1" /><line x1="6" y1="2" x2="6" y2="4" stroke="currentColor" stroke-width="1" /><line x1="10" y1="2" x2="10" y2="4" stroke="currentColor" stroke-width="1" /><line x1="6" y1="12" x2="6" y2="14" stroke="currentColor" stroke-width="1" /><line x1="10" y1="12" x2="10" y2="14" stroke="currentColor" stroke-width="1" />',
+  // Tech / research tree node
+  tech: '<polygon points="8,2 14,6 14,10 8,14 2,10 2,6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><circle cx="8" cy="8" r="2" fill="currentColor" />',
+  // Policy / document
+  policy: '<path d="M 4 2 L 11 2 L 13 4 L 13 14 L 4 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><line x1="6" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1" /><line x1="6" y1="10" x2="11" y2="10" stroke="currentColor" stroke-width="1" />',
+  // Ship
+  ship: '<path d="M 2 10 L 14 10 L 12 14 L 4 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><line x1="8" y1="2" x2="8" y2="10" stroke="currentColor" stroke-width="1.4" /><path d="M 8 3 L 12 7 L 8 7 Z" fill="currentColor" />',
+  // Planet
+  planet: '<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.4" /><ellipse cx="8" cy="8" rx="7" ry="2" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(-20 8 8)" />',
+  // Leader / person
+  leader: '<circle cx="8" cy="6" r="2.5" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M 3 14 Q 3 9 8 9 Q 13 9 13 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />',
+  // Gear
+  gear: '<path d="M 8 2 L 9 3.5 L 11 3 L 11.5 5 L 13 6 L 12.5 8 L 13 10 L 11.5 11 L 11 13 L 9 12.5 L 8 14 L 7 12.5 L 5 13 L 4.5 11 L 3 10 L 3.5 8 L 3 6 L 4.5 5 L 5 3 L 7 3.5 Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /><circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.2" />',
+  // Warning
+  warning: '<path d="M 8 2 L 14 13 L 2 13 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><line x1="8" y1="6" x2="8" y2="9" stroke="currentColor" stroke-width="1.6" /><circle cx="8" cy="11" r="0.8" fill="currentColor" />',
+  // Lock
+  lock: '<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />',
+  // Check
+  check: '<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />',
+  // Star
+  star: '<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="currentColor" stroke="none" />',
+  // Plus / minus (handy extras for UI chrome)
+  plus: '<line x1="8" y1="3" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />',
+  minus: '<line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />'
+};
+function hasIcon(name) {
+  return Object.prototype.hasOwnProperty.call(ICON_PATHS, name);
+}
+function emitIconByName(name, x, y, size, color) {
+  const body = ICON_PATHS[name];
+  if (body === void 0) return void 0;
+  const scale = size / 16;
+  return `<g transform="translate(${x} ${y}) scale(${scale})" color="${color}">` + body + `</g>`;
+}
+
 // src/renderer/svg.ts
 function emitSvg(root, theme, options = {}) {
   const parts = [];
@@ -2017,6 +2836,33 @@ function emitNode(laid, theme, out) {
     case "divider":
       emitDivider(laid, theme, out);
       break;
+    case "grid":
+      emitGrid(laid, theme, out);
+      break;
+    case "cell":
+      emitCell(laid, theme, out);
+      break;
+    case "resourcebar":
+      emitResourceBar(laid, theme, out);
+      break;
+    case "resource":
+      emitResource(laid, theme, out);
+      break;
+    case "stats":
+      emitStats(laid, theme, out);
+      break;
+    case "stat":
+      emitStat(laid, theme, out);
+      break;
+    case "progress":
+      emitProgress(laid, theme, out);
+      break;
+    case "chart":
+      emitChart(laid, theme, out);
+      break;
+    case "slotFooter":
+      for (const c of laid.children) emitNode(c, theme, out);
+      break;
   }
 }
 function emitWindow(laid, theme, out) {
@@ -2057,8 +2903,10 @@ function emitPanel(laid, theme, out) {
 function emitSection(laid, theme, out) {
   const node = laid.node;
   const titleY = laid.y + theme.sectionTitleHeight - 4;
+  const accent = getAccent(node.attributes, theme);
+  const titleColor = accent ?? theme.sectionTitleColor;
   out.push(
-    `<text x="${laid.x}" y="${titleY}" font-size="${theme.sectionTitleFontSize}" font-weight="700" letter-spacing="0.8" fill="${theme.sectionTitleColor}">${escapeText(node.title.toUpperCase())}</text>`
+    `<text x="${laid.x}" y="${titleY}" font-size="${theme.sectionTitleFontSize}" font-weight="700" letter-spacing="0.8" fill="${titleColor}">${escapeText(node.title.toUpperCase())}</text>`
   );
   const badge = getAttrString2(node.attributes, "badge");
   if (badge !== void 0) {
@@ -2068,12 +2916,13 @@ function emitSection(laid, theme, out) {
       laid.y + (theme.sectionTitleHeight - theme.badgeHeight) / 2,
       badge,
       theme,
-      out
+      out,
+      accent
     );
   }
   const lineY = laid.y + theme.sectionTitleHeight;
   out.push(
-    `<line x1="${laid.x}" y1="${lineY}" x2="${laid.x + laid.width}" y2="${lineY}" stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" opacity="0.6" />`
+    `<line x1="${laid.x}" y1="${lineY}" x2="${laid.x + laid.width}" y2="${lineY}" stroke="${accent ?? theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" opacity="${accent ? "0.8" : "0.6"}" />`
   );
   for (const c of laid.children) emitNode(c, theme, out);
 }
@@ -2131,16 +2980,46 @@ function emitItem(laid, theme, out) {
 function emitSlot(laid, theme, out) {
   const node = laid.node;
   const isActive = hasFlag(node.attributes, "active");
-  const stroke = isActive ? theme.slotActiveBorderColor : theme.slotBorderColor;
-  const strokeWidth = isActive ? theme.slotActiveStrokeWidth : theme.slotStrokeWidth;
+  const state = getState(node.attributes);
+  const accent = getAccent(node.attributes, theme);
+  let stroke;
+  let strokeWidth;
+  let fill;
+  let textColor;
+  let badgeIcon;
+  if (state !== void 0) {
+    const s = theme.states[state];
+    stroke = accent ?? s.border;
+    fill = s.fill;
+    textColor = s.text;
+    strokeWidth = state === "active" ? theme.slotActiveStrokeWidth : theme.slotStrokeWidth;
+    badgeIcon = s.badge;
+  } else if (isActive) {
+    stroke = accent ?? theme.slotActiveBorderColor;
+    fill = theme.slotFillColor;
+    textColor = theme.textColor;
+    strokeWidth = theme.slotActiveStrokeWidth;
+  } else {
+    stroke = accent ?? theme.slotBorderColor;
+    fill = theme.slotFillColor;
+    textColor = theme.textColor;
+    strokeWidth = theme.slotStrokeWidth;
+  }
   out.push(
-    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${theme.slotFillColor}" stroke="${stroke}" stroke-width="${strokeWidth}" rx="4" />`
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" rx="4" />`
   );
   const titleX = laid.x + theme.slotPadding;
   const titleY = laid.y + theme.slotPadding + theme.slotTitleHeight * 0.7;
   out.push(
-    `<text x="${titleX}" y="${titleY}" font-weight="600" fill="${theme.textColor}">${escapeText(node.title)}</text>`
+    `<text x="${titleX}" y="${titleY}" font-weight="600" fill="${textColor}">${escapeText(node.title)}</text>`
   );
+  if (badgeIcon !== void 0) {
+    const sz = 14;
+    const bx = laid.x + laid.width - theme.slotPadding - sz;
+    const by = laid.y + theme.slotPadding + (theme.slotTitleHeight - sz) / 2;
+    const iconMarkup = emitIconByName(badgeIcon, bx, by, sz, stroke);
+    if (iconMarkup) out.push(iconMarkup);
+  }
   for (const c of laid.children) emitNode(c, theme, out);
 }
 function emitText(laid, theme, out) {
@@ -2155,9 +3034,20 @@ function emitButton(laid, theme, out) {
   const node = laid.node;
   const isPrimary = hasFlag(node.attributes, "primary");
   const isDisabled = hasFlag(node.attributes, "disabled");
-  const fill = isPrimary ? theme.primaryButtonFill : theme.buttonFill;
-  const textFill = isPrimary ? theme.primaryButtonText : theme.buttonText;
-  const stroke = isDisabled ? theme.disabledColor : theme.buttonBorderColor;
+  const accent = getAccent(node.attributes, theme);
+  let fill = isPrimary ? theme.primaryButtonFill : theme.buttonFill;
+  let textFill = isPrimary ? theme.primaryButtonText : theme.buttonText;
+  let stroke = isDisabled ? theme.disabledColor : theme.buttonBorderColor;
+  if (accent !== void 0 && !isDisabled) {
+    if (isPrimary) {
+      fill = accent;
+      textFill = "#ffffff";
+      stroke = accent;
+    } else {
+      stroke = accent;
+      textFill = accent;
+    }
+  }
   const opacity = isDisabled ? "0.55" : "1";
   const badge = getAttrString2(node.attributes, "badge");
   out.push(
@@ -2257,13 +3147,23 @@ function emitImage(laid, theme, out) {
 }
 function emitIcon(laid, theme, out) {
   const node = laid.node;
-  const name = getAttrString2(node.attributes, "name") ?? "?";
+  const name = getAttrString2(node.attributes, "name") ?? "";
+  const accent = getAccent(node.attributes, theme);
+  const color = accent ?? theme.iconStrokeColor;
+  if (name && hasIcon(name)) {
+    const markup = emitIconByName(name, laid.x, laid.y, laid.width, color);
+    if (markup !== void 0) {
+      out.push(markup);
+      return;
+    }
+  }
+  const fallback = name || "?";
   out.push(
-    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="none" stroke="${theme.iconStrokeColor}" stroke-width="1" rx="3" />`
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="none" stroke="${color}" stroke-width="1" rx="3" />`
   );
-  const glyph = name.charAt(0).toUpperCase();
+  const glyph = fallback.charAt(0).toUpperCase();
   out.push(
-    `<text x="${laid.x + laid.width / 2}" y="${laid.y + laid.height / 2 + theme.fontSize / 3}" text-anchor="middle" font-size="${theme.smallFontSize}" fill="${theme.iconStrokeColor}">${escapeText(glyph)}</text>`
+    `<text x="${laid.x + laid.width / 2}" y="${laid.y + laid.height / 2 + theme.fontSize / 3}" text-anchor="middle" font-size="${theme.smallFontSize}" fill="${color}">${escapeText(glyph)}</text>`
   );
 }
 function emitDivider(laid, theme, out) {
@@ -2271,6 +3171,203 @@ function emitDivider(laid, theme, out) {
   out.push(
     `<line x1="${laid.x}" y1="${y}" x2="${laid.x + laid.width}" y2="${y}" stroke="${theme.dividerColor}" stroke-width="${theme.dividerStrokeWidth}" />`
   );
+}
+function emitGrid(laid, theme, out) {
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitCell(laid, theme, out) {
+  const node = laid.node;
+  const state = getState(node.attributes);
+  const accent = getAccent(node.attributes, theme);
+  let stroke;
+  let fill;
+  let textColor;
+  let badgeIcon;
+  let strokeWidth = theme.slotStrokeWidth;
+  if (state !== void 0) {
+    const s = theme.states[state];
+    stroke = accent ?? s.border;
+    fill = s.fill;
+    textColor = s.text;
+    badgeIcon = s.badge;
+    if (state === "active" || state === "purchased" || state === "ripe" || state === "maxed") {
+      strokeWidth = theme.slotActiveStrokeWidth;
+    }
+  } else {
+    stroke = accent ?? theme.slotBorderColor;
+    fill = theme.slotFillColor;
+    textColor = theme.textColor;
+  }
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" rx="3" />`
+  );
+  if (node.label !== void 0) {
+    out.push(
+      `<text x="${laid.x + theme.cellPadding}" y="${laid.y + theme.cellPadding + theme.fontSize}" font-weight="600" font-size="${theme.smallFontSize}" fill="${textColor}">${escapeText(node.label)}</text>`
+    );
+  }
+  if (badgeIcon !== void 0) {
+    const sz = 12;
+    const bx = laid.x + laid.width - theme.cellPadding - sz;
+    const by = laid.y + theme.cellPadding;
+    const iconMarkup = emitIconByName(badgeIcon, bx, by, sz, stroke);
+    if (iconMarkup) out.push(iconMarkup);
+  }
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitResourceBar(laid, theme, out) {
+  out.push(
+    `<rect x="${laid.x - 4}" y="${laid.y - 4}" width="${laid.width + 8}" height="${laid.height + 8}" fill="${theme.slotFillColor}" stroke="${theme.panelBorderColor}" stroke-width="0.5" rx="3" opacity="0.6" />`
+  );
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitResource(laid, theme, out) {
+  const node = laid.node;
+  const iconName = getAttrString2(node.attributes, "icon") ?? inferResourceIcon(node.name);
+  const iconColor = theme.iconStrokeColor;
+  if (iconName && hasIcon(iconName)) {
+    const markup = emitIconByName(
+      iconName,
+      laid.x,
+      laid.y + (laid.height - theme.resourceBarIconSize) / 2,
+      theme.resourceBarIconSize,
+      iconColor
+    );
+    if (markup) out.push(markup);
+  } else {
+    out.push(
+      `<rect x="${laid.x + 0.5}" y="${laid.y + (laid.height - theme.resourceBarIconSize) / 2 + 0.5}" width="${theme.resourceBarIconSize - 1}" height="${theme.resourceBarIconSize - 1}" fill="none" stroke="${iconColor}" stroke-width="1" rx="2" />`
+    );
+  }
+  const textX = laid.x + theme.resourceBarIconSize + 6;
+  const textY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${textX}" y="${textY}" font-size="${theme.smallFontSize}" fill="${theme.mutedTextColor}">${escapeText(node.name)}: </text><text x="${textX + (node.name.length + 2) * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize)}" y="${textY}" font-size="${theme.smallFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(node.value)}</text>`
+  );
+}
+function inferResourceIcon(name) {
+  const lower = name.toLowerCase();
+  if (hasIcon(lower)) return lower;
+  if (/credit|coin|money|gold|cash/.test(lower)) return "credits";
+  if (/research|science|lab/.test(lower)) return "research";
+  if (/military|army|fleet|defense/.test(lower)) return "military";
+  if (/industry|production|manufactur|factory/.test(lower)) return "industry";
+  if (/influence|diplo/.test(lower)) return "influence";
+  if (/approval|happy|morale/.test(lower)) return "approval";
+  if (/faith|ideology|religion/.test(lower)) return "faith";
+  if (/admin|authority|governance/.test(lower)) return "authority";
+  if (/compute|computation|ai/.test(lower)) return "computation";
+  if (/tech/.test(lower)) return "tech";
+  if (/policy|law/.test(lower)) return "policy";
+  return void 0;
+}
+function emitStats(laid, theme, out) {
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitStat(laid, theme, out) {
+  const node = laid.node;
+  const isBold = hasFlag(node.attributes, "bold");
+  const isMuted = hasFlag(node.attributes, "muted");
+  const labelColor = isMuted ? theme.mutedTextColor : theme.mutedTextColor;
+  const valueColor = isMuted ? theme.mutedTextColor : theme.textColor;
+  const valueWeight = isBold ? "700" : "500";
+  const baseline = laid.y + laid.height * 0.75;
+  const labelW = node.label.length * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize);
+  out.push(
+    `<text x="${laid.x}" y="${baseline}" font-size="${theme.smallFontSize}" letter-spacing="0.5" fill="${labelColor}">${escapeText(node.label.toUpperCase())}</text>`
+  );
+  out.push(
+    `<text x="${laid.x + labelW + 6}" y="${baseline}" font-weight="${valueWeight}" fill="${valueColor}">${escapeText(node.value)}</text>`
+  );
+}
+function emitProgress(laid, theme, out) {
+  const node = laid.node;
+  const label = getAttrString2(node.attributes, "label");
+  const accent = getAccent(node.attributes, theme);
+  const value = getAttrNumber2(node.attributes, "value") ?? 0;
+  const max = Math.max(1, getAttrNumber2(node.attributes, "max") ?? 100);
+  const frac = clamp01(value / max);
+  const barY = label !== void 0 ? laid.y + theme.smallFontSize + 4 : laid.y;
+  const barHeight = theme.progressHeight;
+  if (label !== void 0) {
+    out.push(
+      `<text x="${laid.x}" y="${laid.y + theme.smallFontSize}" font-size="${theme.smallFontSize}" fill="${theme.mutedTextColor}">${escapeText(label)}</text>`
+    );
+    const right = `${value} / ${max}`;
+    out.push(
+      `<text x="${laid.x + laid.width}" y="${laid.y + theme.smallFontSize}" text-anchor="end" font-size="${theme.smallFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(right)}</text>`
+    );
+  }
+  out.push(
+    `<rect x="${laid.x}" y="${barY}" width="${laid.width}" height="${barHeight}" fill="${theme.sliderTrackColor}" rx="${barHeight / 2}" />`
+  );
+  const fillColor = accent ?? theme.sliderFillColor;
+  out.push(
+    `<rect x="${laid.x}" y="${barY}" width="${laid.width * frac}" height="${barHeight}" fill="${fillColor}" rx="${barHeight / 2}" />`
+  );
+}
+function emitChart(laid, theme, out) {
+  const node = laid.node;
+  const kindAttr = getAttrIdent2(node.attributes, "kind");
+  const kind = kindAttr === "line" || kindAttr === "pie" ? kindAttr : "bar";
+  const label = getAttrString2(node.attributes, "label");
+  const accent = getAccent(node.attributes, theme);
+  const stroke = accent ?? theme.panelBorderColor;
+  const fill = theme.slotFillColor;
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${fill}" stroke="${stroke}" stroke-width="${theme.panelStrokeWidth}" stroke-dasharray="${theme.panelStrokeDasharray}" rx="3" />`
+  );
+  const inset = 12;
+  const gx = laid.x + inset;
+  const gy = laid.y + inset;
+  const gw = laid.width - inset * 2;
+  const gh = laid.height - inset * 2 - (label !== void 0 ? theme.smallFontSize + 4 : 0);
+  const glyphStroke = accent ?? theme.mutedTextColor;
+  if (kind === "bar") {
+    const bars = 4;
+    const barW = gw / (bars * 2);
+    const heights = [0.4, 0.75, 0.55, 0.9];
+    for (let i = 0; i < bars; i++) {
+      const bh = gh * (heights[i] ?? 0.5);
+      const bx = gx + i * barW * 2 + barW * 0.5;
+      const by = gy + gh - bh;
+      out.push(
+        `<rect x="${bx}" y="${by}" width="${barW}" height="${bh}" fill="${glyphStroke}" opacity="0.75" />`
+      );
+    }
+  } else if (kind === "line") {
+    const points = [
+      { x: 0, y: 0.7 },
+      { x: 0.25, y: 0.45 },
+      { x: 0.5, y: 0.55 },
+      { x: 0.75, y: 0.2 },
+      { x: 1, y: 0.3 }
+    ];
+    const path = points.map((p, i) => `${i === 0 ? "M" : "L"} ${gx + p.x * gw} ${gy + p.y * gh}`).join(" ");
+    out.push(
+      `<path d="${path}" fill="none" stroke="${glyphStroke}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />`
+    );
+    for (const p of points) {
+      out.push(
+        `<circle cx="${gx + p.x * gw}" cy="${gy + p.y * gh}" r="2" fill="${glyphStroke}" />`
+      );
+    }
+  } else {
+    const cx = gx + gw / 2;
+    const cy = gy + gh / 2;
+    const r = Math.min(gw, gh) / 2;
+    out.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${glyphStroke}" opacity="0.75" />`);
+    const endX = cx + r * Math.cos(-Math.PI / 2 + 2 * Math.PI / 3);
+    const endY = cy + r * Math.sin(-Math.PI / 2 + 2 * Math.PI / 3);
+    out.push(
+      `<path d="M ${cx} ${cy} L ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${endX} ${endY} Z" fill="${theme.background}" opacity="0.7" />`
+    );
+  }
+  if (label !== void 0) {
+    out.push(
+      `<text x="${laid.x + laid.width / 2}" y="${laid.y + laid.height - 8}" text-anchor="middle" font-size="${theme.smallFontSize}" fill="${theme.mutedTextColor}">${escapeText(label)}</text>`
+    );
+  }
 }
 function textStyle(attrs, theme) {
   const isBold = hasFlag(attrs, "bold");
@@ -2295,13 +3392,25 @@ function textStyle(attrs, theme) {
   parts.push(`fill="${fill}"`);
   return " " + parts.join(" ");
 }
-function renderBadgePill(x, y, text, theme, out) {
+function renderBadgePill(x, y, text, theme, out, accent) {
   const w = badgeRenderWidth(text, theme);
   const h = theme.badgeHeight;
+  const fill = accent ?? theme.badgeFill;
+  const textFill = accent ? "#ffffff" : theme.badgeText;
   out.push(
-    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="${theme.badgeFill}" />`,
-    `<text x="${x + w / 2}" y="${y + h / 2 + theme.badgeFontSize / 3}" text-anchor="middle" font-size="${theme.badgeFontSize}" font-weight="600" fill="${theme.badgeText}">${escapeText(text)}</text>`
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="${fill}" />`,
+    `<text x="${x + w / 2}" y="${y + h / 2 + theme.badgeFontSize / 3}" text-anchor="middle" font-size="${theme.badgeFontSize}" font-weight="600" fill="${textFill}">${escapeText(text)}</text>`
   );
+}
+function getAccent(attrs, theme) {
+  const v = getAttrIdent2(attrs, "accent");
+  if (v === void 0) return void 0;
+  return theme.accents[v];
+}
+function getState(attrs) {
+  const v = getAttrIdent2(attrs, "state");
+  if (v === void 0) return void 0;
+  return v;
 }
 function badgeRenderWidth(text, theme) {
   const charW = theme.averageCharWidth * (theme.badgeFontSize / theme.fontSize);

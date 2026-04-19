@@ -1,0 +1,10 @@
+window "Research Overview":
+  section "Progress":
+    progress value=68 max=100 label="Computation Pool" accent=research
+    progress value=4 max=10 label="Matrix Tier (Investment)" accent=wealth
+    progress value=220 max=300 label="Institution XP" accent=industry
+  section "Charts":
+    row:
+      chart kind=bar label="Maintenance ramp" accent=warning
+      chart kind=line label="Approval over time" accent=approval
+      chart kind=pie label="Equity split" accent=wealth

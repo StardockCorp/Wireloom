@@ -11,6 +11,8 @@ import type {
   AttributePair,
   AttributeValue,
   ButtonNode,
+  CellNode,
+  ChartNode,
   ColNode,
   ColWidth,
   ComboNode,
@@ -18,6 +20,7 @@ import type {
   DividerNode,
   Document,
   FooterNode,
+  GridNode,
   HeaderNode,
   IconNode,
   ImageNode,
@@ -26,11 +29,17 @@ import type {
   KvNode,
   ListNode,
   PanelNode,
+  ProgressNode,
+  ResourceBarNode,
+  ResourceNode,
   RowNode,
   SectionNode,
   SliderNode,
+  SlotFooterNode,
   SlotNode,
   SourcePosition,
+  StatNode,
+  StatsNode,
   TabNode,
   TabsNode,
   TextNode,
@@ -60,6 +69,34 @@ const WEIGHT_VALUES = ['light', 'regular', 'semibold', 'bold'] as const;
 const SIZE_VALUES = ['small', 'regular', 'large'] as const;
 const ALIGN_VALUES = ['left', 'center', 'right'] as const;
 const INPUT_TYPE_VALUES = ['text', 'password', 'email'] as const;
+const ACCENT_VALUES = [
+  'research',
+  'military',
+  'industry',
+  'wealth',
+  'approval',
+  'warning',
+  'danger',
+  'success',
+] as const;
+/**
+ * Unified state enum for slots and cells. Covers tier/lifecycle UIs —
+ * e.g. Matrix sectors (locked/available/purchased/maxed) and Oligarchy
+ * investments (growing/ripe/withering/cashed). Kept as a single enum so
+ * authors don't have to remember which states apply to which primitive.
+ */
+const STATE_VALUES = [
+  'locked',
+  'available',
+  'active',
+  'purchased',
+  'maxed',
+  'growing',
+  'ripe',
+  'withering',
+  'cashed',
+] as const;
+const CHART_KIND_VALUES = ['bar', 'line', 'pie'] as const;
 
 const ATTR_RULES: Record<string, AttrRules> = {
   window: { attrs: {}, flags: [] },
@@ -67,7 +104,10 @@ const ATTR_RULES: Record<string, AttrRules> = {
   footer: { attrs: {}, flags: [] },
   panel: { attrs: {}, flags: [] },
   section: {
-    attrs: { badge: { kind: 'string' } },
+    attrs: {
+      badge: { kind: 'string' },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
     flags: [],
   },
   tabs: { attrs: {}, flags: [] },
@@ -82,7 +122,44 @@ const ATTR_RULES: Record<string, AttrRules> = {
   col: { attrs: {}, flags: [] },
   list: { attrs: {}, flags: [] },
   item: { attrs: {}, flags: [] },
-  slot: { attrs: {}, flags: ['active'] },
+  slot: {
+    attrs: {
+      state: { kind: 'enum', values: STATE_VALUES },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
+    flags: ['active'],
+  },
+  slotFooter: { attrs: {}, flags: [] },
+  grid: {
+    attrs: {
+      cols: { kind: 'number' },
+      rows: { kind: 'number' },
+    },
+    flags: [],
+  },
+  cell: {
+    attrs: {
+      row: { kind: 'number' },
+      col: { kind: 'number' },
+      state: { kind: 'enum', values: STATE_VALUES },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
+    flags: [],
+  },
+  resourcebar: { attrs: {}, flags: [] },
+  resource: {
+    attrs: {
+      name: { kind: 'string' },
+      value: { kind: 'string' },
+      icon: { kind: 'string' },
+    },
+    flags: [],
+  },
+  stats: { attrs: {}, flags: [] },
+  stat: {
+    attrs: {},
+    flags: ['bold', 'muted'],
+  },
   text: {
     attrs: {
       weight: { kind: 'enum', values: WEIGHT_VALUES },
@@ -91,7 +168,10 @@ const ATTR_RULES: Record<string, AttrRules> = {
     flags: ['bold', 'italic', 'muted'],
   },
   button: {
-    attrs: { badge: { kind: 'string' } },
+    attrs: {
+      badge: { kind: 'string' },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
     flags: ['primary', 'disabled'],
   },
   input: {
@@ -132,10 +212,32 @@ const ATTR_RULES: Record<string, AttrRules> = {
     flags: [],
   },
   icon: {
-    attrs: { name: { kind: 'string' } },
+    attrs: {
+      name: { kind: 'string' },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
     flags: [],
   },
   divider: { attrs: {}, flags: [] },
+  progress: {
+    attrs: {
+      value: { kind: 'number' },
+      max: { kind: 'number' },
+      label: { kind: 'string' },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
+    flags: [],
+  },
+  chart: {
+    attrs: {
+      kind: { kind: 'enum', values: CHART_KIND_VALUES },
+      label: { kind: 'string' },
+      width: { kind: 'number' },
+      height: { kind: 'number' },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
+    flags: [],
+  },
 };
 
 const VALID_PRIMITIVES = new Set(Object.keys(ATTR_RULES));
@@ -149,6 +251,9 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
   'col',
   'list',
   'slot',
+  'grid',
+  'resourcebar',
+  'stats',
   'text',
   'button',
   'input',
@@ -158,12 +263,14 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
   'image',
   'icon',
   'divider',
+  'progress',
+  'chart',
 ]);
 
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, text, button, input, combo, slider, kv, image, icon, divider';
+  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -284,6 +391,27 @@ class Parser {
         head.column,
       );
     }
+    if (name === 'cell') {
+      throw new WireloomError(
+        '"cell" may only appear inside "grid"',
+        head.line,
+        head.column,
+      );
+    }
+    if (name === 'resource') {
+      throw new WireloomError(
+        '"resource" may only appear inside "resourcebar"',
+        head.line,
+        head.column,
+      );
+    }
+    if (name === 'stat') {
+      throw new WireloomError(
+        '"stat" may only appear inside "stats"',
+        head.line,
+        head.column,
+      );
+    }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
     return this.parseContainerChildNamed(name);
@@ -339,11 +467,19 @@ class Parser {
           ? '"tab" may only appear inside "tabs"'
           : name === 'item'
             ? '"item" may only appear inside "list"'
-            : name === 'header' || name === 'footer'
-              ? `"${name}" may only appear directly inside "window"`
-              : name === 'window'
-                ? '"window" cannot be nested'
-                : `"${name}" is not allowed here`;
+            : name === 'header'
+              ? '"header" may only appear directly inside "window"'
+              : name === 'footer'
+                ? '"footer" may only appear directly inside "window" or "slot"'
+                : name === 'window'
+                  ? '"window" cannot be nested'
+                  : name === 'cell'
+                    ? '"cell" may only appear inside "grid"'
+                    : name === 'resource'
+                      ? '"resource" may only appear inside "resourcebar"'
+                      : name === 'stat'
+                        ? '"stat" may only appear inside "stats"'
+                        : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -383,6 +519,16 @@ class Parser {
         return this.parseIcon();
       case 'divider':
         return this.parseDivider();
+      case 'grid':
+        return this.parseGrid();
+      case 'resourcebar':
+        return this.parseResourceBar();
+      case 'stats':
+        return this.parseStats();
+      case 'progress':
+        return this.parseProgress();
+      case 'chart':
+        return this.parseChart();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -562,8 +708,56 @@ class Parser {
     ).stringValue ?? '';
     const attributes = this.parseAttributes('slot');
     const hasChildren = this.parseTerminator('slot', head);
+    const { children, slotFooter } = hasChildren
+      ? this.parseSlotChildren()
+      : { children: [] as ContainerChild[], slotFooter: undefined };
+    const node: SlotNode = { kind: 'slot', title, attributes, children, position };
+    if (slotFooter) node.slotFooter = slotFooter;
+    return node;
+  }
+
+  /**
+   * Parse children of a `slot`. Accepts standard container children plus an
+   * optional trailing `footer:` block (at most one, must be the last child).
+   */
+  private parseSlotChildren(): { children: ContainerChild[]; slotFooter?: SlotFooterNode } {
+    const children: ContainerChild[] = [];
+    let slotFooter: SlotFooterNode | undefined;
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      const name = head.kind === 'ident' ? head.identValue ?? head.raw : undefined;
+      if (name === 'footer') {
+        if (slotFooter !== undefined) {
+          throw new WireloomError(
+            '"slot" may contain at most one "footer" block',
+            head.line,
+            head.column,
+          );
+        }
+        slotFooter = this.parseSlotFooter();
+        continue;
+      }
+      // Non-footer child: if a footer is already parsed, that footer wasn't last.
+      if (slotFooter !== undefined) {
+        throw new WireloomError(
+          '"footer" inside "slot" must be the last child',
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseContainerChild());
+    }
+    this.expectKind('dedent', 'slot children block did not close cleanly');
+    return slotFooter ? { children, slotFooter } : { children };
+  }
+
+  private parseSlotFooter(): SlotFooterNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('slotFooter');
+    const hasChildren = this.parseTerminator('footer', head);
     const children = hasChildren ? this.parseContainerChildren() : [];
-    return { kind: 'slot', title, attributes, children, position };
+    return { kind: 'slotFooter', attributes, children, position };
   }
 
   // --- Leaves ---------------------------------------------------------------
@@ -679,6 +873,205 @@ class Parser {
     return { kind: 'divider', attributes, position };
   }
 
+  private parseProgress(): ProgressNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('progress');
+    this.parseLeafTerminator('progress', head);
+    return { kind: 'progress', attributes, position };
+  }
+
+  private parseChart(): ChartNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('chart');
+    this.parseLeafTerminator('chart', head);
+    return { kind: 'chart', attributes, position };
+  }
+
+  // --- Grid / Cell ----------------------------------------------------------
+
+  private parseGrid(): GridNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('grid');
+    const cols = getAttrNumberValue(attributes, 'cols');
+    const rows = getAttrNumberValue(attributes, 'rows');
+    if (cols === undefined || cols < 1) {
+      throw new WireloomError(
+        '"grid" requires cols=N with N>=1 (e.g., grid cols=5 rows=5:)',
+        head.line,
+        head.column,
+      );
+    }
+    if (rows === undefined || rows < 1) {
+      throw new WireloomError(
+        '"grid" requires rows=N with N>=1 (e.g., grid cols=5 rows=5:)',
+        head.line,
+        head.column,
+      );
+    }
+    const hasChildren = this.parseTerminator('grid', head);
+    const children = hasChildren ? this.parseGridChildren() : [];
+    return { kind: 'grid', cols, rows, attributes, children, position };
+  }
+
+  private parseGridChildren(): CellNode[] {
+    const children: CellNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "cell", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'cell') {
+        throw new WireloomError(
+          `"grid" accepts only "cell" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseCell());
+    }
+    this.expectKind('dedent', 'grid block did not close cleanly');
+    return children;
+  }
+
+  private parseCell(): CellNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    let label: string | undefined;
+    if (this.peek().kind === 'string') {
+      label = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes('cell');
+    const rowAttr = getAttrNumberValue(attributes, 'row');
+    const colAttr = getAttrNumberValue(attributes, 'col');
+    const hasChildren = this.parseTerminator('cell', head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const node: CellNode = { kind: 'cell', attributes, children, position };
+    if (label !== undefined) node.label = label;
+    if (rowAttr !== undefined) node.row = rowAttr;
+    if (colAttr !== undefined) node.col = colAttr;
+    return node;
+  }
+
+  // --- ResourceBar / Resource ----------------------------------------------
+
+  private parseResourceBar(): ResourceBarNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('resourcebar');
+    const hasChildren = this.parseTerminator('resourcebar', head);
+    const children = hasChildren ? this.parseResourceChildren() : [];
+    return { kind: 'resourcebar', attributes, children, position };
+  }
+
+  private parseResourceChildren(): ResourceNode[] {
+    const children: ResourceNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "resource", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'resource') {
+        throw new WireloomError(
+          `"resourcebar" accepts only "resource" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseResource());
+    }
+    this.expectKind('dedent', 'resourcebar block did not close cleanly');
+    return children;
+  }
+
+  private parseResource(): ResourceNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('resource');
+    const name = getAttrStringValue(attributes, 'name');
+    const value = getAttrStringValue(attributes, 'value');
+    if (name === undefined) {
+      throw new WireloomError(
+        '"resource" requires name="…" (e.g., resource name="Credits" value="1,500")',
+        head.line,
+        head.column,
+      );
+    }
+    if (value === undefined) {
+      throw new WireloomError(
+        '"resource" requires value="…" (e.g., resource name="Credits" value="1,500")',
+        head.line,
+        head.column,
+      );
+    }
+    this.parseLeafTerminator('resource', head);
+    return { kind: 'resource', name, value, attributes, position };
+  }
+
+  // --- Stats / Stat --------------------------------------------------------
+
+  private parseStats(): StatsNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('stats');
+    const hasChildren = this.parseTerminator('stats', head);
+    const children = hasChildren ? this.parseStatChildren() : [];
+    return { kind: 'stats', attributes, children, position };
+  }
+
+  private parseStatChildren(): StatNode[] {
+    const children: StatNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "stat", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'stat') {
+        throw new WireloomError(
+          `"stats" accepts only "stat" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseStat());
+    }
+    this.expectKind('dedent', 'stats block did not close cleanly');
+    return children;
+  }
+
+  private parseStat(): StatNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"stat" requires a label string (e.g., stat "INT" "4")',
+    ).stringValue ?? '';
+    const value = this.expectKind(
+      'string',
+      '"stat" requires a value string after the label (e.g., stat "INT" "4")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('stat');
+    this.parseLeafTerminator('stat', head);
+    return { kind: 'stat', label, value, attributes, position };
+  }
+
   // --- Attributes / terminators --------------------------------------------
 
   private parseAttributes(primitive: string): Attribute[] {
@@ -792,6 +1185,24 @@ class Parser {
 
 function positionOf(token: Token): SourcePosition {
   return { line: token.line, column: token.column };
+}
+
+function getAttrStringValue(attrs: readonly Attribute[], key: string): string | undefined {
+  for (const a of attrs) {
+    if (a.kind === 'pair' && a.key === key && a.value.kind === 'string') {
+      return a.value.value;
+    }
+  }
+  return undefined;
+}
+
+function getAttrNumberValue(attrs: readonly Attribute[], key: string): number | undefined {
+  for (const a of attrs) {
+    if (a.kind === 'pair' && a.key === key && a.value.kind === 'number') {
+      return a.value.value;
+    }
+  }
+  return undefined;
 }
 
 function describeToken(token: Token): string {

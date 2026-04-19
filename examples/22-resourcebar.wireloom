@@ -1,0 +1,13 @@
+# GC4 resource strip shown at the top of every government screen
+window "Colonial Charter":
+  resourcebar:
+    resource name="Credits" value="1,500"
+    resource name="Research" value="240"
+    resource name="Production" value="88"
+    resource name="Influence" value="55"
+    resource name="Approval" value="72%"
+    resource name="Faith" value="12"
+    resource name="Diplo" value="4"
+    resource name="Authority" value="9"
+  panel:
+    text "Top-of-screen resource strip above."

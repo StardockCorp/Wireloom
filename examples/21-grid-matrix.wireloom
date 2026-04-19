@@ -1,0 +1,32 @@
+# 5×5 Optimization Matrix (Technocracy government)
+window "Technocracy — Optimization Matrix":
+  grid cols=5 rows=5:
+    cell "Compute I" state=purchased accent=research
+    cell "Compute II" state=purchased accent=research
+    cell "Compute III" state=available accent=research
+    cell "Compute IV" state=locked accent=research
+    cell "Compute V" state=locked accent=research
+
+    cell "Tax I" state=purchased accent=wealth
+    cell "Tax II" state=available accent=wealth
+    cell "Tax III" state=locked accent=wealth
+    cell "Tax IV" state=locked accent=wealth
+    cell "Tax V" state=locked accent=wealth
+
+    cell "Fleet I" state=available accent=military
+    cell "Fleet II" state=locked accent=military
+    cell "Fleet III" state=locked accent=military
+    cell "Fleet IV" state=locked accent=military
+    cell "Fleet V" state=locked accent=military
+
+    cell "Prod I" state=maxed accent=industry
+    cell "Prod II" state=maxed accent=industry
+    cell "Prod III" state=purchased accent=industry
+    cell "Prod IV" state=available accent=industry
+    cell "Prod V" state=locked accent=industry
+
+    cell "Morale I" state=purchased accent=approval
+    cell "Morale II" state=available accent=approval
+    cell "Morale III" state=locked accent=approval
+    cell "Morale IV" state=locked accent=approval
+    cell "Morale V" state=locked accent=approval

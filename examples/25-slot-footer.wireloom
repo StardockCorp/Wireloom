@@ -1,0 +1,18 @@
+window "Oligarchy — Investments":
+  row:
+    slot "Corellian Shipyards" state=growing accent=industry:
+      stats:
+        stat "Yield" "+12/turn"
+        stat "Ripens" "T+6"
+      text "Growing investment — pulls in shipyard revenue over time." muted size=small
+      footer:
+        button "Sell"
+        button "Harvest" primary accent=wealth
+    slot "Arcturus Mining Guild" state=ripe accent=wealth:
+      stats:
+        stat "Yield" "+40/turn"
+        stat "Ripens" "NOW"
+      text "Ripe — cash out for a lump sum or let it mature further." muted size=small
+      footer:
+        button "Sell"
+        button "Harvest" primary accent=success

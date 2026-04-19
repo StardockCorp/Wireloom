@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="708" height="398" viewBox="0 0 708 398" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="708" height="398" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="707" height="397" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="708" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="354" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Research Overview</text>
+<text x="16" y="70" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">PROGRESS</text>
+<line x1="16" y1="74" x2="692" y2="74" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="16" y="94" font-size="12" fill="#7a7f87">Computation Pool</text>
+<text x="616" y="94" text-anchor="end" font-size="12" font-weight="600" fill="#2d2d2d">68 / 100</text>
+<rect x="16" y="98" width="600" height="18" fill="#dde0e4" rx="9" />
+<rect x="16" y="98" width="408.00000000000006" height="18" fill="#3f7cc2" rx="9" />
+<text x="16" y="136" font-size="12" fill="#7a7f87">Matrix Tier (Investment)</text>
+<text x="616" y="136" text-anchor="end" font-size="12" font-weight="600" fill="#2d2d2d">4 / 10</text>
+<rect x="16" y="140" width="600" height="18" fill="#dde0e4" rx="9" />
+<rect x="16" y="140" width="240" height="18" fill="#3f8f5c" rx="9" />
+<text x="16" y="178" font-size="12" fill="#7a7f87">Institution XP</text>
+<text x="616" y="178" text-anchor="end" font-size="12" font-weight="600" fill="#2d2d2d">220 / 300</text>
+<rect x="16" y="182" width="600" height="18" fill="#dde0e4" rx="9" />
+<rect x="16" y="182" width="439.99999999999994" height="18" fill="#c28a3a" rx="9" />
+<text x="16" y="238" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">CHARTS</text>
+<line x1="16" y1="242" x2="692" y2="242" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<rect x="16.5" y="250.5" width="219" height="119" fill="#fafbfc" stroke="#c79a2e" stroke-width="1" stroke-dasharray="4 3" rx="3" />
+<rect x="40.25" y="310" width="24.5" height="32" fill="#c79a2e" opacity="0.75" />
+<rect x="89.25" y="282" width="24.5" height="60" fill="#c79a2e" opacity="0.75" />
+<rect x="138.25" y="298" width="24.5" height="44" fill="#c79a2e" opacity="0.75" />
+<rect x="187.25" y="270" width="24.5" height="72" fill="#c79a2e" opacity="0.75" />
+<text x="126" y="362" text-anchor="middle" font-size="12" fill="#7a7f87">Maintenance ramp</text>
+<rect x="244.5" y="250.5" width="219" height="119" fill="#fafbfc" stroke="#7a56b0" stroke-width="1" stroke-dasharray="4 3" rx="3" />
+<path d="M 256 318 L 305 298 L 354 306 L 403 278 L 452 286" fill="none" stroke="#7a56b0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="256" cy="318" r="2" fill="#7a56b0" />
+<circle cx="305" cy="298" r="2" fill="#7a56b0" />
+<circle cx="354" cy="306" r="2" fill="#7a56b0" />
+<circle cx="403" cy="278" r="2" fill="#7a56b0" />
+<circle cx="452" cy="286" r="2" fill="#7a56b0" />
+<text x="354" y="362" text-anchor="middle" font-size="12" fill="#7a7f87">Approval over time</text>
+<rect x="472.5" y="250.5" width="219" height="119" fill="#fafbfc" stroke="#3f8f5c" stroke-width="1" stroke-dasharray="4 3" rx="3" />
+<circle cx="582" cy="302" r="40" fill="#3f8f5c" opacity="0.75" />
+<path d="M 582 302 L 582 262 A 40 40 0 0 1 616.6410161513776 322 Z" fill="#ffffff" opacity="0.7" />
+<text x="582" y="362" text-anchor="middle" font-size="12" fill="#7a7f87">Equity split</text>
+</svg>

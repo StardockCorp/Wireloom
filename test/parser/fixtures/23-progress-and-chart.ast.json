@@ -1,0 +1,443 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "section",
+        "title": "Progress",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "progress",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "number",
+                  "value": 68,
+                  "unit": "px",
+                  "position": {
+                    "line": 3,
+                    "column": 20
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "max",
+                "value": {
+                  "kind": "number",
+                  "value": 100,
+                  "unit": "px",
+                  "position": {
+                    "line": 3,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 23
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "label",
+                "value": {
+                  "kind": "string",
+                  "value": "Computation Pool",
+                  "position": {
+                    "line": 3,
+                    "column": 37
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 31
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "research",
+                  "position": {
+                    "line": 3,
+                    "column": 63
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 56
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "progress",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "number",
+                  "value": 4,
+                  "unit": "px",
+                  "position": {
+                    "line": 4,
+                    "column": 20
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "max",
+                "value": {
+                  "kind": "number",
+                  "value": 10,
+                  "unit": "px",
+                  "position": {
+                    "line": 4,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "label",
+                "value": {
+                  "kind": "string",
+                  "value": "Matrix Tier (Investment)",
+                  "position": {
+                    "line": 4,
+                    "column": 35
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 29
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "wealth",
+                  "position": {
+                    "line": 4,
+                    "column": 69
+                  }
+                },
+                "position": {
+                  "line": 4,
+                  "column": 62
+                }
+              }
+            ],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "progress",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "value",
+                "value": {
+                  "kind": "number",
+                  "value": 220,
+                  "unit": "px",
+                  "position": {
+                    "line": 5,
+                    "column": 20
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 14
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "max",
+                "value": {
+                  "kind": "number",
+                  "value": 300,
+                  "unit": "px",
+                  "position": {
+                    "line": 5,
+                    "column": 28
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 24
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "label",
+                "value": {
+                  "kind": "string",
+                  "value": "Institution XP",
+                  "position": {
+                    "line": 5,
+                    "column": 38
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 32
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "industry",
+                  "position": {
+                    "line": 5,
+                    "column": 62
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 55
+                }
+              }
+            ],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Charts",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "chart",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "bar",
+                      "position": {
+                        "line": 8,
+                        "column": 18
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 13
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "label",
+                    "value": {
+                      "kind": "string",
+                      "value": "Maintenance ramp",
+                      "position": {
+                        "line": 8,
+                        "column": 28
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 22
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "warning",
+                      "position": {
+                        "line": 8,
+                        "column": 54
+                      }
+                    },
+                    "position": {
+                      "line": 8,
+                      "column": 47
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 8,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "chart",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "line",
+                      "position": {
+                        "line": 9,
+                        "column": 18
+                      }
+                    },
+                    "position": {
+                      "line": 9,
+                      "column": 13
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "label",
+                    "value": {
+                      "kind": "string",
+                      "value": "Approval over time",
+                      "position": {
+                        "line": 9,
+                        "column": 29
+                      }
+                    },
+                    "position": {
+                      "line": 9,
+                      "column": 23
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "approval",
+                      "position": {
+                        "line": 9,
+                        "column": 57
+                      }
+                    },
+                    "position": {
+                      "line": 9,
+                      "column": 50
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 9,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "chart",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "pie",
+                      "position": {
+                        "line": 10,
+                        "column": 18
+                      }
+                    },
+                    "position": {
+                      "line": 10,
+                      "column": 13
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "label",
+                    "value": {
+                      "kind": "string",
+                      "value": "Equity split",
+                      "position": {
+                        "line": 10,
+                        "column": 28
+                      }
+                    },
+                    "position": {
+                      "line": 10,
+                      "column": 22
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "wealth",
+                      "position": {
+                        "line": 10,
+                        "column": 50
+                      }
+                    },
+                    "position": {
+                      "line": 10,
+                      "column": 43
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 6,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Research Overview"
+  },
+  "sourceLines": 11
+}

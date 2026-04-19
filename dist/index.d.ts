@@ -6,7 +6,7 @@ interface WireloomConfig {
 }
 
 /**
- * AST type definitions for the Wireloom v0.2 grammar.
+ * AST type definitions for the Wireloom v0.4 grammar.
  *
  * The parser produces a `Document` whose optional `root` is the required
  * `WindowNode`. Every node carries a source position so errors and tooling
@@ -117,6 +117,40 @@ interface SlotNode extends NodeBase {
     kind: 'slot';
     title: string;
     children: ContainerChild[];
+    /** Optional right-aligned footer, added v0.4. Rendered below main content. */
+    slotFooter?: SlotFooterNode;
+}
+/**
+ * Inline footer block inside a `slot`. Syntactically written as a bare
+ * `footer:` child of a slot. Unlike the top-level window footer, this is
+ * always right-aligned and intended for action buttons + secondary text.
+ */
+interface SlotFooterNode extends NodeBase {
+    kind: 'slotFooter';
+    children: ContainerChild[];
+}
+interface GridNode extends NodeBase {
+    kind: 'grid';
+    cols: number;
+    rows: number;
+    children: CellNode[];
+}
+interface CellNode extends NodeBase {
+    kind: 'cell';
+    /** Optional positional label string. */
+    label?: string;
+    /** 1-indexed grid position. `undefined` means auto-flow. */
+    row?: number;
+    col?: number;
+    children: ContainerChild[];
+}
+interface ResourceBarNode extends NodeBase {
+    kind: 'resourcebar';
+    children: ResourceNode[];
+}
+interface StatsNode extends NodeBase {
+    kind: 'stats';
+    children: StatNode[];
 }
 interface TabNode extends NodeBase {
     kind: 'tab';
@@ -158,14 +192,30 @@ interface IconNode extends NodeBase {
 interface DividerNode extends NodeBase {
     kind: 'divider';
 }
+interface ProgressNode extends NodeBase {
+    kind: 'progress';
+}
+interface ChartNode extends NodeBase {
+    kind: 'chart';
+}
+interface ResourceNode extends NodeBase {
+    kind: 'resource';
+    name: string;
+    value: string;
+}
+interface StatNode extends NodeBase {
+    kind: 'stat';
+    label: string;
+    value: string;
+}
 /**
  * Leaf nodes that can appear in any container (panel/section/row/col/slot).
  * Excludes `tab` (must be inside `tabs`) and `item` (must be inside `list`).
  */
-type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode;
-type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | LeafNode;
-type WindowChild = HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | LeafNode;
-type AnyNode = WindowNode | HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | LeafNode;
+type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | ProgressNode | ChartNode;
+type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | LeafNode;
+type WindowChild = HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | LeafNode;
+type AnyNode = WindowNode | HeaderNode | FooterNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | LeafNode;
 interface Document {
     kind: 'document';
     /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
@@ -191,6 +241,16 @@ declare class WireloomError extends Error {
  * A theme bundles colors, strokes, typography, and spacing into a single
  * object consumed by the layout engine and SVG emitter.
  */
+type AccentName = 'research' | 'military' | 'industry' | 'wealth' | 'approval' | 'warning' | 'danger' | 'success';
+type StateName = 'locked' | 'available' | 'active' | 'purchased' | 'maxed' | 'growing' | 'ripe' | 'withering' | 'cashed';
+/** Rendering style for a cell/slot in a given state. */
+interface StateStyle {
+    border: string;
+    fill: string;
+    text: string;
+    /** Optional right-shoulder badge glyph rendered on the node (e.g. 🔒, ✓). */
+    badge?: string;
+}
 interface Theme {
     name: string;
     background: string;
@@ -276,6 +336,21 @@ interface Theme {
     badgePaddingX: number;
     kvMinWidth: number;
     colFillMinWidth: number;
+    cellMinSize: number;
+    cellPadding: number;
+    resourceBarHeight: number;
+    resourceBarItemGap: number;
+    resourceBarIconSize: number;
+    statsGap: number;
+    progressDefaultWidth: number;
+    progressMaxWidth: number;
+    progressHeight: number;
+    chartDefaultWidth: number;
+    chartDefaultHeight: number;
+    /** Maps accent name → color used for borders, fills, and text treatments. */
+    accents: Readonly<Record<AccentName, string>>;
+    /** Maps state name → visual treatment applied to slots and cells. */
+    states: Readonly<Record<StateName, StateStyle>>;
 }
 declare const DEFAULT_THEME: Theme;
 declare const DARK_THEME: Theme;
@@ -330,4 +405,4 @@ declare const wireloom: {
     render: typeof render;
 };
 
-export { type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type ButtonNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type PanelNode, type RenderOptions, type RenderResult, type RowNode, type SectionNode, type SliderNode, type SlotNode, type SourcePosition, type TabNode, type TabsNode, type TextNode, type Theme, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
+export { type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type ButtonNode, type CellNode, type ChartNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type PanelNode, type ProgressNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type StatNode, type StatsNode, type TabNode, type TabsNode, type TextNode, type Theme, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };

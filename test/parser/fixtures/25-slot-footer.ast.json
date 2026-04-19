@@ -1,0 +1,347 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "slot",
+            "title": "Corellian Shipyards",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "growing",
+                  "position": {
+                    "line": 3,
+                    "column": 38
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 32
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "industry",
+                  "position": {
+                    "line": 3,
+                    "column": 53
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 46
+                }
+              }
+            ],
+            "children": [
+              {
+                "kind": "stats",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "stat",
+                    "label": "Yield",
+                    "value": "+12/turn",
+                    "attributes": [],
+                    "position": {
+                      "line": 5,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "stat",
+                    "label": "Ripens",
+                    "value": "T+6",
+                    "attributes": [],
+                    "position": {
+                      "line": 6,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Growing investment — pulls in shipyard revenue over time.",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 7,
+                      "column": 72
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "small",
+                      "position": {
+                        "line": 7,
+                        "column": 83
+                      }
+                    },
+                    "position": {
+                      "line": 7,
+                      "column": 78
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            },
+            "slotFooter": {
+              "kind": "slotFooter",
+              "attributes": [],
+              "children": [
+                {
+                  "kind": "button",
+                  "label": "Sell",
+                  "attributes": [],
+                  "position": {
+                    "line": 9,
+                    "column": 9
+                  }
+                },
+                {
+                  "kind": "button",
+                  "label": "Harvest",
+                  "attributes": [
+                    {
+                      "kind": "flag",
+                      "flag": "primary",
+                      "position": {
+                        "line": 10,
+                        "column": 26
+                      }
+                    },
+                    {
+                      "kind": "pair",
+                      "key": "accent",
+                      "value": {
+                        "kind": "identifier",
+                        "value": "wealth",
+                        "position": {
+                          "line": 10,
+                          "column": 41
+                        }
+                      },
+                      "position": {
+                        "line": 10,
+                        "column": 34
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 10,
+                    "column": 9
+                  }
+                }
+              ],
+              "position": {
+                "line": 8,
+                "column": 7
+              }
+            }
+          },
+          {
+            "kind": "slot",
+            "title": "Arcturus Mining Guild",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "state",
+                "value": {
+                  "kind": "identifier",
+                  "value": "ripe",
+                  "position": {
+                    "line": 11,
+                    "column": 40
+                  }
+                },
+                "position": {
+                  "line": 11,
+                  "column": 34
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "wealth",
+                  "position": {
+                    "line": 11,
+                    "column": 52
+                  }
+                },
+                "position": {
+                  "line": 11,
+                  "column": 45
+                }
+              }
+            ],
+            "children": [
+              {
+                "kind": "stats",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "stat",
+                    "label": "Yield",
+                    "value": "+40/turn",
+                    "attributes": [],
+                    "position": {
+                      "line": 13,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "stat",
+                    "label": "Ripens",
+                    "value": "NOW",
+                    "attributes": [],
+                    "position": {
+                      "line": 14,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "Ripe — cash out for a lump sum or let it mature further.",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 15,
+                      "column": 71
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "small",
+                      "position": {
+                        "line": 15,
+                        "column": 82
+                      }
+                    },
+                    "position": {
+                      "line": 15,
+                      "column": 77
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 15,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            },
+            "slotFooter": {
+              "kind": "slotFooter",
+              "attributes": [],
+              "children": [
+                {
+                  "kind": "button",
+                  "label": "Sell",
+                  "attributes": [],
+                  "position": {
+                    "line": 17,
+                    "column": 9
+                  }
+                },
+                {
+                  "kind": "button",
+                  "label": "Harvest",
+                  "attributes": [
+                    {
+                      "kind": "flag",
+                      "flag": "primary",
+                      "position": {
+                        "line": 18,
+                        "column": 26
+                      }
+                    },
+                    {
+                      "kind": "pair",
+                      "key": "accent",
+                      "value": {
+                        "kind": "identifier",
+                        "value": "success",
+                        "position": {
+                          "line": 18,
+                          "column": 41
+                        }
+                      },
+                      "position": {
+                        "line": 18,
+                        "column": 34
+                      }
+                    }
+                  ],
+                  "position": {
+                    "line": 18,
+                    "column": 9
+                  }
+                }
+              ],
+              "position": {
+                "line": 16,
+                "column": 7
+              }
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Oligarchy — Investments"
+  },
+  "sourceLines": 19
+}

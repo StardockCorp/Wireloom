@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="500" viewBox="0 0 540 500" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="540" height="500" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="539" height="499" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="540" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="270" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Technocracy — Optimization Matrix</text>
+<rect x="16.5" y="52.5" width="94.2" height="79" fill="#e8f3ec" stroke="#3f7cc2" stroke-width="1.5" rx="3" />
+<text x="24" y="74" font-weight="600" font-size="12" fill="#205537">Compute I</text>
+<g transform="translate(91.2 60) scale(0.75)" color="#3f7cc2">
+<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<rect x="119.7" y="52.5" width="94.2" height="79" fill="#e8f3ec" stroke="#3f7cc2" stroke-width="1.5" rx="3" />
+<text x="127.2" y="74" font-weight="600" font-size="12" fill="#205537">Compute II</text>
+<g transform="translate(194.4 60) scale(0.75)" color="#3f7cc2">
+<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<rect x="222.9" y="52.5" width="94.2" height="79" fill="#fafbfc" stroke="#3f7cc2" stroke-width="1" rx="3" />
+<text x="230.4" y="74" font-weight="600" font-size="12" fill="#2d2d2d">Compute III</text>
+<rect x="326.1" y="52.5" width="94.2" height="79" fill="#f0f0f0" stroke="#3f7cc2" stroke-width="1" rx="3" />
+<text x="333.6" y="74" font-weight="600" font-size="12" fill="#8a8f97">Compute IV</text>
+<g transform="translate(400.8 60) scale(0.75)" color="#3f7cc2">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="429.3" y="52.5" width="94.2" height="79" fill="#f0f0f0" stroke="#3f7cc2" stroke-width="1" rx="3" />
+<text x="436.8" y="74" font-weight="600" font-size="12" fill="#8a8f97">Compute V</text>
+<g transform="translate(504 60) scale(0.75)" color="#3f7cc2">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="16.5" y="140.5" width="94.2" height="79" fill="#e8f3ec" stroke="#3f8f5c" stroke-width="1.5" rx="3" />
+<text x="24" y="162" font-weight="600" font-size="12" fill="#205537">Tax I</text>
+<g transform="translate(91.2 148) scale(0.75)" color="#3f8f5c">
+<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<rect x="119.7" y="140.5" width="94.2" height="79" fill="#fafbfc" stroke="#3f8f5c" stroke-width="1" rx="3" />
+<text x="127.2" y="162" font-weight="600" font-size="12" fill="#2d2d2d">Tax II</text>
+<rect x="222.9" y="140.5" width="94.2" height="79" fill="#f0f0f0" stroke="#3f8f5c" stroke-width="1" rx="3" />
+<text x="230.4" y="162" font-weight="600" font-size="12" fill="#8a8f97">Tax III</text>
+<g transform="translate(297.6 148) scale(0.75)" color="#3f8f5c">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="326.1" y="140.5" width="94.2" height="79" fill="#f0f0f0" stroke="#3f8f5c" stroke-width="1" rx="3" />
+<text x="333.6" y="162" font-weight="600" font-size="12" fill="#8a8f97">Tax IV</text>
+<g transform="translate(400.8 148) scale(0.75)" color="#3f8f5c">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="429.3" y="140.5" width="94.2" height="79" fill="#f0f0f0" stroke="#3f8f5c" stroke-width="1" rx="3" />
+<text x="436.8" y="162" font-weight="600" font-size="12" fill="#8a8f97">Tax V</text>
+<g transform="translate(504 148) scale(0.75)" color="#3f8f5c">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="16.5" y="228.5" width="94.2" height="79" fill="#fafbfc" stroke="#b55442" stroke-width="1" rx="3" />
+<text x="24" y="250" font-weight="600" font-size="12" fill="#2d2d2d">Fleet I</text>
+<rect x="119.7" y="228.5" width="94.2" height="79" fill="#f0f0f0" stroke="#b55442" stroke-width="1" rx="3" />
+<text x="127.2" y="250" font-weight="600" font-size="12" fill="#8a8f97">Fleet II</text>
+<g transform="translate(194.4 236) scale(0.75)" color="#b55442">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="222.9" y="228.5" width="94.2" height="79" fill="#f0f0f0" stroke="#b55442" stroke-width="1" rx="3" />
+<text x="230.4" y="250" font-weight="600" font-size="12" fill="#8a8f97">Fleet III</text>
+<g transform="translate(297.6 236) scale(0.75)" color="#b55442">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="326.1" y="228.5" width="94.2" height="79" fill="#f0f0f0" stroke="#b55442" stroke-width="1" rx="3" />
+<text x="333.6" y="250" font-weight="600" font-size="12" fill="#8a8f97">Fleet IV</text>
+<g transform="translate(400.8 236) scale(0.75)" color="#b55442">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="429.3" y="228.5" width="94.2" height="79" fill="#f0f0f0" stroke="#b55442" stroke-width="1" rx="3" />
+<text x="436.8" y="250" font-weight="600" font-size="12" fill="#8a8f97">Fleet V</text>
+<g transform="translate(504 236) scale(0.75)" color="#b55442">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="16.5" y="316.5" width="94.2" height="79" fill="#f7efdc" stroke="#c28a3a" stroke-width="1.5" rx="3" />
+<text x="24" y="338" font-weight="600" font-size="12" fill="#6b4e15">Prod I</text>
+<g transform="translate(91.2 324) scale(0.75)" color="#c28a3a">
+<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="currentColor" stroke="none" />
+</g>
+<rect x="119.7" y="316.5" width="94.2" height="79" fill="#f7efdc" stroke="#c28a3a" stroke-width="1.5" rx="3" />
+<text x="127.2" y="338" font-weight="600" font-size="12" fill="#6b4e15">Prod II</text>
+<g transform="translate(194.4 324) scale(0.75)" color="#c28a3a">
+<path d="M 8 2 L 9.6 6.5 L 14 6.5 L 10.5 9.2 L 11.8 14 L 8 11.2 L 4.2 14 L 5.5 9.2 L 2 6.5 L 6.4 6.5 Z" fill="currentColor" stroke="none" />
+</g>
+<rect x="222.9" y="316.5" width="94.2" height="79" fill="#e8f3ec" stroke="#c28a3a" stroke-width="1.5" rx="3" />
+<text x="230.4" y="338" font-weight="600" font-size="12" fill="#205537">Prod III</text>
+<g transform="translate(297.6 324) scale(0.75)" color="#c28a3a">
+<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<rect x="326.1" y="316.5" width="94.2" height="79" fill="#fafbfc" stroke="#c28a3a" stroke-width="1" rx="3" />
+<text x="333.6" y="338" font-weight="600" font-size="12" fill="#2d2d2d">Prod IV</text>
+<rect x="429.3" y="316.5" width="94.2" height="79" fill="#f0f0f0" stroke="#c28a3a" stroke-width="1" rx="3" />
+<text x="436.8" y="338" font-weight="600" font-size="12" fill="#8a8f97">Prod V</text>
+<g transform="translate(504 324) scale(0.75)" color="#c28a3a">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="16.5" y="404.5" width="94.2" height="79" fill="#e8f3ec" stroke="#7a56b0" stroke-width="1.5" rx="3" />
+<text x="24" y="426" font-weight="600" font-size="12" fill="#205537">Morale I</text>
+<g transform="translate(91.2 412) scale(0.75)" color="#7a56b0">
+<path d="M 3 8 L 7 12 L 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<rect x="119.7" y="404.5" width="94.2" height="79" fill="#fafbfc" stroke="#7a56b0" stroke-width="1" rx="3" />
+<text x="127.2" y="426" font-weight="600" font-size="12" fill="#2d2d2d">Morale II</text>
+<rect x="222.9" y="404.5" width="94.2" height="79" fill="#f0f0f0" stroke="#7a56b0" stroke-width="1" rx="3" />
+<text x="230.4" y="426" font-weight="600" font-size="12" fill="#8a8f97">Morale III</text>
+<g transform="translate(297.6 412) scale(0.75)" color="#7a56b0">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="326.1" y="404.5" width="94.2" height="79" fill="#f0f0f0" stroke="#7a56b0" stroke-width="1" rx="3" />
+<text x="333.6" y="426" font-weight="600" font-size="12" fill="#8a8f97">Morale IV</text>
+<g transform="translate(400.8 412) scale(0.75)" color="#7a56b0">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+<rect x="429.3" y="404.5" width="94.2" height="79" fill="#f0f0f0" stroke="#7a56b0" stroke-width="1" rx="3" />
+<text x="436.8" y="426" font-weight="600" font-size="12" fill="#8a8f97">Morale V</text>
+<g transform="translate(504 412) scale(0.75)" color="#7a56b0">
+<rect x="3.5" y="7" width="9" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+<path d="M 5.5 7 L 5.5 5 Q 5.5 2.5 8 2.5 Q 10.5 2.5 10.5 5 L 10.5 7" fill="none" stroke="currentColor" stroke-width="1.4" />
+</g>
+</svg>

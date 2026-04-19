@@ -1,0 +1,31 @@
+window "Icon Library":
+  section "Economy":
+    row:
+      icon name="credits"
+      icon name="credits" accent=wealth
+      icon name="industry" accent=industry
+      icon name="research" accent=research
+  section "Military":
+    row:
+      icon name="military" accent=military
+      icon name="ship"
+      icon name="warning" accent=warning
+      icon name="warning" accent=danger
+  section "Governance":
+    row:
+      icon name="authority"
+      icon name="policy"
+      icon name="leader"
+      icon name="approval" accent=approval
+  section "Tech":
+    row:
+      icon name="tech"
+      icon name="computation" accent=research
+      icon name="gear"
+      icon name="planet"
+  section "UI chrome":
+    row:
+      icon name="lock"
+      icon name="check" accent=success
+      icon name="star"
+      icon name="plus"

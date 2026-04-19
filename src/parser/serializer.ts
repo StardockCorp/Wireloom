@@ -14,13 +14,16 @@ import type {
   AttributeFlag,
   AttributePair,
   AttributeValue,
+  CellNode,
   ColNode,
   ComboNode,
   Document,
+  GridNode,
   ItemNode,
   KvNode,
   SectionNode,
   SlotNode,
+  StatNode,
   TabNode,
   TextNode,
   WindowNode,
@@ -35,7 +38,8 @@ export function serialize(doc: Document): string {
 
 function serializeNode(node: AnyNode, depth: number, out: string[]): void {
   const indent = '  '.repeat(depth);
-  const parts: string[] = [node.kind];
+  const keyword = node.kind === 'slotFooter' ? 'footer' : node.kind;
+  const parts: string[] = [keyword];
 
   // Positional args by kind.
   switch (node.kind) {
@@ -79,8 +83,20 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
       // `fill` and default are both emitted as no positional — identical re-parse.
       break;
     }
+    case 'cell': {
+      const cell = node as CellNode;
+      if (cell.label !== undefined) {
+        parts.push(quoteString(cell.label));
+      }
+      break;
+    }
+    case 'stat':
+      parts.push(quoteString((node as StatNode).label));
+      parts.push(quoteString((node as StatNode).value));
+      break;
     default:
-      // No positional args for header/footer/panel/tabs/row/list/input/slider/image/icon/divider.
+      // No positional args for header/footer/panel/tabs/row/list/input/slider/image/icon/divider/
+      // grid/resourcebar/resource/stats/progress/chart/slotFooter.
       break;
   }
 
@@ -101,6 +117,15 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
 }
 
 function nodeChildren(node: AnyNode): AnyNode[] {
+  if (node.kind === 'slot') {
+    const slot = node as SlotNode;
+    const kids: AnyNode[] = [...slot.children];
+    if (slot.slotFooter) kids.push(slot.slotFooter);
+    return kids;
+  }
+  if (node.kind === 'grid') return (node as GridNode).children;
+  if (node.kind === 'resource') return [];
+  // Most other branches just forward their children array.
   if ('children' in node && Array.isArray((node as unknown as { children: AnyNode[] }).children)) {
     return (node as unknown as { children: AnyNode[] }).children;
   }
