@@ -70,7 +70,9 @@ The source for that render is in [`examples/11-colonial-charter.wireloom`](examp
 npm install wireloom
 ```
 
-Works the same with `pnpm add wireloom` or `yarn add wireloom`. Zero runtime dependencies; ships dual ESM/CJS with full TypeScript types.
+Works the same with `pnpm add wireloom` or `yarn add wireloom`. Zero runtime dependencies; ships dual ESM/CJS with full TypeScript types. Pin an exact version or tilde (`~0.4.0`) range if you don't want minor bumps: pre-1.0 minor releases may introduce breaking changes to the `Theme` interface or AST shape, though we aim to keep source-level compatibility.
+
+Output is a self-contained SVG string — no `<script>` tags, no external references, all text and attribute values are HTML-escaped. Safe to inject via `innerHTML` / `dangerouslySetInnerHTML`.
 
 ## Usage
 
@@ -79,8 +81,8 @@ Four public calls, same shape as other text-to-diagram libraries:
 ```ts
 import wireloom from 'wireloom';
 
-// Optional: configure theme + security level once at startup.
-wireloom.initialize({ theme: 'default', securityLevel: 'strict' });
+// Optional: configure the global theme once at startup.
+wireloom.initialize({ theme: 'default' });
 
 // Render a source string to an SVG string.
 const { svg } = await wireloom.render('my-diagram', `
@@ -96,7 +98,7 @@ window "Sign in":
 document.getElementById('container').innerHTML = svg;
 ```
 
-Or parse without rendering, useful for editors and tooling:
+Parse without rendering, useful for editors and tooling:
 
 ```ts
 const doc = wireloom.parse(source); // typed AST
@@ -108,17 +110,34 @@ Serialize an AST back to canonical source — useful for formatters and structur
 const canonical = wireloom.serialize(doc);
 ```
 
-Switch themes per-render:
+Switch themes per-render without touching global config:
 
 ```ts
 const { svg } = await wireloom.render('id', source, { theme: 'dark' });
 ```
 
+Catch parse errors with source positions:
+
+```ts
+import { WireloomError } from 'wireloom';
+
+try {
+  const { svg } = await wireloom.render('id', source);
+} catch (err) {
+  if (err instanceof WireloomError) {
+    console.error(`Wireloom: line ${err.line}, col ${err.column}: ${err.message}`);
+  } else {
+    throw err;
+  }
+}
+```
+
 ### Inside a Markdown renderer
 
-Hook `wireloom.render` onto the `wireloom` fence language in whatever pipeline you use (react-markdown, remark, markdown-it, etc.):
+Short version — hook `wireloom.render` onto the `wireloom` fence language in whatever pipeline you use:
 
 ```tsx
+// react-markdown
 <ReactMarkdown
   components={{
     code({ className, children }) {
@@ -132,7 +151,7 @@ Hook `wireloom.render` onto the `wireloom` fence language in whatever pipeline y
 </ReactMarkdown>
 ```
 
-`WireloomBlock` is a small component that awaits `wireloom.render(id, source)` on mount and injects the SVG via `dangerouslySetInnerHTML`.
+Full recipes for `remark`/`rehype`, `markdown-it`, `react-markdown`, and plain server-side rendering — plus error-surface patterns, theme selection, SSR notes, and bundle-size details — are in [`INTEGRATION.md`](INTEGRATION.md).
 
 ## Why not just use [other thing]?
 
@@ -152,15 +171,17 @@ Wireloom is text-first, SVG-output, Markdown-native.
 
 ## Primitive set
 
-20 primitives, grouped:
+29 primitives, grouped:
 
-- **Structural containers**: `window`, `header`, `footer`, `panel`, `section`, `tabs`, `row`, `col`, `list`, `slot`
+- **Structural containers**: `window`, `header`, `footer`, `panel`, `section`, `tabs`, `row`, `col`, `list`, `slot`, `grid`, `resourcebar`, `stats`
 - **Interactive leaves**: `button`, `input`, `combo`, `slider`, `tab`, `item`
-- **Content leaves**: `text`, `kv`, `image`, `icon`, `divider`
+- **Content leaves**: `text`, `kv`, `image`, `icon`, `divider`, `cell`, `resource`, `stat`, `progress`, `chart`
 
 Styling attributes on `text` and `kv` value: `bold` / `italic` / `muted` flags, `weight=light|regular|semibold|bold`, `size=small|regular|large`. `badge="…"` on tabs, sections, and buttons. `align=left|center|right` on rows. `fill` on columns.
 
-Full reference at [`design/grammar.md`](design/grammar.md).
+v0.4 additions: unified `state=` enum (locked/available/active/purchased/maxed/growing/ripe/withering/cashed) on slots and cells, semantic `accent=` colors (research/military/industry/wealth/approval/warning/danger/success) on slot/section/cell/button/icon, optional `footer:` child on slot, and a named icon library (credits, research, military, industry, lock, check, star, gear, plus more — unknown names fall back to a boxed-letter placeholder).
+
+Full grammar at [`design/grammar.md`](design/grammar.md). Integrating into your own Markdown viewer or docs pipeline? See [`INTEGRATION.md`](INTEGRATION.md).
 
 ## Roadmap
 
