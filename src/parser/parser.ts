@@ -7,6 +7,8 @@
  */
 
 import type {
+  AnnotationNode,
+  AnnotationSide,
   Attribute,
   AttributePair,
   AttributeValue,
@@ -97,6 +99,10 @@ const STATE_VALUES = [
   'cashed',
 ] as const;
 const CHART_KIND_VALUES = ['bar', 'line', 'pie'] as const;
+const ANNOTATION_SIDE_VALUES = ['left', 'right', 'top', 'bottom'] as const;
+
+/** Spec for the universal `id="…"` attribute, accepted on every primitive. */
+const UNIVERSAL_ID_SPEC: AttrSpec = { kind: 'string' };
 
 const ATTR_RULES: Record<string, AttrRules> = {
   window: { attrs: {}, flags: [] },
@@ -238,6 +244,13 @@ const ATTR_RULES: Record<string, AttrRules> = {
     },
     flags: [],
   },
+  annotation: {
+    attrs: {
+      target: { kind: 'string' },
+      position: { kind: 'enum', values: ANNOTATION_SIDE_VALUES },
+    },
+    flags: [],
+  },
 };
 
 const VALID_PRIMITIVES = new Set(Object.keys(ATTR_RULES));
@@ -314,6 +327,29 @@ class Parser {
 
     const root = this.parseWindow();
 
+    // After the window, any number of annotations may follow as siblings.
+    const annotations: AnnotationNode[] = [];
+    while (this.peek().kind === 'ident') {
+      const tok = this.peek();
+      const name = tok.identValue ?? tok.raw;
+      if (name === 'annotation') {
+        annotations.push(this.parseAnnotation());
+        continue;
+      }
+      if (name === 'window') {
+        throw new WireloomError(
+          'only one root "window" node is allowed',
+          tok.line,
+          tok.column,
+        );
+      }
+      throw new WireloomError(
+        `unexpected "${name}" after "window" — only "annotation" may follow`,
+        tok.line,
+        tok.column,
+      );
+    }
+
     if (this.peek().kind !== 'eof') {
       const extra = this.peek();
       throw new WireloomError(
@@ -323,7 +359,42 @@ class Parser {
       );
     }
 
-    return { kind: 'document', root, sourceLines };
+    const doc: Document = { kind: 'document', root, sourceLines };
+    if (annotations.length > 0) doc.annotations = annotations;
+    return doc;
+  }
+
+  // --- Annotation -----------------------------------------------------------
+
+  private parseAnnotation(): AnnotationNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const body = this.expectKind(
+      'string',
+      '"annotation" requires a label string (e.g., annotation "Power Button" target="power-btn" position=right)',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('annotation');
+    this.parseLeafTerminator('annotation', head);
+
+    const target = getAttrStringValue(attributes, 'target');
+    if (target === undefined || target === '') {
+      throw new WireloomError(
+        '"annotation" requires target="…" referencing an id in the window (e.g., annotation "Power" target="power-btn" position=right)',
+        head.line,
+        head.column,
+      );
+    }
+    const sideRaw = getAttrIdentValue(attributes, 'position');
+    if (sideRaw === undefined) {
+      throw new WireloomError(
+        '"annotation" requires position=left|right|top|bottom (explicit placement — no default)',
+        head.line,
+        head.column,
+      );
+    }
+    const side = sideRaw as AnnotationSide;
+
+    return { kind: 'annotation', target, side, body, attributes, position };
   }
 
   // --- Window ---------------------------------------------------------------
@@ -1085,7 +1156,11 @@ class Parser {
 
       if (this.match('equals')) {
         const valueTok = this.consume();
-        const spec = rules.attrs[key];
+        // `id="…"` is universal — valid on every primitive. Used as the
+        // target of `annotation` nodes. No uniqueness check in the parser;
+        // layout uses the first match if duplicates are present.
+        const spec: AttrSpec | undefined =
+          key === 'id' ? UNIVERSAL_ID_SPEC : rules.attrs[key];
         if (spec === undefined) {
           const suggestion = suggestMatch(key, Object.keys(rules.attrs));
           const hint = suggestion ? `. Did you mean "${suggestion}"?` : '';
@@ -1199,6 +1274,15 @@ function getAttrStringValue(attrs: readonly Attribute[], key: string): string | 
 function getAttrNumberValue(attrs: readonly Attribute[], key: string): number | undefined {
   for (const a of attrs) {
     if (a.kind === 'pair' && a.key === key && a.value.kind === 'number') {
+      return a.value.value;
+    }
+  }
+  return undefined;
+}
+
+function getAttrIdentValue(attrs: readonly Attribute[], key: string): string | undefined {
+  for (const a of attrs) {
+    if (a.kind === 'pair' && a.key === key && a.value.kind === 'identifier') {
       return a.value.value;
     }
   }

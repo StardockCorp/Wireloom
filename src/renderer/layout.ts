@@ -9,7 +9,10 @@
  */
 
 import type {
+  AnnotationNode,
+  AnnotationSide,
   AnyNode,
+  Attribute,
   AttributeFlag,
   AttributePair,
   AttributeValue,
@@ -20,6 +23,7 @@ import type {
   ComboNode,
   ContainerChild,
   DividerNode,
+  Document,
   FooterNode,
   GridNode,
   HeaderNode,
@@ -61,13 +65,144 @@ interface Size {
   height: number;
 }
 
+/**
+ * A laid-out annotation: box rect + the two endpoints for its leader line.
+ * Coordinates are in the same absolute canvas space as `LaidOutNode`.
+ */
+export interface LaidAnnotation {
+  node: AnnotationNode;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** Text lines (already split on `\n`) for SVG emit. */
+  lines: string[];
+  /** Leader-line endpoint attached to the annotation box. */
+  boxAnchor: { x: number; y: number };
+  /** Leader-line endpoint attached to the target element. */
+  targetAnchor: { x: number; y: number };
+}
+
+/**
+ * Full laid-out document: the window tree plus any annotations, with
+ * an outer canvas size that already accounts for annotation margins.
+ */
+export interface LaidDocument {
+  canvasWidth: number;
+  canvasHeight: number;
+  root: LaidOutNode;
+  annotations: LaidAnnotation[];
+}
+
 // ---------------------------------------------------------------------------
 // Public entry
 // ---------------------------------------------------------------------------
 
-export function layout(root: WindowNode, theme: Theme): LaidOutNode {
-  const measured = measureWindow(root, theme);
-  return positionWindow(root, measured, 0, 0, theme);
+/**
+ * Lay out a parsed document into absolute coordinates.
+ *
+ * The window is placed inside a canvas large enough to hold its annotation
+ * margins. Annotations with targets that can't be resolved are silently
+ * dropped — surface that as a warning in calling tools if desired.
+ */
+export function layout(doc: Document, theme: Theme): LaidDocument {
+  if (!doc.root) {
+    return { canvasWidth: 0, canvasHeight: 0, root: emptyLaidOut(), annotations: [] };
+  }
+
+  const measured = measureWindow(doc.root, theme);
+  const windowSize: Size = measured.outer;
+
+  const annotations = doc.annotations ?? [];
+  if (annotations.length === 0) {
+    // Fast path — identical to pre-v0.4 behavior.
+    const laidRoot = positionWindow(doc.root, measured, 0, 0, theme);
+    return {
+      canvasWidth: windowSize.width,
+      canvasHeight: windowSize.height,
+      root: laidRoot,
+      annotations: [],
+    };
+  }
+
+  // Group annotations by side so we can size margins independently.
+  const bySide: Record<AnnotationSide, AnnotationNode[]> = {
+    left: [],
+    right: [],
+    top: [],
+    bottom: [],
+  };
+  for (const a of annotations) bySide[a.side].push(a);
+
+  // Measure each annotation box once; reused during margin sizing + stacking.
+  const measuredBoxes = new Map<AnnotationNode, MeasuredAnnotation>();
+  for (const a of annotations) {
+    measuredBoxes.set(a, measureAnnotation(a, theme));
+  }
+
+  const marginLeft = sideMargin('left', bySide.left, measuredBoxes, theme);
+  const marginRight = sideMargin('right', bySide.right, measuredBoxes, theme);
+  const marginTop = sideMargin('top', bySide.top, measuredBoxes, theme);
+  const marginBottom = sideMargin('bottom', bySide.bottom, measuredBoxes, theme);
+
+  // Horizontal side margins may need to expand to fit stacked top/bottom
+  // annotations if the window itself is narrower than the top/bottom stack.
+  const topStackWidth = stackMainAxis('top', bySide.top, measuredBoxes, theme);
+  const bottomStackWidth = stackMainAxis('bottom', bySide.bottom, measuredBoxes, theme);
+  const contentWidth = Math.max(windowSize.width, topStackWidth, bottomStackWidth);
+
+  const leftStackHeight = stackMainAxis('left', bySide.left, measuredBoxes, theme);
+  const rightStackHeight = stackMainAxis('right', bySide.right, measuredBoxes, theme);
+  const contentHeight = Math.max(windowSize.height, leftStackHeight, rightStackHeight);
+
+  const canvasWidth = marginLeft + contentWidth + marginRight;
+  const canvasHeight = marginTop + contentHeight + marginBottom;
+
+  const windowX = marginLeft + (contentWidth - windowSize.width) / 2;
+  const windowY = marginTop + (contentHeight - windowSize.height) / 2;
+
+  const laidRoot = positionWindow(doc.root, measured, windowX, windowY, theme);
+
+  // Build id → rect map by walking the laid tree.
+  const idMap = buildIdMap(laidRoot);
+
+  const laidAnnotations: LaidAnnotation[] = [];
+  for (const side of ['left', 'right', 'top', 'bottom'] as const) {
+    const placed = placeAnnotationsOnSide(
+      side,
+      bySide[side],
+      measuredBoxes,
+      idMap,
+      { x: windowX, y: windowY, width: windowSize.width, height: windowSize.height },
+      canvasWidth,
+      canvasHeight,
+      theme,
+    );
+    laidAnnotations.push(...placed);
+  }
+
+  return {
+    canvasWidth,
+    canvasHeight,
+    root: laidRoot,
+    annotations: laidAnnotations,
+  };
+}
+
+function emptyLaidOut(): LaidOutNode {
+  return {
+    node: {
+      kind: 'window',
+      attributes: [],
+      children: [],
+      position: { line: 1, column: 1 },
+    } as WindowNode,
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    children: [],
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -1286,4 +1421,213 @@ function badgeWidthOf(attrs: readonly unknown[], theme: Theme): number {
   if (badge === undefined) return 0;
   return badge.length * theme.averageCharWidth * (theme.badgeFontSize / theme.fontSize) +
     theme.badgePaddingX * 2;
+}
+
+// ---------------------------------------------------------------------------
+// Annotations — measurement, margin sizing, placement
+// ---------------------------------------------------------------------------
+
+interface MeasuredAnnotation {
+  width: number;
+  height: number;
+  lines: string[];
+}
+
+function measureAnnotation(node: AnnotationNode, theme: Theme): MeasuredAnnotation {
+  const lines = node.body.split('\n');
+  // Box sizes to its longest line. Authors control wrapping with literal "\n" —
+  // no hidden word-wrap at render time, so the output is predictable when
+  // machine-generated.
+  const contentWidth = Math.max(...lines.map((l) => l.length * theme.averageCharWidth));
+  const width = contentWidth + theme.annotationPaddingX * 2;
+  const height = lines.length * theme.lineHeight + theme.annotationPaddingY * 2;
+  return { width, height, lines };
+}
+
+/**
+ * Returns the thickness of the canvas margin on `side` — how much canvas
+ * has to extend beyond the window edge to hold stacked annotation boxes
+ * plus the leader-line gap. Zero if there are no annotations on this side.
+ */
+function sideMargin(
+  side: AnnotationSide,
+  list: AnnotationNode[],
+  measured: Map<AnnotationNode, MeasuredAnnotation>,
+  theme: Theme,
+): number {
+  if (list.length === 0) return 0;
+  if (side === 'left' || side === 'right') {
+    const maxW = Math.max(...list.map((a) => measured.get(a)!.width));
+    return maxW + theme.annotationGap + theme.annotationMargin;
+  }
+  const maxH = Math.max(...list.map((a) => measured.get(a)!.height));
+  return maxH + theme.annotationGap + theme.annotationMargin;
+}
+
+/**
+ * Total extent along the main axis (i.e. along the window edge) needed to
+ * stack this side's annotations without overlap. Used to grow the canvas
+ * perpendicular dimension when top/bottom stacks exceed window width (or
+ * left/right stacks exceed window height).
+ */
+function stackMainAxis(
+  side: AnnotationSide,
+  list: AnnotationNode[],
+  measured: Map<AnnotationNode, MeasuredAnnotation>,
+  theme: Theme,
+): number {
+  if (list.length === 0) return 0;
+  const dims = list.map((a) => measured.get(a)!);
+  const gapTotal = (list.length - 1) * theme.annotationStackGap;
+  if (side === 'left' || side === 'right') {
+    return dims.reduce((acc, d) => acc + d.height, 0) + gapTotal;
+  }
+  return dims.reduce((acc, d) => acc + d.width, 0) + gapTotal;
+}
+
+interface Rect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * Walk the laid-out tree collecting `id → rect` entries. The first occurrence
+ * of each id wins; duplicates are silently ignored. Ids come from the
+ * universal `id="…"` attribute on any node.
+ */
+function buildIdMap(root: LaidOutNode): Map<string, Rect> {
+  const out = new Map<string, Rect>();
+  const stack: LaidOutNode[] = [root];
+  while (stack.length > 0) {
+    const n = stack.pop()!;
+    const id = getAttrString((n.node as { attributes?: Attribute[] }).attributes ?? [], 'id');
+    if (id !== undefined && !out.has(id)) {
+      out.set(id, { x: n.x, y: n.y, width: n.width, height: n.height });
+    }
+    for (const c of n.children) stack.push(c);
+  }
+  return out;
+}
+
+/**
+ * Lay out the annotations for one side, producing boxes + leader endpoints.
+ * Strategy:
+ *   1. Assign each box a preferred center aligned with its target's center
+ *      (along the relevant axis — y for left/right, x for top/bottom).
+ *   2. Sort by preferred center, then greedily push overlapping boxes along
+ *      the axis until the stack is collision-free.
+ *   3. Clamp box positions to the canvas bounds so none fall off.
+ *   4. Compute leader-line endpoints (target edge midpoint → box edge).
+ *
+ * Annotations whose target id doesn't resolve are dropped.
+ */
+function placeAnnotationsOnSide(
+  side: AnnotationSide,
+  list: AnnotationNode[],
+  measured: Map<AnnotationNode, MeasuredAnnotation>,
+  idMap: Map<string, Rect>,
+  windowRect: Rect,
+  canvasWidth: number,
+  canvasHeight: number,
+  theme: Theme,
+): LaidAnnotation[] {
+  if (list.length === 0) return [];
+
+  interface Pending {
+    node: AnnotationNode;
+    dims: MeasuredAnnotation;
+    target: Rect;
+    /** Preferred position along the main axis (top-left coordinate). */
+    pref: number;
+  }
+  const pending: Pending[] = [];
+  for (const a of list) {
+    const target = idMap.get(a.target);
+    if (!target) continue; // Silently drop unresolved — caller can warn.
+    const dims = measured.get(a)!;
+    let pref: number;
+    if (side === 'left' || side === 'right') {
+      pref = target.y + target.height / 2 - dims.height / 2;
+    } else {
+      pref = target.x + target.width / 2 - dims.width / 2;
+    }
+    pending.push({ node: a, dims, target, pref });
+  }
+  if (pending.length === 0) return [];
+
+  pending.sort((a, b) => a.pref - b.pref);
+
+  // Greedy non-overlap push along the main axis.
+  const mainSize = (p: Pending) =>
+    side === 'left' || side === 'right' ? p.dims.height : p.dims.width;
+  const axisMin = side === 'left' || side === 'right' ? 0 : 0;
+  const axisMax =
+    side === 'left' || side === 'right' ? canvasHeight : canvasWidth;
+
+  let cursor = -Infinity;
+  for (const p of pending) {
+    const minStart = cursor === -Infinity ? axisMin : cursor + theme.annotationStackGap;
+    const start = Math.max(p.pref, minStart);
+    cursor = start + mainSize(p);
+    p.pref = start; // repurpose as final start coordinate
+  }
+
+  // If the stack overflows the bottom of the axis, shift the whole group up.
+  if (cursor > axisMax) {
+    const overflow = cursor - axisMax;
+    for (const p of pending) p.pref -= overflow;
+  }
+
+  const out: LaidAnnotation[] = [];
+  for (const p of pending) {
+    const { node, dims, target } = p;
+    let boxX: number;
+    let boxY: number;
+    let boxAnchor: { x: number; y: number };
+    let targetAnchor: { x: number; y: number };
+
+    if (side === 'right') {
+      boxX = windowRect.x + windowRect.width + theme.annotationGap;
+      boxY = p.pref;
+      boxAnchor = { x: boxX, y: boxY + dims.height / 2 };
+      targetAnchor = {
+        x: target.x + target.width,
+        y: target.y + target.height / 2,
+      };
+    } else if (side === 'left') {
+      boxX = windowRect.x - theme.annotationGap - dims.width;
+      boxY = p.pref;
+      boxAnchor = { x: boxX + dims.width, y: boxY + dims.height / 2 };
+      targetAnchor = { x: target.x, y: target.y + target.height / 2 };
+    } else if (side === 'top') {
+      boxX = p.pref;
+      boxY = windowRect.y - theme.annotationGap - dims.height;
+      boxAnchor = { x: boxX + dims.width / 2, y: boxY + dims.height };
+      targetAnchor = { x: target.x + target.width / 2, y: target.y };
+    } else {
+      // bottom
+      boxX = p.pref;
+      boxY = windowRect.y + windowRect.height + theme.annotationGap;
+      boxAnchor = { x: boxX + dims.width / 2, y: boxY };
+      targetAnchor = {
+        x: target.x + target.width / 2,
+        y: target.y + target.height,
+      };
+    }
+
+    out.push({
+      node,
+      x: boxX,
+      y: boxY,
+      width: dims.width,
+      height: dims.height,
+      lines: dims.lines,
+      boxAnchor,
+      targetAnchor,
+    });
+  }
+
+  return out;
 }

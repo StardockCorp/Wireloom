@@ -6,7 +6,7 @@ import { DEFAULT_THEME } from '../../src/renderer/themes.js';
 function layoutSource(source: string) {
   const doc = parse(source);
   if (!doc.root) throw new Error('source has no root window');
-  return layout(doc.root, DEFAULT_THEME);
+  return layout(doc, DEFAULT_THEME).root;
 }
 
 describe('layout engine', () => {

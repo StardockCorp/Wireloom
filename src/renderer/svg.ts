@@ -31,7 +31,7 @@ import type {
   TextNode,
   WindowNode,
 } from '../parser/ast.js';
-import type { LaidOutNode } from './layout.js';
+import type { LaidAnnotation, LaidDocument, LaidOutNode } from './layout.js';
 import type { AccentName, StateName, Theme } from './themes.js';
 import { emitIconByName, hasIcon } from './icons.js';
 
@@ -44,13 +44,13 @@ export interface EmitOptions {
 // ---------------------------------------------------------------------------
 
 export function emitSvg(
-  root: LaidOutNode,
+  doc: LaidDocument,
   theme: Theme,
   options: EmitOptions = {},
 ): string {
   const parts: string[] = [];
-  const width = root.width;
-  const height = root.height;
+  const width = doc.canvasWidth;
+  const height = doc.canvasHeight;
 
   const svgAttrs = [
     'xmlns="http://www.w3.org/2000/svg"',
@@ -69,10 +69,37 @@ export function emitSvg(
     `<rect x="0" y="0" width="${width}" height="${height}" fill="${theme.background}" />`,
   );
 
-  emitNode(root, theme, parts);
+  emitNode(doc.root, theme, parts);
+
+  for (const a of doc.annotations) {
+    emitAnnotation(a, theme, parts);
+  }
 
   parts.push('</svg>');
   return parts.join('');
+}
+
+function emitAnnotation(a: LaidAnnotation, theme: Theme, out: string[]): void {
+  // Leader line + target dot rendered first so the box paints over them
+  // where they cross the box edge.
+  out.push(
+    `<line x1="${a.targetAnchor.x}" y1="${a.targetAnchor.y}" x2="${a.boxAnchor.x}" y2="${a.boxAnchor.y}" stroke="${theme.annotationLineColor}" stroke-width="${theme.annotationStrokeWidth}" />`,
+  );
+  out.push(
+    `<circle cx="${a.targetAnchor.x}" cy="${a.targetAnchor.y}" r="${theme.annotationDotRadius}" fill="${theme.annotationDotColor}" />`,
+  );
+  out.push(
+    `<rect x="${a.x}" y="${a.y}" width="${a.width}" height="${a.height}" rx="${theme.annotationCornerRadius}" ry="${theme.annotationCornerRadius}" fill="${theme.annotationBg}" stroke="${theme.annotationBorder}" stroke-width="${theme.annotationStrokeWidth}" />`,
+  );
+  const textX = a.x + theme.annotationPaddingX;
+  // Baseline for the first line; subsequent lines advance by lineHeight.
+  let baseline = a.y + theme.annotationPaddingY + theme.fontSize;
+  for (const line of a.lines) {
+    out.push(
+      `<text x="${textX}" y="${baseline}" fill="${theme.annotationText}">${escapeText(line)}</text>`,
+    );
+    baseline += theme.lineHeight;
+  }
 }
 
 // ---------------------------------------------------------------------------

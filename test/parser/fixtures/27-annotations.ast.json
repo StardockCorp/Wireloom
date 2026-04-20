@@ -1,0 +1,484 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Welcome back",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "id",
+                "value": {
+                  "kind": "string",
+                  "value": "welcome",
+                  "position": {
+                    "line": 7,
+                    "column": 28
+                  }
+                },
+                "position": {
+                  "line": 7,
+                  "column": 25
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 6,
+          "column": 3
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [
+          {
+            "kind": "pair",
+            "key": "id",
+            "value": {
+              "kind": "string",
+              "value": "credentials",
+              "position": {
+                "line": 8,
+                "column": 12
+              }
+            },
+            "position": {
+              "line": 8,
+              "column": 9
+            }
+          }
+        ],
+        "children": [
+          {
+            "kind": "input",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "placeholder",
+                "value": {
+                  "kind": "string",
+                  "value": "Email",
+                  "position": {
+                    "line": 9,
+                    "column": 23
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 11
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "type",
+                "value": {
+                  "kind": "identifier",
+                  "value": "email",
+                  "position": {
+                    "line": 9,
+                    "column": 36
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 31
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "id",
+                "value": {
+                  "kind": "string",
+                  "value": "email-field",
+                  "position": {
+                    "line": 9,
+                    "column": 45
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 42
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          },
+          {
+            "kind": "input",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "placeholder",
+                "value": {
+                  "kind": "string",
+                  "value": "Password",
+                  "position": {
+                    "line": 10,
+                    "column": 23
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 11
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "type",
+                "value": {
+                  "kind": "identifier",
+                  "value": "password",
+                  "position": {
+                    "line": 10,
+                    "column": 39
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 34
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "id",
+                "value": {
+                  "kind": "string",
+                  "value": "pw-field",
+                  "position": {
+                    "line": 10,
+                    "column": 51
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 48
+                }
+              }
+            ],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Sign in",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 11,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "id",
+                "value": {
+                  "kind": "string",
+                  "value": "signin-btn",
+                  "position": {
+                    "line": 11,
+                    "column": 33
+                  }
+                },
+                "position": {
+                  "line": 11,
+                  "column": 30
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 8,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Forgot your password?",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "id",
+                "value": {
+                  "kind": "string",
+                  "value": "forgot-link",
+                  "position": {
+                    "line": 13,
+                    "column": 37
+                  }
+                },
+                "position": {
+                  "line": 13,
+                  "column": 34
+                }
+              }
+            ],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 12,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 5,
+      "column": 1
+    },
+    "title": "Sign in"
+  },
+  "sourceLines": 20,
+  "annotations": [
+    {
+      "kind": "annotation",
+      "target": "welcome",
+      "side": "top",
+      "body": "Greeting — changes to the user's name after first sign-in",
+      "attributes": [
+        {
+          "kind": "pair",
+          "key": "target",
+          "value": {
+            "kind": "string",
+            "value": "welcome",
+            "position": {
+              "line": 15,
+              "column": 79
+            }
+          },
+          "position": {
+            "line": 15,
+            "column": 72
+          }
+        },
+        {
+          "kind": "pair",
+          "key": "position",
+          "value": {
+            "kind": "identifier",
+            "value": "top",
+            "position": {
+              "line": 15,
+              "column": 98
+            }
+          },
+          "position": {
+            "line": 15,
+            "column": 89
+          }
+        }
+      ],
+      "position": {
+        "line": 15,
+        "column": 1
+      }
+    },
+    {
+      "kind": "annotation",
+      "target": "email-field",
+      "side": "right",
+      "body": "Email must be verified before sign-in is enabled",
+      "attributes": [
+        {
+          "kind": "pair",
+          "key": "target",
+          "value": {
+            "kind": "string",
+            "value": "email-field",
+            "position": {
+              "line": 16,
+              "column": 70
+            }
+          },
+          "position": {
+            "line": 16,
+            "column": 63
+          }
+        },
+        {
+          "kind": "pair",
+          "key": "position",
+          "value": {
+            "kind": "identifier",
+            "value": "right",
+            "position": {
+              "line": 16,
+              "column": 93
+            }
+          },
+          "position": {
+            "line": 16,
+            "column": 84
+          }
+        }
+      ],
+      "position": {
+        "line": 16,
+        "column": 1
+      }
+    },
+    {
+      "kind": "annotation",
+      "target": "pw-field",
+      "side": "right",
+      "body": "Password field — masked by default",
+      "attributes": [
+        {
+          "kind": "pair",
+          "key": "target",
+          "value": {
+            "kind": "string",
+            "value": "pw-field",
+            "position": {
+              "line": 17,
+              "column": 56
+            }
+          },
+          "position": {
+            "line": 17,
+            "column": 49
+          }
+        },
+        {
+          "kind": "pair",
+          "key": "position",
+          "value": {
+            "kind": "identifier",
+            "value": "right",
+            "position": {
+              "line": 17,
+              "column": 76
+            }
+          },
+          "position": {
+            "line": 17,
+            "column": 67
+          }
+        }
+      ],
+      "position": {
+        "line": 17,
+        "column": 1
+      }
+    },
+    {
+      "kind": "annotation",
+      "target": "signin-btn",
+      "side": "right",
+      "body": "Primary action.\nDisabled until both fields are valid.",
+      "attributes": [
+        {
+          "kind": "pair",
+          "key": "target",
+          "value": {
+            "kind": "string",
+            "value": "signin-btn",
+            "position": {
+              "line": 18,
+              "column": 76
+            }
+          },
+          "position": {
+            "line": 18,
+            "column": 69
+          }
+        },
+        {
+          "kind": "pair",
+          "key": "position",
+          "value": {
+            "kind": "identifier",
+            "value": "right",
+            "position": {
+              "line": 18,
+              "column": 98
+            }
+          },
+          "position": {
+            "line": 18,
+            "column": 89
+          }
+        }
+      ],
+      "position": {
+        "line": 18,
+        "column": 1
+      }
+    },
+    {
+      "kind": "annotation",
+      "target": "forgot-link",
+      "side": "bottom",
+      "body": "Recovery flow — sends a reset link via email",
+      "attributes": [
+        {
+          "kind": "pair",
+          "key": "target",
+          "value": {
+            "kind": "string",
+            "value": "forgot-link",
+            "position": {
+              "line": 19,
+              "column": 66
+            }
+          },
+          "position": {
+            "line": 19,
+            "column": 59
+          }
+        },
+        {
+          "kind": "pair",
+          "key": "position",
+          "value": {
+            "kind": "identifier",
+            "value": "bottom",
+            "position": {
+              "line": 19,
+              "column": 89
+            }
+          },
+          "position": {
+            "line": 19,
+            "column": 80
+          }
+        }
+      ],
+      "position": {
+        "line": 19,
+        "column": 1
+      }
+    }
+  ]
+}

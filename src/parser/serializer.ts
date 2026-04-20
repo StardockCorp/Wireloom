@@ -9,6 +9,7 @@
  */
 
 import type {
+  AnnotationNode,
   AnyNode,
   Attribute,
   AttributeFlag,
@@ -33,6 +34,11 @@ export function serialize(doc: Document): string {
   if (!doc.root) return '';
   const lines: string[] = [];
   serializeNode(doc.root, 0, lines);
+  if (doc.annotations) {
+    for (const a of doc.annotations) {
+      serializeNode(a, 0, lines);
+    }
+  }
   return lines.join('\n') + '\n';
 }
 
@@ -93,6 +99,9 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
     case 'stat':
       parts.push(quoteString((node as StatNode).label));
       parts.push(quoteString((node as StatNode).value));
+      break;
+    case 'annotation':
+      parts.push(quoteString((node as AnnotationNode).body));
       break;
     default:
       // No positional args for header/footer/panel/tabs/row/list/input/slider/image/icon/divider/

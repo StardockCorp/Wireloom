@@ -39,17 +39,65 @@ Twenty primitives total in v0.2. Grouped for readability.
 | `icon`      | Icon glyph placeholder. Optional `name=`. |
 | `divider`   | Horizontal rule. |
 
-Every Wireloom source file must have exactly one root node, and it must be a `window`.
+### Document-level siblings
+
+| Primitive    | Purpose |
+|--------------|---------|
+| `annotation` | User-manual-style label with a leader line pointing at an `id`'d element in the `window`. Lives *outside* the window tree; see [Annotations](#annotations). |
+
+Every Wireloom source file must have exactly one `window` root. One or more `annotation` nodes may follow the `window` as siblings (see [Annotations](#annotations)).
 
 ## Structural Rules
 
-- **`window`** is the only primitive that can be a document root. It must not be nested.
+- **`window`** is the only primitive that can begin a document. It must not be nested, and there must be exactly one.
+- **`annotation`** may only appear at the top level, after the `window` node. Annotations are *not* children of `window`; they are siblings that reference into the window via `target="<id>"`.
 - **`header`** / **`footer`** may only appear as direct children of `window`.
 - **`tabs`** may appear anywhere a container child is legal; its children must be only `tab` nodes.
 - **`tab`** may only appear inside a `tabs` container.
 - **`list`** may appear anywhere a container child is legal; its children must be only `item` or `slot` nodes.
 - **`item`** may only appear inside a `list`.
 - All other containers (`panel`, `section`, `row`, `col`, `slot`) accept the full container-child set: other containers (except `header`/`footer`/`window`/`tab`/`item`) plus leaves.
+
+## Universal Attributes
+
+The following attributes are accepted on *every* primitive, in addition to the primitive-specific attributes defined in [Node Syntax](#node-syntax):
+
+| Attribute | Value   | Purpose |
+|-----------|---------|---------|
+| `id`      | string  | Author-supplied identifier. Used as the `target=` of an `annotation` node. Ids are not validated for uniqueness; if duplicates exist, layout uses the first match. |
+
+## Annotations
+
+`annotation` nodes are user-manual-style labels drawn in the canvas margin with a leader line pointing at an element in the `window`. They let a single Wireloom source produce a fully annotated mockup — mockup + call-outs in one artifact.
+
+### Syntax
+
+```
+annotation "<body text>" target="<id>" position=<left|right|top|bottom>
+```
+
+- **body** (required positional string): label text. Literal `\n` in the string becomes a line break in the rendered box.
+- **`target`** (required): the `id` of an element inside `window`. If no element has a matching id, the annotation is silently dropped during layout.
+- **`position`** (required): which margin side the annotation box sits in. There is **no default** — authors must place annotations deliberately. Accepted values: `left`, `right`, `top`, `bottom`.
+
+### Placement
+
+For a given side, annotations are stacked along the window edge. Each box is nudged to align its center with the target element's center, then bumped along the axis just enough to avoid overlapping the previous box on the same side. If the resulting stack would overflow the canvas, the whole group is shifted inward.
+
+### Example
+
+```
+window "Sign in":
+  header:
+    text "Welcome back" id="welcome"
+  panel:
+    input placeholder="Email" type=email id="email-field"
+    button "Sign in" primary id="signin-btn"
+
+annotation "Greeting — personalized after first sign-in" target="welcome" position=top
+annotation "Email must be verified" target="email-field" position=right
+annotation "Primary action.\nDisabled until form is valid." target="signin-btn" position=right
+```
 
 ## Lexical Structure
 

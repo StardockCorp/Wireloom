@@ -208,6 +208,22 @@ interface StatNode extends NodeBase {
     label: string;
     value: string;
 }
+type AnnotationSide = 'left' | 'right' | 'top' | 'bottom';
+/**
+ * A user-manual-style label that identifies part of the `window` mockup.
+ * Rendered as a box with a leader line drawn to the element whose `id`
+ * matches `target`. Lives as a sibling of `window` (document root), never
+ * inside the window tree.
+ */
+interface AnnotationNode extends NodeBase {
+    kind: 'annotation';
+    /** Id of the node inside `window` that this annotation points to. */
+    target: string;
+    /** Which margin of the window the annotation box sits in. */
+    side: AnnotationSide;
+    /** Label text. Literal `\n` in source becomes a line break. */
+    body: string;
+}
 /**
  * Leaf nodes that can appear in any container (panel/section/row/col/slot).
  * Excludes `tab` (must be inside `tabs`) and `item` (must be inside `list`).
@@ -215,11 +231,16 @@ interface StatNode extends NodeBase {
 type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | ProgressNode | ChartNode;
 type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | LeafNode;
 type WindowChild = HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | LeafNode;
-type AnyNode = WindowNode | HeaderNode | FooterNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | LeafNode;
+type AnyNode = WindowNode | HeaderNode | FooterNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | AnnotationNode | LeafNode;
 interface Document {
     kind: 'document';
     /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
     root?: WindowNode;
+    /**
+     * Optional user-manual-style callouts pointing at elements inside `root`.
+     * Appear after the `window` node in source; omitted array means none.
+     */
+    annotations?: AnnotationNode[];
     /** Total number of source lines parsed (including blanks and comments). */
     sourceLines: number;
 }
@@ -347,6 +368,19 @@ interface Theme {
     progressHeight: number;
     chartDefaultWidth: number;
     chartDefaultHeight: number;
+    annotationBg: string;
+    annotationBorder: string;
+    annotationText: string;
+    annotationLineColor: string;
+    annotationDotColor: string;
+    annotationStrokeWidth: number;
+    annotationDotRadius: number;
+    annotationCornerRadius: number;
+    annotationPaddingX: number;
+    annotationPaddingY: number;
+    annotationGap: number;
+    annotationMargin: number;
+    annotationStackGap: number;
     /** Maps accent name → color used for borders, fills, and text treatments. */
     accents: Readonly<Record<AccentName, string>>;
     /** Maps state name → visual treatment applied to slots and cells. */
@@ -405,4 +439,4 @@ declare const wireloom: {
     render: typeof render;
 };
 
-export { type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type ButtonNode, type CellNode, type ChartNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type PanelNode, type ProgressNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type StatNode, type StatsNode, type TabNode, type TabsNode, type TextNode, type Theme, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
+export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type ButtonNode, type CellNode, type ChartNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type PanelNode, type ProgressNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type StatNode, type StatsNode, type TabNode, type TabsNode, type TextNode, type Theme, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };

@@ -19,7 +19,7 @@ export function renderWireframe(
   }
   const themeName = options.theme ?? getConfig().theme;
   const theme: Theme = getTheme(themeName);
-  const laid = layout(doc.root, theme);
+  const laid = layout(doc, theme);
   const emitOpts = options.id !== undefined ? { id: options.id } : {};
   return emitSvg(laid, theme, emitOpts);
 }

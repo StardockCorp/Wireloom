@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] — 2026-04-19
+
+### Added
+- **Universal `id="…"` attribute** — any primitive may now carry an author-supplied id, used as a target for annotations. Ids are not checked for uniqueness; the layout engine uses the first match.
+- **`annotation` primitive** — user-manual-style label with a leader line pointing at an element in the window. Lives as a sibling of `window` (not a child), since annotations are *about* the mockup. Usage:
+  ```
+  window "Sign in":
+    panel:
+      button "Sign in" primary id="signin-btn"
+
+  annotation "Primary action — disabled until both fields valid" target="signin-btn" position=right
+  ```
+  Required: positional body string, `target="<id>"`, `position=left|right|top|bottom`. There is no position default — authors must place annotations deliberately. Annotations whose target id can't be resolved are silently dropped.
+- Theme tokens for annotations: `annotationBg`, `annotationBorder`, `annotationText`, `annotationLineColor`, `annotationDotColor`, `annotationStrokeWidth`, `annotationDotRadius`, `annotationCornerRadius`, `annotationPaddingX`, `annotationPaddingY`, `annotationGap`, `annotationMargin`, `annotationStackGap`.
+- `examples/27-annotations.wireloom` demonstrates the full feature.
+
+### Changed
+- Internal: `layout()` now accepts a `Document` and returns a `LaidDocument` (canvas dimensions + laid root + laid annotations). Consumers that reach into `renderer/layout.ts` directly will need to update; the public `render()` / `renderWireframe()` APIs are unchanged.
+
 ## [0.4.0] — 2026-04-19
 
 Wider primitive set aimed at game-UI wireframes — grids, state-aware cells and slots, resource bars, progress bars, chart placeholders, inline stats, and a real named icon library. Driven by the GC4 F&E government-screen mockup work; every addition came out of a concrete gap hit while building those layouts.

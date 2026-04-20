@@ -304,6 +304,8 @@ var STATE_VALUES = [
   "cashed"
 ];
 var CHART_KIND_VALUES = ["bar", "line", "pie"];
+var ANNOTATION_SIDE_VALUES = ["left", "right", "top", "bottom"];
+var UNIVERSAL_ID_SPEC = { kind: "string" };
 var ATTR_RULES = {
   window: { attrs: {}, flags: [] },
   header: { attrs: {}, flags: [] },
@@ -443,6 +445,13 @@ var ATTR_RULES = {
       accent: { kind: "enum", values: ACCENT_VALUES }
     },
     flags: []
+  },
+  annotation: {
+    attrs: {
+      target: { kind: "string" },
+      position: { kind: "enum", values: ANNOTATION_SIDE_VALUES }
+    },
+    flags: []
   }
 };
 var VALID_PRIMITIVES = new Set(Object.keys(ATTR_RULES));
@@ -503,6 +512,27 @@ var Parser = class {
       );
     }
     const root = this.parseWindow();
+    const annotations = [];
+    while (this.peek().kind === "ident") {
+      const tok = this.peek();
+      const name = tok.identValue ?? tok.raw;
+      if (name === "annotation") {
+        annotations.push(this.parseAnnotation());
+        continue;
+      }
+      if (name === "window") {
+        throw new WireloomError(
+          'only one root "window" node is allowed',
+          tok.line,
+          tok.column
+        );
+      }
+      throw new WireloomError(
+        `unexpected "${name}" after "window" \u2014 only "annotation" may follow`,
+        tok.line,
+        tok.column
+      );
+    }
     if (this.peek().kind !== "eof") {
       const extra = this.peek();
       throw new WireloomError(
@@ -511,7 +541,38 @@ var Parser = class {
         extra.column
       );
     }
-    return { kind: "document", root, sourceLines };
+    const doc = { kind: "document", root, sourceLines };
+    if (annotations.length > 0) doc.annotations = annotations;
+    return doc;
+  }
+  // --- Annotation -----------------------------------------------------------
+  parseAnnotation() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const body = this.expectKind(
+      "string",
+      '"annotation" requires a label string (e.g., annotation "Power Button" target="power-btn" position=right)'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("annotation");
+    this.parseLeafTerminator("annotation", head);
+    const target = getAttrStringValue(attributes, "target");
+    if (target === void 0 || target === "") {
+      throw new WireloomError(
+        '"annotation" requires target="\u2026" referencing an id in the window (e.g., annotation "Power" target="power-btn" position=right)',
+        head.line,
+        head.column
+      );
+    }
+    const sideRaw = getAttrIdentValue(attributes, "position");
+    if (sideRaw === void 0) {
+      throw new WireloomError(
+        '"annotation" requires position=left|right|top|bottom (explicit placement \u2014 no default)',
+        head.line,
+        head.column
+      );
+    }
+    const side = sideRaw;
+    return { kind: "annotation", target, side, body, attributes, position };
   }
   // --- Window ---------------------------------------------------------------
   parseWindow() {
@@ -1185,7 +1246,7 @@ var Parser = class {
       const position = positionOf(keyTok);
       if (this.match("equals")) {
         const valueTok = this.consume();
-        const spec = rules.attrs[key];
+        const spec = key === "id" ? UNIVERSAL_ID_SPEC : rules.attrs[key];
         if (spec === void 0) {
           const suggestion = suggestMatch(key, Object.keys(rules.attrs));
           const hint = suggestion ? `. Did you mean "${suggestion}"?` : "";
@@ -1284,6 +1345,14 @@ function getAttrStringValue(attrs, key) {
 function getAttrNumberValue(attrs, key) {
   for (const a of attrs) {
     if (a.kind === "pair" && a.key === key && a.value.kind === "number") {
+      return a.value.value;
+    }
+  }
+  return void 0;
+}
+function getAttrIdentValue(attrs, key) {
+  for (const a of attrs) {
+    if (a.kind === "pair" && a.key === key && a.value.kind === "identifier") {
       return a.value.value;
     }
   }
@@ -1442,6 +1511,11 @@ function serialize(doc) {
   if (!doc.root) return "";
   const lines = [];
   serializeNode(doc.root, 0, lines);
+  if (doc.annotations) {
+    for (const a of doc.annotations) {
+      serializeNode(a, 0, lines);
+    }
+  }
   return lines.join("\n") + "\n";
 }
 function serializeNode(node, depth, out) {
@@ -1498,6 +1572,9 @@ function serializeNode(node, depth, out) {
     case "stat":
       parts.push(quoteString(node.label));
       parts.push(quoteString(node.value));
+      break;
+    case "annotation":
+      parts.push(quoteString(node.body));
       break;
   }
   for (const attr of node.attributes) {
@@ -1649,6 +1726,19 @@ var DEFAULT_THEME = Object.freeze({
   progressHeight: 18,
   chartDefaultWidth: 220,
   chartDefaultHeight: 120,
+  annotationBg: "#fefcf3",
+  annotationBorder: "#b8a26b",
+  annotationText: "#3d3526",
+  annotationLineColor: "#8a7a4f",
+  annotationDotColor: "#8a7a4f",
+  annotationStrokeWidth: 1,
+  annotationDotRadius: 3,
+  annotationCornerRadius: 4,
+  annotationPaddingX: 12,
+  annotationPaddingY: 8,
+  annotationGap: 48,
+  annotationMargin: 16,
+  annotationStackGap: 8,
   accents: Object.freeze({
     research: "#3f7cc2",
     military: "#b55442",
@@ -1743,6 +1833,11 @@ var DARK_THEME = Object.freeze({
   comboChevronColor: "#8a9099",
   bulletColor: "#707780",
   iconStrokeColor: "#8a9099",
+  annotationBg: "#2c2a22",
+  annotationBorder: "#7a6a42",
+  annotationText: "#e8dfc4",
+  annotationLineColor: "#a8966a",
+  annotationDotColor: "#a8966a",
   accents: Object.freeze({
     research: "#6ba4e8",
     military: "#d47967",
@@ -1810,9 +1905,84 @@ function getTheme(name) {
 }
 
 // src/renderer/layout.ts
-function layout(root, theme) {
-  const measured = measureWindow(root, theme);
-  return positionWindow(root, measured, 0, 0, theme);
+function layout(doc, theme) {
+  if (!doc.root) {
+    return { canvasWidth: 0, canvasHeight: 0, root: emptyLaidOut(), annotations: [] };
+  }
+  const measured = measureWindow(doc.root, theme);
+  const windowSize = measured.outer;
+  const annotations = doc.annotations ?? [];
+  if (annotations.length === 0) {
+    const laidRoot2 = positionWindow(doc.root, measured, 0, 0, theme);
+    return {
+      canvasWidth: windowSize.width,
+      canvasHeight: windowSize.height,
+      root: laidRoot2,
+      annotations: []
+    };
+  }
+  const bySide = {
+    left: [],
+    right: [],
+    top: [],
+    bottom: []
+  };
+  for (const a of annotations) bySide[a.side].push(a);
+  const measuredBoxes = /* @__PURE__ */ new Map();
+  for (const a of annotations) {
+    measuredBoxes.set(a, measureAnnotation(a, theme));
+  }
+  const marginLeft = sideMargin("left", bySide.left, measuredBoxes, theme);
+  const marginRight = sideMargin("right", bySide.right, measuredBoxes, theme);
+  const marginTop = sideMargin("top", bySide.top, measuredBoxes, theme);
+  const marginBottom = sideMargin("bottom", bySide.bottom, measuredBoxes, theme);
+  const topStackWidth = stackMainAxis("top", bySide.top, measuredBoxes, theme);
+  const bottomStackWidth = stackMainAxis("bottom", bySide.bottom, measuredBoxes, theme);
+  const contentWidth = Math.max(windowSize.width, topStackWidth, bottomStackWidth);
+  const leftStackHeight = stackMainAxis("left", bySide.left, measuredBoxes, theme);
+  const rightStackHeight = stackMainAxis("right", bySide.right, measuredBoxes, theme);
+  const contentHeight = Math.max(windowSize.height, leftStackHeight, rightStackHeight);
+  const canvasWidth = marginLeft + contentWidth + marginRight;
+  const canvasHeight = marginTop + contentHeight + marginBottom;
+  const windowX = marginLeft + (contentWidth - windowSize.width) / 2;
+  const windowY = marginTop + (contentHeight - windowSize.height) / 2;
+  const laidRoot = positionWindow(doc.root, measured, windowX, windowY, theme);
+  const idMap = buildIdMap(laidRoot);
+  const laidAnnotations = [];
+  for (const side of ["left", "right", "top", "bottom"]) {
+    const placed = placeAnnotationsOnSide(
+      side,
+      bySide[side],
+      measuredBoxes,
+      idMap,
+      { x: windowX, y: windowY, width: windowSize.width, height: windowSize.height },
+      canvasWidth,
+      canvasHeight,
+      theme
+    );
+    laidAnnotations.push(...placed);
+  }
+  return {
+    canvasWidth,
+    canvasHeight,
+    root: laidRoot,
+    annotations: laidAnnotations
+  };
+}
+function emptyLaidOut() {
+  return {
+    node: {
+      kind: "window",
+      attributes: [],
+      children: [],
+      position: { line: 1, column: 1 }
+    },
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    children: []
+  };
 }
 function measureChild(node, theme) {
   switch (node.kind) {
@@ -2695,6 +2865,122 @@ function badgeWidthOf(attrs, theme) {
   if (badge === void 0) return 0;
   return badge.length * theme.averageCharWidth * (theme.badgeFontSize / theme.fontSize) + theme.badgePaddingX * 2;
 }
+function measureAnnotation(node, theme) {
+  const lines = node.body.split("\n");
+  const contentWidth = Math.max(...lines.map((l) => l.length * theme.averageCharWidth));
+  const width = contentWidth + theme.annotationPaddingX * 2;
+  const height = lines.length * theme.lineHeight + theme.annotationPaddingY * 2;
+  return { width, height, lines };
+}
+function sideMargin(side, list, measured, theme) {
+  if (list.length === 0) return 0;
+  if (side === "left" || side === "right") {
+    const maxW = Math.max(...list.map((a) => measured.get(a).width));
+    return maxW + theme.annotationGap + theme.annotationMargin;
+  }
+  const maxH = Math.max(...list.map((a) => measured.get(a).height));
+  return maxH + theme.annotationGap + theme.annotationMargin;
+}
+function stackMainAxis(side, list, measured, theme) {
+  if (list.length === 0) return 0;
+  const dims = list.map((a) => measured.get(a));
+  const gapTotal = (list.length - 1) * theme.annotationStackGap;
+  if (side === "left" || side === "right") {
+    return dims.reduce((acc, d) => acc + d.height, 0) + gapTotal;
+  }
+  return dims.reduce((acc, d) => acc + d.width, 0) + gapTotal;
+}
+function buildIdMap(root) {
+  const out = /* @__PURE__ */ new Map();
+  const stack = [root];
+  while (stack.length > 0) {
+    const n = stack.pop();
+    const id = getAttrString(n.node.attributes ?? [], "id");
+    if (id !== void 0 && !out.has(id)) {
+      out.set(id, { x: n.x, y: n.y, width: n.width, height: n.height });
+    }
+    for (const c of n.children) stack.push(c);
+  }
+  return out;
+}
+function placeAnnotationsOnSide(side, list, measured, idMap, windowRect, canvasWidth, canvasHeight, theme) {
+  if (list.length === 0) return [];
+  const pending = [];
+  for (const a of list) {
+    const target = idMap.get(a.target);
+    if (!target) continue;
+    const dims = measured.get(a);
+    let pref;
+    if (side === "left" || side === "right") {
+      pref = target.y + target.height / 2 - dims.height / 2;
+    } else {
+      pref = target.x + target.width / 2 - dims.width / 2;
+    }
+    pending.push({ node: a, dims, target, pref });
+  }
+  if (pending.length === 0) return [];
+  pending.sort((a, b) => a.pref - b.pref);
+  const mainSize = (p) => side === "left" || side === "right" ? p.dims.height : p.dims.width;
+  const axisMin = side === "left" || side === "right" ? 0 : 0;
+  const axisMax = side === "left" || side === "right" ? canvasHeight : canvasWidth;
+  let cursor = -Infinity;
+  for (const p of pending) {
+    const minStart = cursor === -Infinity ? axisMin : cursor + theme.annotationStackGap;
+    const start = Math.max(p.pref, minStart);
+    cursor = start + mainSize(p);
+    p.pref = start;
+  }
+  if (cursor > axisMax) {
+    const overflow = cursor - axisMax;
+    for (const p of pending) p.pref -= overflow;
+  }
+  const out = [];
+  for (const p of pending) {
+    const { node, dims, target } = p;
+    let boxX;
+    let boxY;
+    let boxAnchor;
+    let targetAnchor;
+    if (side === "right") {
+      boxX = windowRect.x + windowRect.width + theme.annotationGap;
+      boxY = p.pref;
+      boxAnchor = { x: boxX, y: boxY + dims.height / 2 };
+      targetAnchor = {
+        x: target.x + target.width,
+        y: target.y + target.height / 2
+      };
+    } else if (side === "left") {
+      boxX = windowRect.x - theme.annotationGap - dims.width;
+      boxY = p.pref;
+      boxAnchor = { x: boxX + dims.width, y: boxY + dims.height / 2 };
+      targetAnchor = { x: target.x, y: target.y + target.height / 2 };
+    } else if (side === "top") {
+      boxX = p.pref;
+      boxY = windowRect.y - theme.annotationGap - dims.height;
+      boxAnchor = { x: boxX + dims.width / 2, y: boxY + dims.height };
+      targetAnchor = { x: target.x + target.width / 2, y: target.y };
+    } else {
+      boxX = p.pref;
+      boxY = windowRect.y + windowRect.height + theme.annotationGap;
+      boxAnchor = { x: boxX + dims.width / 2, y: boxY };
+      targetAnchor = {
+        x: target.x + target.width / 2,
+        y: target.y + target.height
+      };
+    }
+    out.push({
+      node,
+      x: boxX,
+      y: boxY,
+      width: dims.width,
+      height: dims.height,
+      lines: dims.lines,
+      boxAnchor,
+      targetAnchor
+    });
+  }
+  return out;
+}
 
 // src/renderer/icons.ts
 var ICON_PATHS = {
@@ -2751,10 +3037,10 @@ function emitIconByName(name, x, y, size, color) {
 }
 
 // src/renderer/svg.ts
-function emitSvg(root, theme, options = {}) {
+function emitSvg(doc, theme, options = {}) {
   const parts = [];
-  const width = root.width;
-  const height = root.height;
+  const width = doc.canvasWidth;
+  const height = doc.canvasHeight;
   const svgAttrs = [
     'xmlns="http://www.w3.org/2000/svg"',
     `width="${width}"`,
@@ -2770,9 +3056,31 @@ function emitSvg(root, theme, options = {}) {
   parts.push(
     `<rect x="0" y="0" width="${width}" height="${height}" fill="${theme.background}" />`
   );
-  emitNode(root, theme, parts);
+  emitNode(doc.root, theme, parts);
+  for (const a of doc.annotations) {
+    emitAnnotation(a, theme, parts);
+  }
   parts.push("</svg>");
   return parts.join("");
+}
+function emitAnnotation(a, theme, out) {
+  out.push(
+    `<line x1="${a.targetAnchor.x}" y1="${a.targetAnchor.y}" x2="${a.boxAnchor.x}" y2="${a.boxAnchor.y}" stroke="${theme.annotationLineColor}" stroke-width="${theme.annotationStrokeWidth}" />`
+  );
+  out.push(
+    `<circle cx="${a.targetAnchor.x}" cy="${a.targetAnchor.y}" r="${theme.annotationDotRadius}" fill="${theme.annotationDotColor}" />`
+  );
+  out.push(
+    `<rect x="${a.x}" y="${a.y}" width="${a.width}" height="${a.height}" rx="${theme.annotationCornerRadius}" ry="${theme.annotationCornerRadius}" fill="${theme.annotationBg}" stroke="${theme.annotationBorder}" stroke-width="${theme.annotationStrokeWidth}" />`
+  );
+  const textX = a.x + theme.annotationPaddingX;
+  let baseline = a.y + theme.annotationPaddingY + theme.fontSize;
+  for (const line of a.lines) {
+    out.push(
+      `<text x="${textX}" y="${baseline}" fill="${theme.annotationText}">${escapeText(line)}</text>`
+    );
+    baseline += theme.lineHeight;
+  }
 }
 function emitNode(laid, theme, out) {
   const kind = laid.node.kind;
@@ -3464,7 +3772,7 @@ function renderWireframe(source, options = {}) {
   }
   const themeName = options.theme ?? getConfig().theme;
   const theme = getTheme(themeName);
-  const laid = layout(doc.root, theme);
+  const laid = layout(doc, theme);
   const emitOpts = options.id !== void 0 ? { id: options.id } : {};
   return emitSvg(laid, theme, emitOpts);
 }

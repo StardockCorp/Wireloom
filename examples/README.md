@@ -36,6 +36,14 @@ Focus: the new primitives (`section`, `tabs`, `list`, `slot`, `kv`, `combo`, `sl
 | `19-fill-columns.wireloom` | Three-column app shell with a fill middle column. |
 | `20-right-aligned-row.wireloom` | Confirm dialog with `row align=right` footer. |
 
+## Documentation-style examples
+
+Focus: primitives used to produce annotated user-manual-style figures.
+
+| File | What it exercises |
+|------|-------------------|
+| `27-annotations.wireloom` | Universal `id="…"` attribute + `annotation` nodes with all four `position=` sides. Shows multi-line annotation bodies via `\n`. |
+
 ## Targets
 
 `examples/targets/*.txt` contains hand-drawn ASCII visual contracts for the layouts that aren't obvious from source alone (tabs, sections with badges, kv ledgers, fill columns). The renderer output is expected to capture the structure these describe.

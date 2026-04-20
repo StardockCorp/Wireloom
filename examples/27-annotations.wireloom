@@ -1,0 +1,19 @@
+# User-manual-style annotations: a box with a leader line pointing at
+# a specific element in the mockup. Every `annotation` must specify a
+# `position=` side (left/right/top/bottom) — there is no default.
+
+window "Sign in":
+  header:
+    text "Welcome back" id="welcome"
+  panel id="credentials":
+    input placeholder="Email" type=email id="email-field"
+    input placeholder="Password" type=password id="pw-field"
+    button "Sign in" primary id="signin-btn"
+  footer:
+    text "Forgot your password?" id="forgot-link"
+
+annotation "Greeting — changes to the user's name after first sign-in" target="welcome" position=top
+annotation "Email must be verified before sign-in is enabled" target="email-field" position=right
+annotation "Password field — masked by default" target="pw-field" position=right
+annotation "Primary action.\nDisabled until both fields are valid." target="signin-btn" position=right
+annotation "Recovery flow — sends a reset link via email" target="forgot-link" position=bottom

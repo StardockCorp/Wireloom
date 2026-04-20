@@ -144,6 +144,21 @@ export interface Theme {
   chartDefaultWidth: number;
   chartDefaultHeight: number;
 
+  // Annotations (user-manual-style callouts with leader lines)
+  annotationBg: string;
+  annotationBorder: string;
+  annotationText: string;
+  annotationLineColor: string;
+  annotationDotColor: string;
+  annotationStrokeWidth: number;
+  annotationDotRadius: number;
+  annotationCornerRadius: number;
+  annotationPaddingX: number;
+  annotationPaddingY: number;
+  annotationGap: number;
+  annotationMargin: number;
+  annotationStackGap: number;
+
   /** Maps accent name → color used for borders, fills, and text treatments. */
   accents: Readonly<Record<AccentName, string>>;
   /** Maps state name → visual treatment applied to slots and cells. */
@@ -253,6 +268,20 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   chartDefaultWidth: 220,
   chartDefaultHeight: 120,
 
+  annotationBg: '#fefcf3',
+  annotationBorder: '#b8a26b',
+  annotationText: '#3d3526',
+  annotationLineColor: '#8a7a4f',
+  annotationDotColor: '#8a7a4f',
+  annotationStrokeWidth: 1,
+  annotationDotRadius: 3,
+  annotationCornerRadius: 4,
+  annotationPaddingX: 12,
+  annotationPaddingY: 8,
+  annotationGap: 48,
+  annotationMargin: 16,
+  annotationStackGap: 8,
+
   accents: Object.freeze({
     research: '#3f7cc2',
     military: '#b55442',
@@ -348,6 +377,12 @@ export const DARK_THEME: Theme = Object.freeze({
   comboChevronColor: '#8a9099',
   bulletColor: '#707780',
   iconStrokeColor: '#8a9099',
+
+  annotationBg: '#2c2a22',
+  annotationBorder: '#7a6a42',
+  annotationText: '#e8dfc4',
+  annotationLineColor: '#a8966a',
+  annotationDotColor: '#a8966a',
 
   accents: Object.freeze({
     research: '#6ba4e8',

@@ -232,6 +232,28 @@ export interface StatNode extends NodeBase {
 }
 
 // ---------------------------------------------------------------------------
+// Annotations (v0.4 — user-manual-style labels pointing at window elements)
+// ---------------------------------------------------------------------------
+
+export type AnnotationSide = 'left' | 'right' | 'top' | 'bottom';
+
+/**
+ * A user-manual-style label that identifies part of the `window` mockup.
+ * Rendered as a box with a leader line drawn to the element whose `id`
+ * matches `target`. Lives as a sibling of `window` (document root), never
+ * inside the window tree.
+ */
+export interface AnnotationNode extends NodeBase {
+  kind: 'annotation';
+  /** Id of the node inside `window` that this annotation points to. */
+  target: string;
+  /** Which margin of the window the annotation box sits in. */
+  side: AnnotationSide;
+  /** Label text. Literal `\n` in source becomes a line break. */
+  body: string;
+}
+
+// ---------------------------------------------------------------------------
 // Unions
 // ---------------------------------------------------------------------------
 
@@ -300,12 +322,18 @@ export type AnyNode =
   | ResourceNode
   | StatsNode
   | StatNode
+  | AnnotationNode
   | LeafNode;
 
 export interface Document {
   kind: 'document';
   /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
   root?: WindowNode;
+  /**
+   * Optional user-manual-style callouts pointing at elements inside `root`.
+   * Appear after the `window` node in source; omitted array means none.
+   */
+  annotations?: AnnotationNode[];
   /** Total number of source lines parsed (including blanks and comments). */
   sourceLines: number;
 }
