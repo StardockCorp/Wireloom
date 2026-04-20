@@ -19,6 +19,10 @@ Because Wireloom sources are plain text, they live in git, diff cleanly, review 
 
 **v0.4.5 — widgets HTML doesn't have, at wireframe fidelity.** New primitives fill the gaps LLM authors kept simulating with `panel` + `kv` rows: `tree`/`node` (collapsible), `checkbox`/`radio`/`toggle`, `menubar`/`menu`/`menuitem`/`separator`, `chip`, `avatar`, `breadcrumb`/`crumb`, and `spinner`/`status`. All additive — v0.4.1 sources render identically.
 
+![File explorer wireframe showcasing v0.4.5 primitives](docs/v045-showcase.svg)
+
+Source for that render: [`examples/28-file-explorer.wireloom`](examples/28-file-explorer.wireloom) (plus `29-settings-controls` and `30-status-and-chips` for narrower showcases).
+
 v0.4.1 added annotations (callouts): universal `id="…"` on every primitive plus the top-level `annotation` node that draws user-manual-style labels with leader lines.
 
 v0.4.0 added the game-UI primitive set: `grid`/`cell`, `progress`, `chart` (placeholder), `resourcebar`/`resource`, `stats`/`stat`, unified `state=` / `accent=` treatments for slots and cells, slot footers, and a real named icon library.
