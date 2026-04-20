@@ -100,6 +100,14 @@ annotation "Primary action.\nDisabled until form is valid." target="signin-btn" 
 
 The wireframe and its callouts live in one file and render to one SVG — no separate annotation layer, no second tool.
 
+## Using Wireloom with AI agents
+
+Wireloom is designed for LLM agents to author. If you're using Claude, Codex, Cursor, or any other coding agent, give it the grammar reference in [`AGENTS.md`](AGENTS.md) — a self-contained primer with every primitive, attribute, and parse-error recipe. Point your agent at that file and it can write correct Wireloom sources in one shot from natural-language prompts.
+
+For Claude Code users specifically, [`.claude/skills/wireloom.md`](.claude/skills/wireloom.md) is a ready-made skill: copy it into your project's `.claude/skills/` directory and Claude will activate it automatically when the user asks for a wireframe.
+
+If you're an agent reading this repo right now: stop here and read [`AGENTS.md`](AGENTS.md) before authoring any Wireloom source. It's written for you.
+
 ## Install
 
 ```bash
