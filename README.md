@@ -17,7 +17,9 @@ Because Wireloom sources are plain text, they live in git, diff cleanly, review 
 
 ## Status
 
-**v0.4 — game-UI primitive set.** Adds `grid`/`cell`, `progress`, `chart` (placeholder), `resourcebar`/`resource`, `stats`/`stat`, unified `state=` / `accent=` treatments for slots and cells, slot footers, and a real named icon library. No breaking changes to v0.3 sources except that custom themes must provide the new token set.
+**v0.4.1 — annotations (callouts).** Any primitive can now carry an `id="…"`, and the new `annotation` node draws user-manual-style labels in the canvas margin with leader lines pointing at `id`-tagged elements. A single Wireloom source now produces both the wireframe and its callouts in one artifact — the way a printed user manual labels the parts of a UI. Strictly additive; v0.4.0 sources render identically.
+
+v0.4.0 added the game-UI primitive set: `grid`/`cell`, `progress`, `chart` (placeholder), `resourcebar`/`resource`, `stats`/`stat`, unified `state=` / `accent=` treatments for slots and cells, slot footers, and a real named icon library.
 
 ## What it looks like
 
@@ -65,6 +67,32 @@ Sections with optional badges, `kv` label/value rows with flush-right alignment.
 ![Colonial Charter screen rendered by Wireloom](docs/colonial-charter.svg)
 
 The source for that render is in [`examples/11-colonial-charter.wireloom`](examples/11-colonial-charter.wireloom) — a real game-UI stress test used to drive v0.2 fidelity.
+
+### Annotations (v0.4.1)
+
+Add user-manual-style callouts alongside the mockup in the same source:
+
+```wireloom
+window "Sign in":
+  header:
+    text "Welcome back" bold size=large id="welcome"
+  panel:
+    input placeholder="Email" type=email id="email-field"
+    input placeholder="Password" type=password id="password-field"
+    row align=right:
+      button "Forgot?" id="forgot-btn"
+      button "Sign in" primary id="signin-btn"
+
+annotation "Greeting — personalized after first sign-in" target="welcome" position=top
+annotation "Email address.\nMust be verified." target="email-field" position=right
+annotation "Password field — masked input." target="password-field" position=right
+annotation "Password recovery flow." target="forgot-btn" position=left
+annotation "Primary action.\nDisabled until form is valid." target="signin-btn" position=right
+```
+
+![Annotated sign-in wireframe rendered by Wireloom](docs/annotations-example.svg)
+
+The wireframe and its callouts live in one file and render to one SVG — no separate annotation layer, no second tool.
 
 ## Install
 
@@ -183,6 +211,8 @@ Styling attributes on `text` and `kv` value: `bold` / `italic` / `muted` flags, 
 
 v0.4 additions: unified `state=` enum (locked/available/active/purchased/maxed/growing/ripe/withering/cashed) on slots and cells, semantic `accent=` colors (research/military/industry/wealth/approval/warning/danger/success) on slot/section/cell/button/icon, optional `footer:` child on slot, and a named icon library (credits, research, military, industry, lock, check, star, gear, plus more — unknown names fall back to a boxed-letter placeholder).
 
+v0.4.1 additions: **universal `id="…"`** attribute on every primitive, and the **`annotation`** top-level node — a user-manual-style label in the canvas margin with a leader line to an `id`-tagged element. Body text supports `\n` line breaks; required `target="<id>" position=left|right|top|bottom`. Annotations are siblings of `window`, not children.
+
 Full grammar at [`design/grammar.md`](design/grammar.md). Integrating into your own Markdown viewer or docs pipeline? See [`INTEGRATION.md`](INTEGRATION.md).
 
 ## Roadmap
@@ -191,6 +221,7 @@ Full grammar at [`design/grammar.md`](design/grammar.md). Integrating into your 
 - ✅ **v0.2** — Full v1 token set: `tabs`, `section`, `list`, `slot`, `kv`, `combo`, `slider`, `image`, `icon`, badges, alignment, typography, dark theme, roundtrip serializer.
 - ✅ **v0.3** — Published to npm. Flexible 2- or 4-space indentation, "did you mean?" suggestions, targeted `kv` hint.
 - ✅ **v0.4** — Game-UI primitives: `grid`/`cell`, `progress`, `chart` placeholder, `resourcebar`, `stats`/`stat`, slot `footer`, unified `state=`/`accent=`, real named icon library.
+- ✅ **v0.4.1** — Annotations (callouts): universal `id="…"` attribute, top-level `annotation` node with leader lines to `id`-tagged elements. A single source now renders both a wireframe and its callouts in one SVG.
 - **v0.5** — Documentation site with live editor. Visual regression via headless Chromium.
 - **v1.0** — Stable public API, ecosystem adapters (`remark-wireloom`, `markdown-it-wireloom`), VS Code extension.
 

@@ -2,6 +2,62 @@
 
 This guide covers everything a third-party Markdown viewer, documentation site, or note-taking app needs to drop Wireloom into its rendering pipeline.
 
+**Compatible with:** any Markdown pipeline that exposes fenced code blocks. Works in browsers (every evergreen), Node 18+, Deno, Bun, Electron / Tauri / Capacitor, and edge runtimes (Cloudflare Workers, Vercel Edge).
+
+---
+
+## 5-minute quickstart
+
+If your viewer already renders Mermaid, KaTeX, or any other fenced-block extension, Wireloom plugs in the same way. The whole integration is:
+
+```ts
+import wireloom from 'wireloom';
+
+// When you see a fenced block with language "wireloom":
+const { svg } = await wireloom.render('unique-id', source);
+
+// Inject the SVG string into the DOM.
+element.innerHTML = svg;
+```
+
+That's the entire API surface you need. Output is a self-contained SVG string with no `<script>` tags, no external references, and fully HTML-escaped text — safe for `innerHTML` / `dangerouslySetInnerHTML` without further sanitization.
+
+Next steps:
+
+- **Pick a recipe** for your Markdown pipeline in [Recipes](#recipes) below (react-markdown, remark/rehype, markdown-it, plain DOM, SSR).
+- **Optional:** expose a theme toggle to your users — `render(id, source, { theme: 'dark' })`.
+- **Done.** Full grammar lives in [`design/grammar.md`](design/grammar.md); your users write it, you render it.
+
+Minimum viable end-to-end example (copy-paste into a fresh project):
+
+```html
+<!doctype html>
+<html>
+<head><title>Wireloom quickstart</title></head>
+<body>
+  <div id="out"></div>
+  <script type="module">
+    import wireloom from 'https://esm.sh/wireloom@0.4.1';
+    const source = `
+window "Sign in":
+  header:
+    text "Welcome back" bold id="welcome"
+  panel:
+    input placeholder="Email" id="email"
+    button "Sign in" primary id="signin"
+
+annotation "Personalized greeting" target="welcome" position=top
+annotation "Primary action" target="signin" position=right
+`;
+    const { svg } = await wireloom.render('demo', source);
+    document.getElementById('out').innerHTML = svg;
+  </script>
+</body>
+</html>
+```
+
+Open that file in a browser and you get a rendered annotated wireframe.
+
 ---
 
 ## Core model
@@ -35,9 +91,9 @@ You can safely inject the output with `innerHTML` / `dangerouslySetInnerHTML` wi
 
 ## Bundle size
 
-At v0.4, the built bundle is roughly:
+At v0.4.1, the built bundle is roughly:
 
-- ESM: ~116 KB raw, gzipped this lands well under 40 KB.
+- ESM: ~120 KB raw, gzipped this lands well under 40 KB.
 - CJS: same.
 
 No heavy dependencies. If you're worried about the bundle landing in a main chunk, lazy-load the module on the first `wireloom` block you see:
@@ -247,6 +303,29 @@ const html = md.render(markdown);
 Everything above works on the server. `wireloom.render` is a pure function with no DOM dependency — Node, Deno, Bun, Cloudflare Workers, Vercel Edge all work. The returned SVG string can be written directly into your static HTML output; consumers never need to load the `wireloom` bundle client-side.
 
 If you're pre-rendering at build time, do it synchronously with the rehype recipe above (the `render` is only `await`-wrapped for API symmetry — internally it's synchronous).
+
+## Annotations (user-manual-style callouts)
+
+As of **v0.4.1**, Wireloom sources can include `annotation` nodes — labels drawn in the canvas margin with leader lines pointing at elements inside the `window`. This lets a single source produce both the wireframe *and* its explanatory callouts in one artifact, the way a printed user manual labels the parts of a UI.
+
+From an integrator's perspective, **there is nothing to do.** Annotations are part of the source syntax; `wireloom.render()` lays them out and emits them as part of the same self-contained SVG string. You don't need separate render paths, separate DOM nodes, or special handling — the SVG returned is already annotated.
+
+Source syntax for reference (you'll see this appear in user content):
+
+```
+window "Sign in":
+  panel:
+    button "Sign in" primary id="signin-btn"
+
+annotation "Primary action. Disabled until form is valid." target="signin-btn" position=right
+```
+
+Two things worth knowing:
+
+1. `annotation` nodes live at the **top level**, as siblings of `window` — not indented inside it. They reference into the window via `target="<id>"`, where `id` is a universal attribute now accepted on every primitive.
+2. The SVG canvas grows to accommodate annotations in the margins. The `width` / `height` / `viewBox` attributes on the returned `<svg>` reflect that larger canvas, so `max-width: 100%; height: auto` styling still works as-is.
+
+This feature is strictly additive — sources written against v0.4.0 parse and render identically under v0.4.1.
 
 ## Themes
 
