@@ -17,7 +17,9 @@ Because Wireloom sources are plain text, they live in git, diff cleanly, review 
 
 ## Status
 
-**v0.4.1 — annotations (callouts).** Any primitive can now carry an `id="…"`, and the new `annotation` node draws user-manual-style labels in the canvas margin with leader lines pointing at `id`-tagged elements. A single Wireloom source now produces both the wireframe and its callouts in one artifact — the way a printed user manual labels the parts of a UI. Strictly additive; v0.4.0 sources render identically.
+**v0.4.5 — widgets HTML doesn't have, at wireframe fidelity.** New primitives fill the gaps LLM authors kept simulating with `panel` + `kv` rows: `tree`/`node` (collapsible), `checkbox`/`radio`/`toggle`, `menubar`/`menu`/`menuitem`/`separator`, `chip`, `avatar`, `breadcrumb`/`crumb`, and `spinner`/`status`. All additive — v0.4.1 sources render identically.
+
+v0.4.1 added annotations (callouts): universal `id="…"` on every primitive plus the top-level `annotation` node that draws user-manual-style labels with leader lines.
 
 v0.4.0 added the game-UI primitive set: `grid`/`cell`, `progress`, `chart` (placeholder), `resourcebar`/`resource`, `stats`/`stat`, unified `state=` / `accent=` treatments for slots and cells, slot footers, and a real named icon library.
 

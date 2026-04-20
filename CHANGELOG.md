@@ -2,6 +2,37 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] — 2026-04-20
+
+Widgets HTML doesn't have, at wireframe fidelity. This release adds the primitives
+that LLM authors keep reaching for and simulating with `panel` + `kv` rows: file
+trees, menubars, form controls, chips, avatars, breadcrumbs, and inline status.
+No breaking changes — existing sources parse and render identically.
+
+### Added
+- **`tree` / `node`**: collapsible tree with recursive nodes. Disclosure glyphs render automatically (▾ expanded, ▸ collapsed); leaf nodes get no glyph. Flags: `collapsed`, `selected`. Attribute: `icon=` (reuses the named icon library).
+  ```
+  tree:
+    node "src":
+      node "parser.ts"
+      node "renderer" collapsed:
+        node "svg.ts"
+    node "README.md" selected
+  ```
+- **`checkbox` / `radio` / `toggle`**: three separate row-level form primitives. `checkbox "Enable" checked`, `radio "Dark" group="theme" selected`, `toggle "Sync" on`. `group=` on `radio` affects visual layout only — no validation semantics. Shared flags: `disabled`, `label-right` (flips control/label placement).
+- **`menubar` / `menu` / `menuitem` / `separator`**: horizontal menubar with dropdown children. `menuitem` accepts `shortcut="Ctrl+O"` and `disabled`. `separator` renders a thin divider inside a menu. `menu` may also appear standalone (context/popup menu). **`menuitem` is its own token — `item` is reserved for `list` children.**
+- **`chip`**: standalone pill for filter rows, tag lists, and selected-item displays. Attributes: `accent=`, `icon=`. Flags: `closable` (renders × glyph), `selected`. Distinct from the `badge=` attribute (which attaches to section headers / buttons).
+- **`avatar`**: circle with initials. Positional string is the initials (max 2 chars rendered). Attributes: `size=small|medium|large` (default medium), `accent=` for tint. No image slot by design — wireframes shouldn't care about real imagery.
+- **`breadcrumb` / `crumb`**: horizontal path with auto-inserted chevron (›) separators. Last crumb renders bolder as the "current" location. Optional `icon=` on any crumb.
+- **`spinner` / `status`**: static indicators. `spinner` renders a dashed ring and takes an optional positional label. `status "Saved" kind=success` renders a pill with an icon matching `kind` — one of `success | info | warning | error`.
+
+### Changed
+- `Theme` interface gained v0.4.5 tokens for every new primitive (`treeIndent`, `treeRowHeight`, `treeIndentGuideColor`, `treeGlyphColor`, `treeSelectedBg`, `treeSelectedText`, `checkboxSize`, `checkboxRowGap`, `checkboxBorderColor`, `checkboxFillColor`, `checkboxCheckColor`, `radioSize`, `toggleWidth`, `toggleHeight`, `toggleOnColor`, `toggleOffColor`, `toggleKnobColor`, `radioGroupGap`, `menubarHeight`, `menubarItemPaddingX`, `menubarBgColor`, `menubarBorderColor`, `menuWidth`, `menuItemHeight`, `menuItemPaddingX`, `menuBgColor`, `menuBorderColor`, `menuShortcutColor`, `menuSeparatorColor`, `chipHeight`, `chipPaddingX`, `chipBg`, `chipBorder`, `chipText`, `chipSelectedBg`, `chipSelectedBorder`, `chipSelectedText`, `avatarSizeSmall`, `avatarSizeMedium`, `avatarSizeLarge`, `avatarBg`, `avatarBorder`, `avatarText`, `breadcrumbHeight`, `breadcrumbGap`, `breadcrumbSeparatorColor`, `breadcrumbCurrentColor`, `spinnerSize`, `spinnerColor`, `statusHeight`, `statusPaddingX`, `statusColors`). Both default and dark themes ship fully populated.
+
+### Tests
+- **253 tests passing** (up from 201 carried into this release). New coverage: parse, roundtrip, and layout for every new primitive, plus SVG contents checks to verify theme palette wiring for tree, chip, toggle, and status.
+- Three new example files — `28-file-explorer.wireloom`, `29-settings-controls.wireloom`, `30-status-and-chips.wireloom` — all roundtrip cleanly under the full corpus test.
+
 ## [0.4.1] — 2026-04-19
 
 ### Added

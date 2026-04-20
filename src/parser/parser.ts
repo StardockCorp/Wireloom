@@ -12,13 +12,18 @@ import type {
   Attribute,
   AttributePair,
   AttributeValue,
+  AvatarNode,
+  BreadcrumbNode,
   ButtonNode,
   CellNode,
   ChartNode,
+  CheckboxNode,
+  ChipNode,
   ColNode,
   ColWidth,
   ComboNode,
   ContainerChild,
+  CrumbNode,
   DividerNode,
   Document,
   FooterNode,
@@ -30,21 +35,32 @@ import type {
   ItemNode,
   KvNode,
   ListNode,
+  MenubarNode,
+  MenuChild,
+  MenuItemNode,
+  MenuNode,
   PanelNode,
   ProgressNode,
+  RadioNode,
   ResourceBarNode,
   ResourceNode,
   RowNode,
   SectionNode,
+  SeparatorNode,
   SliderNode,
   SlotFooterNode,
   SlotNode,
   SourcePosition,
+  SpinnerNode,
   StatNode,
   StatsNode,
+  StatusNode,
   TabNode,
   TabsNode,
   TextNode,
+  ToggleNode,
+  TreeNode_,
+  TreeItemNode,
   WindowChild,
   WindowNode,
 } from './ast.js';
@@ -100,6 +116,8 @@ const STATE_VALUES = [
 ] as const;
 const CHART_KIND_VALUES = ['bar', 'line', 'pie'] as const;
 const ANNOTATION_SIDE_VALUES = ['left', 'right', 'top', 'bottom'] as const;
+const AVATAR_SIZE_VALUES = ['small', 'medium', 'large'] as const;
+const STATUS_KIND_VALUES = ['success', 'info', 'warning', 'error'] as const;
 
 /** Spec for the universal `id="…"` attribute, accepted on every primitive. */
 const UNIVERSAL_ID_SPEC: AttrSpec = { kind: 'string' };
@@ -251,9 +269,62 @@ const ATTR_RULES: Record<string, AttrRules> = {
     },
     flags: [],
   },
+  tree: { attrs: {}, flags: [] },
+  treeNode: {
+    attrs: { icon: { kind: 'string' } },
+    flags: ['collapsed', 'selected'],
+  },
+  checkbox: {
+    attrs: {},
+    flags: ['checked', 'disabled', 'label-right'],
+  },
+  radio: {
+    attrs: { group: { kind: 'string' } },
+    flags: ['selected', 'disabled', 'label-right'],
+  },
+  toggle: {
+    attrs: {},
+    flags: ['on', 'off', 'disabled', 'label-right'],
+  },
+  menubar: { attrs: {}, flags: [] },
+  menu: { attrs: {}, flags: [] },
+  menuitem: {
+    attrs: { shortcut: { kind: 'string' } },
+    flags: ['disabled'],
+  },
+  separator: { attrs: {}, flags: [] },
+  chip: {
+    attrs: {
+      icon: { kind: 'string' },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
+    flags: ['closable', 'selected'],
+  },
+  avatar: {
+    attrs: {
+      size: { kind: 'enum', values: AVATAR_SIZE_VALUES },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
+    flags: [],
+  },
+  breadcrumb: { attrs: {}, flags: [] },
+  crumb: {
+    attrs: { icon: { kind: 'string' } },
+    flags: [],
+  },
+  spinner: { attrs: {}, flags: [] },
+  status: {
+    attrs: {
+      kind: { kind: 'enum', values: STATUS_KIND_VALUES },
+    },
+    flags: [],
+  },
 };
 
-const VALID_PRIMITIVES = new Set(Object.keys(ATTR_RULES));
+const VALID_PRIMITIVES = new Set([
+  ...Object.keys(ATTR_RULES).filter((k) => k !== 'treeNode' && k !== 'slotFooter'),
+  'node',
+]);
 
 /** Primitives allowed as direct children of a general container (panel/section/row/col/slot/header/footer). */
 const CONTAINER_CHILD_PRIMITIVES = new Set([
@@ -278,12 +349,23 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
   'divider',
   'progress',
   'chart',
+  'tree',
+  'menubar',
+  'menu',
+  'breadcrumb',
+  'checkbox',
+  'radio',
+  'toggle',
+  'chip',
+  'avatar',
+  'spinner',
+  'status',
 ]);
 
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart';
+  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -483,6 +565,34 @@ class Parser {
         head.column,
       );
     }
+    if (name === 'node') {
+      throw new WireloomError(
+        '"node" may only appear inside "tree"',
+        head.line,
+        head.column,
+      );
+    }
+    if (name === 'menuitem') {
+      throw new WireloomError(
+        '"menuitem" may only appear inside "menu"',
+        head.line,
+        head.column,
+      );
+    }
+    if (name === 'separator') {
+      throw new WireloomError(
+        '"separator" may only appear inside "menu"',
+        head.line,
+        head.column,
+      );
+    }
+    if (name === 'crumb') {
+      throw new WireloomError(
+        '"crumb" may only appear inside "breadcrumb"',
+        head.line,
+        head.column,
+      );
+    }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
     return this.parseContainerChildNamed(name);
@@ -550,7 +660,15 @@ class Parser {
                       ? '"resource" may only appear inside "resourcebar"'
                       : name === 'stat'
                         ? '"stat" may only appear inside "stats"'
-                        : `"${name}" is not allowed here`;
+                        : name === 'node'
+                          ? '"node" may only appear inside "tree"'
+                          : name === 'menuitem'
+                            ? '"menuitem" may only appear inside "menu"'
+                            : name === 'separator'
+                              ? '"separator" may only appear inside "menu"'
+                              : name === 'crumb'
+                                ? '"crumb" may only appear inside "breadcrumb"'
+                                : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -600,6 +718,28 @@ class Parser {
         return this.parseProgress();
       case 'chart':
         return this.parseChart();
+      case 'tree':
+        return this.parseTree();
+      case 'menubar':
+        return this.parseMenubar();
+      case 'menu':
+        return this.parseMenu();
+      case 'breadcrumb':
+        return this.parseBreadcrumb();
+      case 'checkbox':
+        return this.parseCheckbox();
+      case 'radio':
+        return this.parseRadio();
+      case 'toggle':
+        return this.parseToggle();
+      case 'chip':
+        return this.parseChip();
+      case 'avatar':
+        return this.parseAvatar();
+      case 'spinner':
+        return this.parseSpinner();
+      case 'status':
+        return this.parseStatus();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -1143,6 +1283,304 @@ class Parser {
     return { kind: 'stat', label, value, attributes, position };
   }
 
+  // --- Tree / node ---------------------------------------------------------
+
+  private parseTree(): TreeNode_ {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('tree');
+    const hasChildren = this.parseTerminator('tree', head);
+    const children = hasChildren ? this.parseTreeChildren() : [];
+    return { kind: 'tree', attributes, children, position };
+  }
+
+  private parseTreeChildren(): TreeItemNode[] {
+    const children: TreeItemNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "node", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'node') {
+        throw new WireloomError(
+          `"tree" accepts only "node" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseTreeNode());
+    }
+    this.expectKind('dedent', 'tree block did not close cleanly');
+    return children;
+  }
+
+  private parseTreeNode(): TreeItemNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"node" requires a label string (e.g., node "src":)',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('treeNode');
+    const hasChildren = this.parseTerminator('node', head);
+    const children = hasChildren ? this.parseTreeChildren() : [];
+    return { kind: 'treeNode', label, attributes, children, position };
+  }
+
+  // --- Menubar / Menu ------------------------------------------------------
+
+  private parseMenubar(): MenubarNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('menubar');
+    const hasChildren = this.parseTerminator('menubar', head);
+    const children = hasChildren ? this.parseMenubarChildren() : [];
+    return { kind: 'menubar', attributes, children, position };
+  }
+
+  private parseMenubarChildren(): MenuNode[] {
+    const children: MenuNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "menu", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'menu') {
+        throw new WireloomError(
+          `"menubar" accepts only "menu" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseMenu());
+    }
+    this.expectKind('dedent', 'menubar block did not close cleanly');
+    return children;
+  }
+
+  private parseMenu(): MenuNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"menu" requires a label string (e.g., menu "File":)',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('menu');
+    const hasChildren = this.parseTerminator('menu', head);
+    const children = hasChildren ? this.parseMenuChildren() : [];
+    return { kind: 'menu', label, attributes, children, position };
+  }
+
+  private parseMenuChildren(): MenuChild[] {
+    const children: MenuChild[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "menuitem", "separator", or "menu", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name === 'menuitem') {
+        children.push(this.parseMenuItem());
+      } else if (name === 'separator') {
+        children.push(this.parseSeparator());
+      } else if (name === 'menu') {
+        children.push(this.parseMenu());
+      } else {
+        throw new WireloomError(
+          `"menu" accepts only "menuitem", "separator", or nested "menu" (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+    }
+    this.expectKind('dedent', 'menu block did not close cleanly');
+    return children;
+  }
+
+  private parseMenuItem(): MenuItemNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"menuitem" requires a label string (e.g., menuitem "Open…")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('menuitem');
+    this.parseLeafTerminator('menuitem', head);
+    return { kind: 'menuitem', label, attributes, position };
+  }
+
+  private parseSeparator(): SeparatorNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('separator');
+    this.parseLeafTerminator('separator', head);
+    return { kind: 'separator', attributes, position };
+  }
+
+  // --- Breadcrumb / crumb --------------------------------------------------
+
+  private parseBreadcrumb(): BreadcrumbNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('breadcrumb');
+    const hasChildren = this.parseTerminator('breadcrumb', head);
+    const children = hasChildren ? this.parseBreadcrumbChildren() : [];
+    return { kind: 'breadcrumb', attributes, children, position };
+  }
+
+  private parseBreadcrumbChildren(): CrumbNode[] {
+    const children: CrumbNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "crumb", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'crumb') {
+        throw new WireloomError(
+          `"breadcrumb" accepts only "crumb" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseCrumb());
+    }
+    this.expectKind('dedent', 'breadcrumb block did not close cleanly');
+    return children;
+  }
+
+  private parseCrumb(): CrumbNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"crumb" requires a label string (e.g., crumb "Documents")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('crumb');
+    this.parseLeafTerminator('crumb', head);
+    return { kind: 'crumb', label, attributes, position };
+  }
+
+  // --- Form controls -------------------------------------------------------
+
+  private parseCheckbox(): CheckboxNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"checkbox" requires a label string (e.g., checkbox "Enable")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('checkbox');
+    this.parseLeafTerminator('checkbox', head);
+    return { kind: 'checkbox', label, attributes, position };
+  }
+
+  private parseRadio(): RadioNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"radio" requires a label string (e.g., radio "Light" group="theme")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('radio');
+    this.parseLeafTerminator('radio', head);
+    return { kind: 'radio', label, attributes, position };
+  }
+
+  private parseToggle(): ToggleNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"toggle" requires a label string (e.g., toggle "Dark mode" on)',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('toggle');
+    this.parseLeafTerminator('toggle', head);
+    return { kind: 'toggle', label, attributes, position };
+  }
+
+  // --- Chip / avatar -------------------------------------------------------
+
+  private parseChip(): ChipNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"chip" requires a label string (e.g., chip "Filter")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('chip');
+    this.parseLeafTerminator('chip', head);
+    return { kind: 'chip', label, attributes, position };
+  }
+
+  private parseAvatar(): AvatarNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const raw = this.expectKind(
+      'string',
+      '"avatar" requires an initials string (e.g., avatar "BW")',
+    ).stringValue ?? '';
+    // Initials are truncated to two characters at render time; preserve the
+    // source value in the AST so serialization roundtrips byte-identical.
+    const attributes = this.parseAttributes('avatar');
+    this.parseLeafTerminator('avatar', head);
+    return { kind: 'avatar', initials: raw, attributes, position };
+  }
+
+  // --- Spinner / status ----------------------------------------------------
+
+  private parseSpinner(): SpinnerNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    let label: string | undefined;
+    if (this.peek().kind === 'string') {
+      label = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes('spinner');
+    this.parseLeafTerminator('spinner', head);
+    const node: SpinnerNode = { kind: 'spinner', attributes, position };
+    if (label !== undefined) node.label = label;
+    return node;
+  }
+
+  private parseStatus(): StatusNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"status" requires a label string (e.g., status "Saved" kind=success)',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('status');
+    const kindAttr = getAttrIdentValue(attributes, 'kind');
+    if (kindAttr === undefined) {
+      throw new WireloomError(
+        '"status" requires kind=success|info|warning|error',
+        head.line,
+        head.column,
+      );
+    }
+    this.parseLeafTerminator('status', head);
+    return { kind: 'status', label, attributes, position };
+  }
+
   // --- Attributes / terminators --------------------------------------------
 
   private parseAttributes(primitive: string): Attribute[] {
@@ -1408,7 +1846,9 @@ function coerceAttributeValue(
 }
 
 function unknownPrimitiveMessage(name: string): string {
-  const suggestion = suggestMatch(name, Object.keys(ATTR_RULES));
+  // Suggestions should only point at source-level keywords; `treeNode` and
+  // `slotFooter` are AST-only names that users never write.
+  const suggestion = suggestMatch(name, [...VALID_PRIMITIVES]);
   const base = `unknown primitive "${name}" (valid: ${PRIMITIVE_LIST_HUMAN})`;
   return suggestion ? `${base}. Did you mean "${suggestion}"?` : base;
 }

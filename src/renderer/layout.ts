@@ -16,12 +16,17 @@ import type {
   AttributeFlag,
   AttributePair,
   AttributeValue,
+  AvatarNode,
+  BreadcrumbNode,
   ButtonNode,
   CellNode,
   ChartNode,
+  CheckboxNode,
+  ChipNode,
   ColNode,
   ComboNode,
   ContainerChild,
+  CrumbNode,
   DividerNode,
   Document,
   FooterNode,
@@ -33,8 +38,11 @@ import type {
   ItemNode,
   KvNode,
   ListNode,
+  MenubarNode,
+  MenuNode,
   PanelNode,
   ProgressNode,
+  RadioNode,
   ResourceBarNode,
   ResourceNode,
   RowNode,
@@ -42,11 +50,16 @@ import type {
   SliderNode,
   SlotFooterNode,
   SlotNode,
+  SpinnerNode,
   StatNode,
   StatsNode,
+  StatusNode,
   TabNode,
   TabsNode,
   TextNode,
+  ToggleNode,
+  TreeItemNode,
+  TreeNode_,
   WindowNode,
 } from '../parser/ast.js';
 import type { Theme } from './themes.js';
@@ -253,7 +266,154 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
       return measureProgress(node, theme);
     case 'chart':
       return measureChart(node, theme);
+    case 'tree':
+      return measureTree(node, theme);
+    case 'menubar':
+      return measureMenubar(node, theme);
+    case 'menu':
+      return measureMenu(node, theme);
+    case 'breadcrumb':
+      return measureBreadcrumb(node, theme);
+    case 'checkbox':
+      return measureCheckbox(node, theme);
+    case 'radio':
+      return measureRadio(node, theme);
+    case 'toggle':
+      return measureToggle(node, theme);
+    case 'chip':
+      return measureChip(node, theme);
+    case 'avatar':
+      return measureAvatar(node, theme);
+    case 'spinner':
+      return measureSpinner(node, theme);
+    case 'status':
+      return measureStatus(node, theme);
   }
+}
+
+// --- v0.4.5 measurements --------------------------------------------------
+
+function measureTree(node: TreeNode_, theme: Theme): Size {
+  let maxW = 0;
+  let totalRows = 0;
+  const walk = (n: TreeItemNode, depth: number): void => {
+    totalRows++;
+    const labelW = n.label.length * theme.averageCharWidth;
+    const rowW = depth * theme.treeIndent + theme.treeIndent + labelW;
+    if (rowW > maxW) maxW = rowW;
+    const collapsed = hasFlagAttr(n.attributes, 'collapsed');
+    if (!collapsed) {
+      for (const child of n.children) walk(child, depth + 1);
+    }
+  };
+  for (const n of node.children) walk(n, 0);
+  return { width: maxW, height: totalRows * theme.treeRowHeight };
+}
+
+function measureMenubar(node: MenubarNode, theme: Theme): Size {
+  const totalW = node.children.reduce(
+    (acc, m) => acc + m.label.length * theme.averageCharWidth + theme.menubarItemPaddingX * 2,
+    0,
+  );
+  return { width: totalW, height: theme.menubarHeight };
+}
+
+function measureMenu(node: MenuNode, theme: Theme): Size {
+  // Standalone menu renders as a dropdown box with its items. Width is
+  // max(menuWidth, widest row). Height is items * row + 1px border.
+  let maxLabel = node.label.length * theme.averageCharWidth;
+  let itemCount = 0;
+  for (const c of node.children) {
+    if (c.kind === 'menuitem') {
+      const shortcut = getAttrString(c.attributes, 'shortcut');
+      const rowW =
+        c.label.length * theme.averageCharWidth +
+        (shortcut ? shortcut.length * theme.averageCharWidth + 24 : 0);
+      if (rowW > maxLabel) maxLabel = rowW;
+      itemCount++;
+    } else if (c.kind === 'separator') {
+      itemCount++;
+    } else if (c.kind === 'menu') {
+      const rowW = c.label.length * theme.averageCharWidth + 24;
+      if (rowW > maxLabel) maxLabel = rowW;
+      itemCount++;
+    }
+  }
+  const width = Math.max(theme.menuWidth, maxLabel + theme.menuItemPaddingX * 2);
+  const height = itemCount * theme.menuItemHeight + 4; // border padding
+  return { width, height };
+}
+
+function measureBreadcrumb(node: BreadcrumbNode, theme: Theme): Size {
+  if (node.children.length === 0) return { width: 0, height: theme.breadcrumbHeight };
+  const labels = node.children.map(
+    (c) => c.label.length * theme.averageCharWidth + (getAttrString(c.attributes, 'icon') ? theme.iconSize + 4 : 0),
+  );
+  const total =
+    labels.reduce((a, b) => a + b, 0) +
+    (node.children.length - 1) * (theme.breadcrumbGap * 2 + 8); // chevron width
+  return { width: total, height: theme.breadcrumbHeight };
+}
+
+function measureCheckbox(node: CheckboxNode, theme: Theme): Size {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.checkboxSize + theme.checkboxRowGap + labelW,
+    height: Math.max(theme.checkboxSize, theme.lineHeight),
+  };
+}
+
+function measureRadio(node: RadioNode, theme: Theme): Size {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.radioSize + theme.checkboxRowGap + labelW,
+    height: Math.max(theme.radioSize, theme.lineHeight),
+  };
+}
+
+function measureToggle(node: ToggleNode, theme: Theme): Size {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.toggleWidth + theme.checkboxRowGap + labelW,
+    height: Math.max(theme.toggleHeight, theme.lineHeight),
+  };
+}
+
+function measureChip(node: ChipNode, theme: Theme): Size {
+  const labelW = node.label.length * theme.averageCharWidth;
+  const iconExtra = getAttrString(node.attributes, 'icon') ? 16 : 0;
+  const closeExtra = hasFlagAttr(node.attributes, 'closable') ? 16 : 0;
+  return {
+    width: labelW + iconExtra + closeExtra + theme.chipPaddingX * 2,
+    height: theme.chipHeight,
+  };
+}
+
+function measureAvatar(node: AvatarNode, theme: Theme): Size {
+  const sizeName = getAttrIdent(node.attributes, 'size') ?? 'medium';
+  const size =
+    sizeName === 'small'
+      ? theme.avatarSizeSmall
+      : sizeName === 'large'
+        ? theme.avatarSizeLarge
+        : theme.avatarSizeMedium;
+  return { width: size, height: size };
+}
+
+function measureSpinner(node: SpinnerNode, theme: Theme): Size {
+  const labelW = node.label ? node.label.length * theme.averageCharWidth + theme.checkboxRowGap : 0;
+  return {
+    width: theme.spinnerSize + labelW,
+    height: Math.max(theme.spinnerSize, theme.lineHeight),
+  };
+}
+
+function measureStatus(node: StatusNode, theme: Theme): Size {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: labelW + 14 + theme.statusPaddingX * 2, // icon glyph + padding
+    height: theme.statusHeight,
+  };
 }
 
 function measureText(node: TextNode, theme: Theme): Size {
@@ -805,7 +965,154 @@ function positionContainerChild(
       return positionProgress(child, x, y, width, theme);
     case 'chart':
       return positionChart(child, x, y, theme);
+    case 'tree':
+      return positionTree(child, x, y, width, theme);
+    case 'menubar':
+      return positionMenubar(child, x, y, width, theme);
+    case 'menu':
+      return positionMenu(child, x, y, width, theme);
+    case 'breadcrumb':
+      return positionBreadcrumb(child, x, y, width, theme);
+    case 'checkbox':
+      return positionLeaf(child, x, y, measureCheckbox(child, theme));
+    case 'radio':
+      return positionLeaf(child, x, y, measureRadio(child, theme));
+    case 'toggle':
+      return positionLeaf(child, x, y, measureToggle(child, theme));
+    case 'chip':
+      return positionLeaf(child, x, y, measureChip(child, theme));
+    case 'avatar':
+      return positionLeaf(child, x, y, measureAvatar(child, theme));
+    case 'spinner':
+      return positionLeaf(child, x, y, measureSpinner(child, theme));
+    case 'status':
+      return positionLeaf(child, x, y, measureStatus(child, theme));
   }
+}
+
+function positionLeaf(
+  node: AnyNode,
+  x: number,
+  y: number,
+  size: Size,
+): LaidOutNode {
+  return { node, x, y, width: size.width, height: size.height, children: [] };
+}
+
+function positionTree(
+  node: TreeNode_,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  // Flatten tree into rows; each row is a leaf LaidOutNode whose node is the
+  // TreeItemNode. Depth is packed into x-offset so the SVG emitter can paint
+  // indent guides directly from the row rect.
+  const rows: LaidOutNode[] = [];
+  const walk = (n: TreeItemNode, depth: number): void => {
+    const rowX = x + depth * theme.treeIndent;
+    rows.push({
+      node: n,
+      x: rowX,
+      y: y + rows.length * theme.treeRowHeight,
+      width: width - depth * theme.treeIndent,
+      height: theme.treeRowHeight,
+      children: [],
+    });
+    const collapsed = hasFlagAttr(n.attributes, 'collapsed');
+    if (!collapsed) {
+      for (const c of n.children) walk(c, depth + 1);
+    }
+  };
+  for (const n of node.children) walk(n, 0);
+  const height = rows.length * theme.treeRowHeight;
+  return { node, x, y, width, height, children: rows };
+}
+
+function positionMenubar(
+  node: MenubarNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  const children: LaidOutNode[] = [];
+  let cursorX = x;
+  for (const menu of node.children) {
+    const w = menu.label.length * theme.averageCharWidth + theme.menubarItemPaddingX * 2;
+    children.push({
+      node: menu,
+      x: cursorX,
+      y,
+      width: w,
+      height: theme.menubarHeight,
+      children: [],
+    });
+    cursorX += w;
+  }
+  return { node, x, y, width, height: theme.menubarHeight, children };
+}
+
+function positionMenu(
+  node: MenuNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  void width;
+  const size = measureMenu(node, theme);
+  const children: LaidOutNode[] = [];
+  let cursorY = y + 2;
+  for (const c of node.children) {
+    const rowH = theme.menuItemHeight;
+    children.push({
+      node: c,
+      x: x + 2,
+      y: cursorY,
+      width: size.width - 4,
+      height: rowH,
+      children: [],
+    });
+    cursorY += rowH;
+  }
+  return { node, x, y, width: size.width, height: size.height, children };
+}
+
+function positionBreadcrumb(
+  node: BreadcrumbNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  void width;
+  const children: LaidOutNode[] = [];
+  let cursorX = x;
+  for (let i = 0; i < node.children.length; i++) {
+    const c = node.children[i] as CrumbNode;
+    const iconW = getAttrString(c.attributes, 'icon') ? theme.iconSize + 4 : 0;
+    const w = iconW + c.label.length * theme.averageCharWidth;
+    children.push({
+      node: c,
+      x: cursorX,
+      y,
+      width: w,
+      height: theme.breadcrumbHeight,
+      children: [],
+    });
+    cursorX += w;
+    if (i < node.children.length - 1) cursorX += theme.breadcrumbGap * 2 + 8;
+  }
+  return {
+    node,
+    x,
+    y,
+    width: cursorX - x,
+    height: theme.breadcrumbHeight,
+    children,
+  };
 }
 
 function positionPanel(
@@ -1392,6 +1699,14 @@ function getAttrNumber(attrs: readonly unknown[], key: string): number | undefin
 function getAttrIdent(attrs: readonly unknown[], key: string): string | undefined {
   const v = getAttr(attrs, key);
   return v?.kind === 'identifier' ? v.value : undefined;
+}
+
+function hasFlagAttr(attrs: readonly unknown[], flag: string): boolean {
+  for (const a of attrs) {
+    const attr = a as AttributeFlag | AttributePair;
+    if (attr.kind === 'flag' && attr.flag === flag) return true;
+  }
+  return false;
 }
 
 function getAlign(attrs: readonly unknown[]): 'left' | 'center' | 'right' {

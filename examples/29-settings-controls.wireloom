@@ -1,0 +1,24 @@
+window "Settings":
+  tabs:
+    tab "General" active
+    tab "Appearance"
+    tab "Advanced"
+
+  section "Appearance":
+    radio "Light" group="theme" label-right
+    radio "Dark" group="theme" selected label-right
+    radio "System" group="theme" label-right
+
+  section "Notifications":
+    toggle "Enable desktop notifications" on
+    toggle "Play sound on new message" off
+    toggle "Vibrate" off disabled
+
+  section "Privacy":
+    checkbox "Share anonymous usage data" label-right
+    checkbox "Allow crash reports" checked label-right
+    checkbox "Show online status to contacts" checked label-right
+
+  footer:
+    button "Cancel"
+    button "Apply" primary

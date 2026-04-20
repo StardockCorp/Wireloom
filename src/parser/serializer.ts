@@ -15,18 +15,29 @@ import type {
   AttributeFlag,
   AttributePair,
   AttributeValue,
+  AvatarNode,
   CellNode,
+  CheckboxNode,
+  ChipNode,
   ColNode,
   ComboNode,
+  CrumbNode,
   Document,
   GridNode,
   ItemNode,
   KvNode,
+  MenuItemNode,
+  MenuNode,
+  RadioNode,
   SectionNode,
   SlotNode,
+  SpinnerNode,
   StatNode,
+  StatusNode,
   TabNode,
   TextNode,
+  ToggleNode,
+  TreeItemNode,
   WindowNode,
 } from './ast.js';
 
@@ -44,7 +55,8 @@ export function serialize(doc: Document): string {
 
 function serializeNode(node: AnyNode, depth: number, out: string[]): void {
   const indent = '  '.repeat(depth);
-  const keyword = node.kind === 'slotFooter' ? 'footer' : node.kind;
+  const keyword =
+    node.kind === 'slotFooter' ? 'footer' : node.kind === 'treeNode' ? 'node' : node.kind;
   const parts: string[] = [keyword];
 
   // Positional args by kind.
@@ -102,6 +114,41 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
       break;
     case 'annotation':
       parts.push(quoteString((node as AnnotationNode).body));
+      break;
+    case 'treeNode':
+      parts.push(quoteString((node as TreeItemNode).label));
+      break;
+    case 'menu':
+      parts.push(quoteString((node as MenuNode).label));
+      break;
+    case 'menuitem':
+      parts.push(quoteString((node as MenuItemNode).label));
+      break;
+    case 'crumb':
+      parts.push(quoteString((node as CrumbNode).label));
+      break;
+    case 'checkbox':
+      parts.push(quoteString((node as CheckboxNode).label));
+      break;
+    case 'radio':
+      parts.push(quoteString((node as RadioNode).label));
+      break;
+    case 'toggle':
+      parts.push(quoteString((node as ToggleNode).label));
+      break;
+    case 'chip':
+      parts.push(quoteString((node as ChipNode).label));
+      break;
+    case 'avatar':
+      parts.push(quoteString((node as AvatarNode).initials));
+      break;
+    case 'spinner': {
+      const sp = node as SpinnerNode;
+      if (sp.label !== undefined) parts.push(quoteString(sp.label));
+      break;
+    }
+    case 'status':
+      parts.push(quoteString((node as StatusNode).label));
       break;
     default:
       // No positional args for header/footer/panel/tabs/row/list/input/slider/image/icon/divider/

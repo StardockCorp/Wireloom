@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="624" height="442" viewBox="0 0 624 442" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="624" height="442" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="623" height="441" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="624" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="312" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Files</text>
+<rect x="16" y="52" width="592" height="28" fill="#f5f6f8" stroke="#c4c4c4" stroke-width="1" />
+<text x="28" y="70.66666666666667" fill="#2d2d2d">File</text>
+<text x="80.8" y="70.66666666666667" fill="#2d2d2d">Edit</text>
+<text x="133.6" y="70.66666666666667" fill="#2d2d2d">View</text>
+<text x="186.39999999999998" y="70.66666666666667" fill="#2d2d2d">Help</text>
+<g transform="translate(16 92) scale(0.875)" color="#6b7078">
+<path d="M 3 14 L 3 5 L 5 5 L 5 3 L 11 3 L 11 5 L 13 5 L 13 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="8" y1="5" x2="8" y2="14" stroke="currentColor" stroke-width="1" />
+</g>
+<text x="34" y="103.66666666666667" font-weight="400" fill="#7a7f87">This PC</text>
+<text x="100.4" y="103.66666666666667" fill="#8a9099">›</text>
+<text x="114.4" y="103.66666666666667" font-weight="400" fill="#7a7f87">Projects</text>
+<text x="178" y="103.66666666666667" fill="#8a9099">›</text>
+<text x="192" y="103.66666666666667" font-weight="400" fill="#7a7f87">wireloom</text>
+<text x="255.6" y="103.66666666666667" fill="#8a9099">›</text>
+<text x="269.6" y="103.66666666666667" font-weight="600" fill="#2d2d2d">src</text>
+<text x="20" y="133.66666666666666" font-size="12" fill="#6b7078">▾</text>
+<g transform="translate(32 122) scale(0.875)" color="#6b7078">
+<path d="M 4 2 L 11 2 L 13 4 L 13 14 L 4 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="6" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1" />
+<line x1="6" y1="10" x2="11" y2="10" stroke="currentColor" stroke-width="1" />
+</g>
+<text x="50" y="133.66666666666666" fill="#2d2d2d">wireloom</text>
+<rect x="34" y="140" width="182" height="22" fill="#e7edf5" rx="2" />
+<text x="38" y="155.66666666666666" font-size="12" fill="#6b7078">▾</text>
+<text x="50" y="155.66666666666666" fill="#2d2d2d">src</text>
+<text x="56" y="177.66666666666666" font-size="12" fill="#6b7078">▾</text>
+<text x="68" y="177.66666666666666" fill="#2d2d2d">parser</text>
+<text x="86" y="199.66666666666666" fill="#2d2d2d">ast.ts</text>
+<text x="86" y="221.66666666666666" fill="#2d2d2d">lexer.ts</text>
+<text x="86" y="243.66666666666666" fill="#2d2d2d">parser.ts</text>
+<text x="56" y="265.6666666666667" font-size="12" fill="#6b7078">▾</text>
+<text x="68" y="265.6666666666667" fill="#2d2d2d">renderer</text>
+<text x="86" y="287.6666666666667" fill="#2d2d2d">layout.ts</text>
+<text x="86" y="309.6666666666667" fill="#2d2d2d">svg.ts</text>
+<text x="86" y="331.6666666666667" fill="#2d2d2d">themes.ts</text>
+<text x="38" y="353.6666666666667" font-size="12" fill="#6b7078">▸</text>
+<text x="50" y="353.6666666666667" fill="#2d2d2d">test</text>
+<text x="50" y="375.6666666666667" fill="#2d2d2d">examples</text>
+<text x="50" y="397.6666666666667" fill="#2d2d2d">README.md</text>
+<text x="50" y="419.6666666666667" fill="#2d2d2d">package.json</text>
+<rect x="224.5" y="118.5" width="383" height="116.14285714285714" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="236" y="145" font-weight="600" fill="#2d2d2d">parser.ts</text>
+<text x="308.8" y="142.85714285714286" font-size="12" fill="#7a7f87">1,460 lines</text>
+<line x1="236" y1="164" x2="596" y2="164" stroke="#c4c4c4" stroke-width="1" />
+<text x="236" y="193" fill="#2d2d2d">Recursive-descent parser producing a Document AST.</text>
+<text x="236" y="218.85714285714286" font-size="12" fill="#7a7f87">Throws WireloomError with source position on failure.</text>
+</svg>

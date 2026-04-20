@@ -144,6 +144,69 @@ export interface Theme {
   chartDefaultWidth: number;
   chartDefaultHeight: number;
 
+  // v0.4.5 — widget primitives (tree/menubar/breadcrumb/chip/avatar/spinner/status/checkbox/radio/toggle)
+  treeIndent: number;
+  treeRowHeight: number;
+  treeIndentGuideColor: string;
+  treeGlyphColor: string;
+  treeSelectedBg: string;
+  treeSelectedText: string;
+
+  checkboxSize: number;
+  checkboxRowGap: number;
+  checkboxBorderColor: string;
+  checkboxFillColor: string;
+  checkboxCheckColor: string;
+
+  radioSize: number;
+  toggleWidth: number;
+  toggleHeight: number;
+  toggleOnColor: string;
+  toggleOffColor: string;
+  toggleKnobColor: string;
+  radioGroupGap: number;
+
+  menubarHeight: number;
+  menubarItemPaddingX: number;
+  menubarBgColor: string;
+  menubarBorderColor: string;
+  menuWidth: number;
+  menuItemHeight: number;
+  menuItemPaddingX: number;
+  menuBgColor: string;
+  menuBorderColor: string;
+  menuShortcutColor: string;
+  menuSeparatorColor: string;
+
+  chipHeight: number;
+  chipPaddingX: number;
+  chipBg: string;
+  chipBorder: string;
+  chipText: string;
+  chipSelectedBg: string;
+  chipSelectedBorder: string;
+  chipSelectedText: string;
+
+  avatarSizeSmall: number;
+  avatarSizeMedium: number;
+  avatarSizeLarge: number;
+  avatarBg: string;
+  avatarBorder: string;
+  avatarText: string;
+
+  breadcrumbHeight: number;
+  breadcrumbGap: number;
+  breadcrumbSeparatorColor: string;
+  breadcrumbCurrentColor: string;
+
+  spinnerSize: number;
+  spinnerColor: string;
+
+  statusHeight: number;
+  statusPaddingX: number;
+  /** Per-kind background/text for status pills. Keys: success|info|warning|error. */
+  statusColors: Readonly<Record<'success' | 'info' | 'warning' | 'error', { bg: string; fg: string; border: string }>>;
+
   // Annotations (user-manual-style callouts with leader lines)
   annotationBg: string;
   annotationBorder: string;
@@ -282,6 +345,72 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   annotationMargin: 16,
   annotationStackGap: 8,
 
+  treeIndent: 18,
+  treeRowHeight: 22,
+  treeIndentGuideColor: '#d8dadf',
+  treeGlyphColor: '#6b7078',
+  treeSelectedBg: '#e7edf5',
+  treeSelectedText: '#2d2d2d',
+
+  checkboxSize: 16,
+  checkboxRowGap: 8,
+  checkboxBorderColor: '#6b7078',
+  checkboxFillColor: '#ffffff',
+  checkboxCheckColor: '#2d2d2d',
+
+  radioSize: 16,
+  toggleWidth: 32,
+  toggleHeight: 18,
+  toggleOnColor: '#3a3a3a',
+  toggleOffColor: '#c4c4c4',
+  toggleKnobColor: '#ffffff',
+  radioGroupGap: 14,
+
+  menubarHeight: 28,
+  menubarItemPaddingX: 12,
+  menubarBgColor: '#f5f6f8',
+  menubarBorderColor: '#c4c4c4',
+  menuWidth: 200,
+  menuItemHeight: 24,
+  menuItemPaddingX: 12,
+  menuBgColor: '#ffffff',
+  menuBorderColor: '#8a8a8a',
+  menuShortcutColor: '#8a9099',
+  menuSeparatorColor: '#d8dadf',
+
+  chipHeight: 22,
+  chipPaddingX: 10,
+  chipBg: '#eef0f3',
+  chipBorder: '#c4c8ce',
+  chipText: '#3a3e44',
+  chipSelectedBg: '#3a3a3a',
+  chipSelectedBorder: '#3a3a3a',
+  chipSelectedText: '#ffffff',
+
+  avatarSizeSmall: 24,
+  avatarSizeMedium: 32,
+  avatarSizeLarge: 44,
+  avatarBg: '#e2e5ea',
+  avatarBorder: '#b5b8bd',
+  avatarText: '#3a3e44',
+
+  breadcrumbHeight: 22,
+  breadcrumbGap: 6,
+  breadcrumbSeparatorColor: '#8a9099',
+  breadcrumbCurrentColor: '#2d2d2d',
+
+  spinnerSize: 16,
+  spinnerColor: '#6b7078',
+
+  statusHeight: 22,
+  statusPaddingX: 10,
+  statusColors: Object.freeze({
+    success: { bg: '#e8f3ec', fg: '#205537', border: '#3f8f5c' },
+    info: { bg: '#e7edf5', fg: '#234273', border: '#3f7cc2' },
+    warning: { bg: '#f7efdc', fg: '#6b4e15', border: '#c79a2e' },
+    error: { bg: '#f5e4e2', fg: '#5c2420', border: '#b0413c' },
+  }),
+
   accents: Object.freeze({
     research: '#3f7cc2',
     military: '#b55442',
@@ -383,6 +512,49 @@ export const DARK_THEME: Theme = Object.freeze({
   annotationText: '#e8dfc4',
   annotationLineColor: '#a8966a',
   annotationDotColor: '#a8966a',
+
+  treeIndentGuideColor: '#404040',
+  treeGlyphColor: '#8a9099',
+  treeSelectedBg: '#2f3a4c',
+  treeSelectedText: '#e0e0e0',
+
+  checkboxBorderColor: '#8a9099',
+  checkboxFillColor: '#252525',
+  checkboxCheckColor: '#e0e0e0',
+
+  toggleOnColor: '#d4d4d4',
+  toggleOffColor: '#555555',
+  toggleKnobColor: '#1e1e1e',
+
+  menubarBgColor: '#2a2a2a',
+  menubarBorderColor: '#555555',
+  menuBgColor: '#252525',
+  menuBorderColor: '#6b6b6b',
+  menuShortcutColor: '#8a9099',
+  menuSeparatorColor: '#404040',
+
+  chipBg: '#353a42',
+  chipBorder: '#555a62',
+  chipText: '#b8bcc4',
+  chipSelectedBg: '#d4d4d4',
+  chipSelectedBorder: '#d4d4d4',
+  chipSelectedText: '#1e1e1e',
+
+  avatarBg: '#353a42',
+  avatarBorder: '#555a62',
+  avatarText: '#d4d4d4',
+
+  breadcrumbSeparatorColor: '#707780',
+  breadcrumbCurrentColor: '#f0f0f0',
+
+  spinnerColor: '#8a9099',
+
+  statusColors: Object.freeze({
+    success: { bg: '#1f2e24', fg: '#b0e0c2', border: '#6bbd86' },
+    info: { bg: '#1f2a3a', fg: '#b0c7e8', border: '#6ba4e8' },
+    warning: { bg: '#3a2f1c', fg: '#f0d79a', border: '#e2aa57' },
+    error: { bg: '#3a2220', fg: '#edb4ae', border: '#d66863' },
+  }),
 
   accents: Object.freeze({
     research: '#6ba4e8',

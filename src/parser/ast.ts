@@ -232,6 +232,115 @@ export interface StatNode extends NodeBase {
 }
 
 // ---------------------------------------------------------------------------
+// Tree (v0.4.5)
+// ---------------------------------------------------------------------------
+
+export interface TreeNode_ extends NodeBase {
+  kind: 'tree';
+  children: TreeItemNode[];
+}
+
+/**
+ * Single `node "Label"` entry inside a `tree`. Recursive — nodes may contain
+ * other nodes. Serialized as keyword `node` (kind name `treeNode` disambiguates
+ * internally).
+ */
+export interface TreeItemNode extends NodeBase {
+  kind: 'treeNode';
+  label: string;
+  children: TreeItemNode[];
+}
+
+// ---------------------------------------------------------------------------
+// Form controls (v0.4.5)
+// ---------------------------------------------------------------------------
+
+export interface CheckboxNode extends NodeBase {
+  kind: 'checkbox';
+  label: string;
+}
+
+export interface RadioNode extends NodeBase {
+  kind: 'radio';
+  label: string;
+}
+
+export interface ToggleNode extends NodeBase {
+  kind: 'toggle';
+  label: string;
+}
+
+// ---------------------------------------------------------------------------
+// Menu system (v0.4.5)
+// ---------------------------------------------------------------------------
+
+export interface MenubarNode extends NodeBase {
+  kind: 'menubar';
+  children: MenuNode[];
+}
+
+export interface MenuNode extends NodeBase {
+  kind: 'menu';
+  label: string;
+  children: MenuChild[];
+}
+
+export type MenuChild = MenuItemNode | SeparatorNode | MenuNode;
+
+export interface MenuItemNode extends NodeBase {
+  kind: 'menuitem';
+  label: string;
+}
+
+export interface SeparatorNode extends NodeBase {
+  kind: 'separator';
+}
+
+// ---------------------------------------------------------------------------
+// Chip / Avatar (v0.4.5)
+// ---------------------------------------------------------------------------
+
+export interface ChipNode extends NodeBase {
+  kind: 'chip';
+  label: string;
+}
+
+export interface AvatarNode extends NodeBase {
+  kind: 'avatar';
+  initials: string;
+}
+
+// ---------------------------------------------------------------------------
+// Breadcrumb (v0.4.5)
+// ---------------------------------------------------------------------------
+
+export interface BreadcrumbNode extends NodeBase {
+  kind: 'breadcrumb';
+  children: CrumbNode[];
+}
+
+export interface CrumbNode extends NodeBase {
+  kind: 'crumb';
+  label: string;
+}
+
+// ---------------------------------------------------------------------------
+// Spinner / Status (v0.4.5)
+// ---------------------------------------------------------------------------
+
+export interface SpinnerNode extends NodeBase {
+  kind: 'spinner';
+  label?: string;
+}
+
+export type StatusKind = 'success' | 'info' | 'warning' | 'error';
+
+export interface StatusNode extends NodeBase {
+  kind: 'status';
+  label: string;
+}
+
+// ---------------------------------------------------------------------------
 // Annotations (v0.4 — user-manual-style labels pointing at window elements)
 // ---------------------------------------------------------------------------
 
@@ -272,7 +381,14 @@ export type LeafNode =
   | IconNode
   | DividerNode
   | ProgressNode
-  | ChartNode;
+  | ChartNode
+  | CheckboxNode
+  | RadioNode
+  | ToggleNode
+  | ChipNode
+  | AvatarNode
+  | SpinnerNode
+  | StatusNode;
 
 export type ContainerChild =
   | PanelNode
@@ -285,6 +401,10 @@ export type ContainerChild =
   | GridNode
   | ResourceBarNode
   | StatsNode
+  | TreeNode_
+  | MenubarNode
+  | MenuNode
+  | BreadcrumbNode
   | LeafNode;
 
 export type WindowChild =
@@ -300,6 +420,10 @@ export type WindowChild =
   | GridNode
   | ResourceBarNode
   | StatsNode
+  | TreeNode_
+  | MenubarNode
+  | MenuNode
+  | BreadcrumbNode
   | LeafNode;
 
 export type AnyNode =
@@ -322,6 +446,14 @@ export type AnyNode =
   | ResourceNode
   | StatsNode
   | StatNode
+  | TreeNode_
+  | TreeItemNode
+  | MenubarNode
+  | MenuNode
+  | MenuItemNode
+  | SeparatorNode
+  | BreadcrumbNode
+  | CrumbNode
   | AnnotationNode
   | LeafNode;
 

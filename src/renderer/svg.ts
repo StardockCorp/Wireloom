@@ -12,23 +12,34 @@ import type {
   AttributeFlag,
   AttributePair,
   AttributeValue,
+  AvatarNode,
   ButtonNode,
   CellNode,
   ChartNode,
+  CheckboxNode,
+  ChipNode,
   ComboNode,
+  CrumbNode,
   IconNode,
   ImageNode,
   InputNode,
   ItemNode,
   KvNode,
+  MenuItemNode,
+  MenuNode,
   ProgressNode,
+  RadioNode,
   ResourceNode,
   SectionNode,
   SliderNode,
   SlotNode,
+  SpinnerNode,
   StatNode,
+  StatusNode,
   TabNode,
   TextNode,
+  ToggleNode,
+  TreeItemNode,
   WindowNode,
 } from '../parser/ast.js';
 import type { LaidAnnotation, LaidDocument, LaidOutNode } from './layout.js';
@@ -195,7 +206,429 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
     case 'slotFooter':
       for (const c of laid.children) emitNode(c, theme, out);
       break;
+    case 'tree':
+      emitTree(laid, theme, out);
+      break;
+    case 'treeNode':
+      emitTreeNode(laid, theme, out);
+      break;
+    case 'menubar':
+      emitMenubar(laid, theme, out);
+      break;
+    case 'menu':
+      emitMenu(laid, theme, out);
+      break;
+    case 'menuitem':
+      emitMenuItem(laid, theme, out);
+      break;
+    case 'separator':
+      emitMenuSeparator(laid, theme, out);
+      break;
+    case 'breadcrumb':
+      emitBreadcrumb(laid, theme, out);
+      break;
+    case 'crumb':
+      // Crumbs paint themselves via emitBreadcrumb (renders separator + label
+      // per row in one pass to ensure chevron alignment).
+      break;
+    case 'checkbox':
+      emitCheckbox(laid, theme, out);
+      break;
+    case 'radio':
+      emitRadio(laid, theme, out);
+      break;
+    case 'toggle':
+      emitToggle(laid, theme, out);
+      break;
+    case 'chip':
+      emitChip(laid, theme, out);
+      break;
+    case 'avatar':
+      emitAvatar(laid, theme, out);
+      break;
+    case 'spinner':
+      emitSpinner(laid, theme, out);
+      break;
+    case 'status':
+      emitStatus(laid, theme, out);
+      break;
   }
+}
+
+// ---------------------------------------------------------------------------
+// v0.4.5 emitters
+// ---------------------------------------------------------------------------
+
+function emitTree(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  // Indent guides: one vertical line per nesting level covering the rows.
+  // Derived from the row x-offsets (depth = (row.x - laid.x) / treeIndent).
+  for (const row of laid.children) {
+    emitNode(row, theme, out);
+  }
+}
+
+function emitTreeNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as TreeItemNode;
+  const isSelected = hasFlag(node.attributes, 'selected');
+  const isCollapsed = hasFlag(node.attributes, 'collapsed');
+  const hasChildren = node.children.length > 0;
+  const iconName = getAttrString(node.attributes, 'icon');
+
+  if (isSelected) {
+    out.push(
+      `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" fill="${theme.treeSelectedBg}" rx="2" />`,
+    );
+  }
+
+  let cursorX = laid.x + 4;
+  const midY = laid.y + laid.height / 2;
+  // Disclosure glyph (▸ / ▾) or 10px empty space for leaves.
+  if (hasChildren) {
+    const glyph = isCollapsed ? '▸' : '▾';
+    out.push(
+      `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}" fill="${theme.treeGlyphColor}">${glyph}</text>`,
+    );
+  }
+  cursorX += 12;
+
+  if (iconName && hasIcon(iconName)) {
+    const iconSize = 14;
+    const iconMarkup = emitIconByName(
+      iconName,
+      cursorX,
+      midY - iconSize / 2,
+      iconSize,
+      theme.iconStrokeColor,
+    );
+    if (iconMarkup) out.push(iconMarkup);
+    cursorX += iconSize + 4;
+  }
+
+  const textFill = isSelected ? theme.treeSelectedText : theme.textColor;
+  out.push(
+    `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" fill="${textFill}">${escapeText(node.label)}</text>`,
+  );
+}
+
+function emitMenubar(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  out.push(
+    `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" fill="${theme.menubarBgColor}" stroke="${theme.menubarBorderColor}" stroke-width="1" />`,
+  );
+  for (const m of laid.children) {
+    const menu = m.node as MenuNode;
+    out.push(
+      `<text x="${m.x + theme.menubarItemPaddingX}" y="${m.y + m.height / 2 + theme.fontSize / 3}" fill="${theme.textColor}">${escapeText(menu.label)}</text>`,
+    );
+  }
+}
+
+function emitMenu(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${theme.menuBgColor}" stroke="${theme.menuBorderColor}" stroke-width="1" rx="3" />`,
+  );
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+
+function emitMenuItem(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as MenuItemNode;
+  const isDisabled = hasFlag(node.attributes, 'disabled');
+  const opacity = isDisabled ? '0.5' : '1';
+  const midY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${laid.x + theme.menuItemPaddingX}" y="${midY}" opacity="${opacity}" fill="${theme.textColor}">${escapeText(node.label)}</text>`,
+  );
+  const shortcut = getAttrString(node.attributes, 'shortcut');
+  if (shortcut !== undefined) {
+    out.push(
+      `<text x="${laid.x + laid.width - theme.menuItemPaddingX}" y="${midY}" text-anchor="end" opacity="${opacity}" font-size="${theme.smallFontSize}" fill="${theme.menuShortcutColor}">${escapeText(shortcut)}</text>`,
+    );
+  }
+}
+
+function emitMenuSeparator(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const midY = laid.y + laid.height / 2;
+  out.push(
+    `<line x1="${laid.x + 4}" y1="${midY}" x2="${laid.x + laid.width - 4}" y2="${midY}" stroke="${theme.menuSeparatorColor}" stroke-width="1" />`,
+  );
+}
+
+function emitBreadcrumb(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const crumbs = laid.children;
+  for (let i = 0; i < crumbs.length; i++) {
+    const c = crumbs[i]!;
+    const isLast = i === crumbs.length - 1;
+    const node = c.node as CrumbNode;
+    const iconName = getAttrString(node.attributes, 'icon');
+    let labelX = c.x;
+    const midY = c.y + c.height / 2 + theme.fontSize / 3;
+    if (iconName && hasIcon(iconName)) {
+      const iconSize = 14;
+      const iconMarkup = emitIconByName(
+        iconName,
+        c.x,
+        c.y + (c.height - iconSize) / 2,
+        iconSize,
+        theme.iconStrokeColor,
+      );
+      if (iconMarkup) out.push(iconMarkup);
+      labelX += iconSize + 4;
+    }
+    const fill = isLast ? theme.breadcrumbCurrentColor : theme.mutedTextColor;
+    const weight = isLast ? '600' : '400';
+    out.push(
+      `<text x="${labelX}" y="${midY}" font-weight="${weight}" fill="${fill}">${escapeText(node.label)}</text>`,
+    );
+    if (!isLast) {
+      const chevX = c.x + c.width + theme.breadcrumbGap;
+      out.push(
+        `<text x="${chevX}" y="${midY}" fill="${theme.breadcrumbSeparatorColor}">›</text>`,
+      );
+    }
+  }
+}
+
+function emitCheckbox(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as CheckboxNode;
+  const checked = hasFlag(node.attributes, 'checked');
+  const disabled = hasFlag(node.attributes, 'disabled');
+  const labelRight = !hasFlag(node.attributes, 'label-right')
+    ? false
+    : true;
+  // Default: label on left, control on right. `label-right` flips to common
+  // form layout (control on left, label on right). This is a readability-in-
+  // wireframes choice — form designers can flip per-row.
+  const opacity = disabled ? '0.5' : '1';
+  const size = theme.checkboxSize;
+  const cy = laid.y + laid.height / 2 - size / 2;
+
+  let controlX: number;
+  let labelX: number;
+  if (labelRight) {
+    controlX = laid.x;
+    labelX = controlX + size + theme.checkboxRowGap;
+  } else {
+    labelX = laid.x;
+    controlX = laid.x + laid.width - size;
+  }
+
+  out.push(`<g opacity="${opacity}">`);
+  out.push(
+    `<rect x="${controlX + 0.5}" y="${cy + 0.5}" width="${size - 1}" height="${size - 1}" rx="2" fill="${theme.checkboxFillColor}" stroke="${theme.checkboxBorderColor}" stroke-width="1.2" />`,
+  );
+  if (checked) {
+    out.push(
+      `<path d="M ${controlX + size * 0.22} ${cy + size * 0.52} L ${controlX + size * 0.45} ${cy + size * 0.74} L ${controlX + size * 0.8} ${cy + size * 0.28}" fill="none" stroke="${theme.checkboxCheckColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`,
+    );
+  }
+  const midY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${labelX}" y="${midY}" fill="${theme.textColor}">${escapeText(node.label)}</text>`,
+  );
+  out.push(`</g>`);
+}
+
+function emitRadio(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as RadioNode;
+  const selected = hasFlag(node.attributes, 'selected');
+  const disabled = hasFlag(node.attributes, 'disabled');
+  const labelRight = hasFlag(node.attributes, 'label-right');
+  const opacity = disabled ? '0.5' : '1';
+  const size = theme.radioSize;
+  const cy = laid.y + laid.height / 2;
+  let controlCx: number;
+  let labelX: number;
+  if (labelRight) {
+    controlCx = laid.x + size / 2;
+    labelX = laid.x + size + theme.checkboxRowGap;
+  } else {
+    labelX = laid.x;
+    controlCx = laid.x + laid.width - size / 2;
+  }
+
+  out.push(`<g opacity="${opacity}">`);
+  out.push(
+    `<circle cx="${controlCx}" cy="${cy}" r="${size / 2 - 0.5}" fill="${theme.checkboxFillColor}" stroke="${theme.checkboxBorderColor}" stroke-width="1.2" />`,
+  );
+  if (selected) {
+    out.push(
+      `<circle cx="${controlCx}" cy="${cy}" r="${size / 4}" fill="${theme.checkboxCheckColor}" />`,
+    );
+  }
+  const midY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${labelX}" y="${midY}" fill="${theme.textColor}">${escapeText(node.label)}</text>`,
+  );
+  out.push(`</g>`);
+}
+
+function emitToggle(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as ToggleNode;
+  const on = hasFlag(node.attributes, 'on') && !hasFlag(node.attributes, 'off');
+  const disabled = hasFlag(node.attributes, 'disabled');
+  const labelRight = hasFlag(node.attributes, 'label-right');
+  const opacity = disabled ? '0.5' : '1';
+  const w = theme.toggleWidth;
+  const h = theme.toggleHeight;
+  const cy = laid.y + laid.height / 2 - h / 2;
+  let controlX: number;
+  let labelX: number;
+  if (labelRight) {
+    controlX = laid.x;
+    labelX = laid.x + w + theme.checkboxRowGap;
+  } else {
+    labelX = laid.x;
+    controlX = laid.x + laid.width - w;
+  }
+
+  const fill = on ? theme.toggleOnColor : theme.toggleOffColor;
+  const knobR = h / 2 - 2;
+  const knobCx = on ? controlX + w - knobR - 2 : controlX + knobR + 2;
+
+  out.push(`<g opacity="${opacity}">`);
+  out.push(
+    `<rect x="${controlX}" y="${cy}" width="${w}" height="${h}" rx="${h / 2}" fill="${fill}" />`,
+  );
+  out.push(
+    `<circle cx="${knobCx}" cy="${cy + h / 2}" r="${knobR}" fill="${theme.toggleKnobColor}" />`,
+  );
+  const midY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${labelX}" y="${midY}" fill="${theme.textColor}">${escapeText(node.label)}</text>`,
+  );
+  out.push(`</g>`);
+}
+
+function emitChip(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as ChipNode;
+  const selected = hasFlag(node.attributes, 'selected');
+  const closable = hasFlag(node.attributes, 'closable');
+  const accent = getAccent(node.attributes, theme);
+  const iconName = getAttrString(node.attributes, 'icon');
+
+  let bg: string;
+  let border: string;
+  let textColor: string;
+  if (selected) {
+    bg = accent ?? theme.chipSelectedBg;
+    border = accent ?? theme.chipSelectedBorder;
+    textColor = theme.chipSelectedText;
+  } else {
+    bg = theme.chipBg;
+    border = accent ?? theme.chipBorder;
+    textColor = accent ?? theme.chipText;
+  }
+
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${laid.height / 2}" fill="${bg}" stroke="${border}" stroke-width="1" />`,
+  );
+
+  let cursorX = laid.x + theme.chipPaddingX;
+  const midY = laid.y + laid.height / 2;
+
+  if (iconName && hasIcon(iconName)) {
+    const iconSize = 12;
+    const iconMarkup = emitIconByName(
+      iconName,
+      cursorX,
+      midY - iconSize / 2,
+      iconSize,
+      textColor,
+    );
+    if (iconMarkup) out.push(iconMarkup);
+    cursorX += iconSize + 4;
+  }
+
+  out.push(
+    `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}" fill="${textColor}">${escapeText(node.label)}</text>`,
+  );
+
+  if (closable) {
+    const cx = laid.x + laid.width - theme.chipPaddingX - 4;
+    out.push(
+      `<line x1="${cx - 4}" y1="${midY - 4}" x2="${cx + 4}" y2="${midY + 4}" stroke="${textColor}" stroke-width="1.2" stroke-linecap="round" />`,
+      `<line x1="${cx + 4}" y1="${midY - 4}" x2="${cx - 4}" y2="${midY + 4}" stroke="${textColor}" stroke-width="1.2" stroke-linecap="round" />`,
+    );
+  }
+}
+
+function emitAvatar(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as AvatarNode;
+  const accent = getAccent(node.attributes, theme);
+  const bg = accent ?? theme.avatarBg;
+  const border = accent ?? theme.avatarBorder;
+  const text = accent ? '#ffffff' : theme.avatarText;
+  const cx = laid.x + laid.width / 2;
+  const cy = laid.y + laid.height / 2;
+  const r = laid.width / 2 - 0.5;
+
+  out.push(
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${bg}" stroke="${border}" stroke-width="1" />`,
+  );
+  const initials = (node.initials || '?').slice(0, 2).toUpperCase();
+  const fontSize = Math.max(10, Math.round(laid.width * 0.42));
+  out.push(
+    `<text x="${cx}" y="${cy + fontSize / 3}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="${text}">${escapeText(initials)}</text>`,
+  );
+}
+
+function emitSpinner(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as SpinnerNode;
+  const cx = laid.x + theme.spinnerSize / 2;
+  const cy = laid.y + laid.height / 2;
+  const r = theme.spinnerSize / 2 - 2;
+  // Dashed ring — implies motion without actually animating.
+  out.push(
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${theme.spinnerColor}" stroke-width="1.6" stroke-dasharray="${r * 1.3} ${r * 0.9}" stroke-linecap="round" />`,
+  );
+  if (node.label !== undefined) {
+    out.push(
+      `<text x="${laid.x + theme.spinnerSize + theme.rowGap}" y="${cy + theme.fontSize / 3}" font-size="${theme.smallFontSize}" fill="${theme.mutedTextColor}">${escapeText(node.label)}</text>`,
+    );
+  }
+}
+
+function emitStatus(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as StatusNode;
+  const kindRaw = getAttrIdent(node.attributes, 'kind') ?? 'info';
+  const kind = (['success', 'info', 'warning', 'error'] as const).includes(
+    kindRaw as 'success',
+  )
+    ? (kindRaw as 'success' | 'info' | 'warning' | 'error')
+    : 'info';
+  const style = theme.statusColors[kind];
+
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${laid.height / 2}" fill="${style.bg}" stroke="${style.border}" stroke-width="1" />`,
+  );
+
+  const glyphX = laid.x + theme.statusPaddingX;
+  const midY = laid.y + laid.height / 2;
+  // Kind-specific glyph: check (success), info i (info), ! (warning), × (error).
+  if (kind === 'success') {
+    out.push(
+      `<path d="M ${glyphX} ${midY} L ${glyphX + 4} ${midY + 4} L ${glyphX + 10} ${midY - 4}" fill="none" stroke="${style.border}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />`,
+    );
+  } else if (kind === 'warning') {
+    out.push(
+      `<path d="M ${glyphX + 5} ${midY - 5} L ${glyphX + 10} ${midY + 4} L ${glyphX} ${midY + 4} Z" fill="none" stroke="${style.border}" stroke-width="1.4" stroke-linejoin="round" />`,
+      `<line x1="${glyphX + 5}" y1="${midY - 1}" x2="${glyphX + 5}" y2="${midY + 2}" stroke="${style.border}" stroke-width="1.4" stroke-linecap="round" />`,
+    );
+  } else if (kind === 'error') {
+    out.push(
+      `<line x1="${glyphX}" y1="${midY - 4}" x2="${glyphX + 10}" y2="${midY + 4}" stroke="${style.border}" stroke-width="1.8" stroke-linecap="round" />`,
+      `<line x1="${glyphX + 10}" y1="${midY - 4}" x2="${glyphX}" y2="${midY + 4}" stroke="${style.border}" stroke-width="1.8" stroke-linecap="round" />`,
+    );
+  } else {
+    // info — small i glyph
+    out.push(
+      `<circle cx="${glyphX + 5}" cy="${midY - 4}" r="1.2" fill="${style.border}" />`,
+      `<line x1="${glyphX + 5}" y1="${midY - 1}" x2="${glyphX + 5}" y2="${midY + 4}" stroke="${style.border}" stroke-width="1.6" stroke-linecap="round" />`,
+    );
+  }
+
+  out.push(
+    `<text x="${glyphX + 16}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}" font-weight="500" fill="${style.fg}">${escapeText(node.label)}</text>`,
+  );
 }
 
 // ---------------------------------------------------------------------------

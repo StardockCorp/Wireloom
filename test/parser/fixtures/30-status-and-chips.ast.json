@@ -1,0 +1,728 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "text",
+                "content": "Project Atlas",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "weight",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "bold",
+                      "position": {
+                        "line": 4,
+                        "column": 35
+                      }
+                    },
+                    "position": {
+                      "line": 4,
+                      "column": 28
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "large",
+                      "position": {
+                        "line": 4,
+                        "column": 45
+                      }
+                    },
+                    "position": {
+                      "line": 4,
+                      "column": 40
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "status",
+                "label": "Live",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 5,
+                        "column": 26
+                      }
+                    },
+                    "position": {
+                      "line": 5,
+                      "column": 21
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 5,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Filters",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "chip",
+                "label": "Active",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "selected",
+                    "position": {
+                      "line": 9,
+                      "column": 21
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 9,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "chip",
+                "label": "Archived",
+                "attributes": [],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "chip",
+                "label": "Shared",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "closable",
+                    "position": {
+                      "line": 11,
+                      "column": 21
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 11,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "chip",
+                "label": "Starred",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "icon",
+                    "value": {
+                      "kind": "string",
+                      "value": "star",
+                      "position": {
+                        "line": 12,
+                        "column": 27
+                      }
+                    },
+                    "position": {
+                      "line": 12,
+                      "column": 22
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "warning",
+                      "position": {
+                        "line": 12,
+                        "column": 41
+                      }
+                    },
+                    "position": {
+                      "line": 12,
+                      "column": 34
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 7,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Team",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "avatar",
+                "initials": "BW",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "medium",
+                      "position": {
+                        "line": 16,
+                        "column": 24
+                      }
+                    },
+                    "position": {
+                      "line": 16,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "research",
+                      "position": {
+                        "line": 16,
+                        "column": 38
+                      }
+                    },
+                    "position": {
+                      "line": 16,
+                      "column": 31
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 16,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "avatar",
+                "initials": "JD",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "medium",
+                      "position": {
+                        "line": 17,
+                        "column": 24
+                      }
+                    },
+                    "position": {
+                      "line": 17,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "military",
+                      "position": {
+                        "line": 17,
+                        "column": 38
+                      }
+                    },
+                    "position": {
+                      "line": 17,
+                      "column": 31
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 17,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "avatar",
+                "initials": "KM",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "medium",
+                      "position": {
+                        "line": 18,
+                        "column": 24
+                      }
+                    },
+                    "position": {
+                      "line": 18,
+                      "column": 19
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "wealth",
+                      "position": {
+                        "line": 18,
+                        "column": 38
+                      }
+                    },
+                    "position": {
+                      "line": 18,
+                      "column": 31
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 18,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "avatar",
+                "initials": "AL",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "medium",
+                      "position": {
+                        "line": 19,
+                        "column": 24
+                      }
+                    },
+                    "position": {
+                      "line": 19,
+                      "column": 19
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 19,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 15,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 14,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Recent activity",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "status",
+                "label": "Deployed",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 23,
+                        "column": 30
+                      }
+                    },
+                    "position": {
+                      "line": 23,
+                      "column": 25
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 23,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "production · 2m ago",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "small",
+                      "position": {
+                        "line": 24,
+                        "column": 39
+                      }
+                    },
+                    "position": {
+                      "line": 24,
+                      "column": 34
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 24,
+                      "column": 45
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 24,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 22,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "status",
+                "label": "Backup running",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "info",
+                      "position": {
+                        "line": 26,
+                        "column": 36
+                      }
+                    },
+                    "position": {
+                      "line": 26,
+                      "column": 31
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 26,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "nightly · started 14:02",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "small",
+                      "position": {
+                        "line": 27,
+                        "column": 43
+                      }
+                    },
+                    "position": {
+                      "line": 27,
+                      "column": 38
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 27,
+                      "column": 49
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 27,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 25,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "status",
+                "label": "Disk 82%",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "warning",
+                      "position": {
+                        "line": 29,
+                        "column": 30
+                      }
+                    },
+                    "position": {
+                      "line": 29,
+                      "column": 25
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 29,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "db-primary",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "small",
+                      "position": {
+                        "line": 30,
+                        "column": 30
+                      }
+                    },
+                    "position": {
+                      "line": 30,
+                      "column": 25
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 30,
+                      "column": 36
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 30,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 28,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "status",
+                "label": "Build failed",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "kind",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "error",
+                      "position": {
+                        "line": 32,
+                        "column": 34
+                      }
+                    },
+                    "position": {
+                      "line": 32,
+                      "column": 29
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 32,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "ci #1042",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "small",
+                      "position": {
+                        "line": 33,
+                        "column": 28
+                      }
+                    },
+                    "position": {
+                      "line": 33,
+                      "column": 23
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 33,
+                      "column": 34
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 33,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 31,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "spinner",
+                "attributes": [],
+                "position": {
+                  "line": 35,
+                  "column": 7
+                },
+                "label": "Syncing index…"
+              },
+              {
+                "kind": "text",
+                "content": "est. 4 min",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "size",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "small",
+                      "position": {
+                        "line": 36,
+                        "column": 30
+                      }
+                    },
+                    "position": {
+                      "line": 36,
+                      "column": 25
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "muted",
+                    "position": {
+                      "line": 36,
+                      "column": 36
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 36,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 34,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 21,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Dashboard"
+  },
+  "sourceLines": 37
+}

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="534" viewBox="0 0 300 534" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="300" height="534" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="299" height="533" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="300" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="150" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Settings</text>
+<line x1="16" y1="87.5" x2="284" y2="87.5" stroke="#b0b0b0" stroke-width="1" />
+<text x="30" y="74.66666666666667" font-weight="600" fill="#2d2d2d">General</text>
+<line x1="20" y1="86" x2="90.4" y2="86" stroke="#3a3a3a" stroke-width="2" />
+<text x="110.4" y="74.66666666666667" font-weight="400" fill="#8a8f97">Appearance</text>
+<text x="212.4" y="74.66666666666667" font-weight="400" fill="#8a8f97">Advanced</text>
+<text x="16" y="114" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">APPEARANCE</text>
+<line x1="16" y1="118" x2="284" y2="118" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g opacity="1">
+<circle cx="24" cy="136" r="7.5" fill="#ffffff" stroke="#6b7078" stroke-width="1.2" />
+<text x="40" y="140.66666666666666" fill="#2d2d2d">Light</text>
+</g>
+<g opacity="1">
+<circle cx="24" cy="164" r="7.5" fill="#ffffff" stroke="#6b7078" stroke-width="1.2" />
+<circle cx="24" cy="164" r="4" fill="#2d2d2d" />
+<text x="40" y="168.66666666666666" fill="#2d2d2d">Dark</text>
+</g>
+<g opacity="1">
+<circle cx="24" cy="192" r="7.5" fill="#ffffff" stroke="#6b7078" stroke-width="1.2" />
+<text x="40" y="196.66666666666666" fill="#2d2d2d">System</text>
+</g>
+<text x="16" y="240" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">NOTIFICATIONS</text>
+<line x1="16" y1="244" x2="284" y2="244" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g opacity="1">
+<rect x="225.60000000000002" y="253" width="32" height="18" rx="9" fill="#3a3a3a" />
+<circle cx="248.60000000000002" cy="262" r="7" fill="#ffffff" />
+<text x="16" y="266.6666666666667" fill="#2d2d2d">Enable desktop notifications</text>
+</g>
+<g opacity="1">
+<rect x="204" y="281" width="32" height="18" rx="9" fill="#c4c4c4" />
+<circle cx="213" cy="290" r="7" fill="#ffffff" />
+<text x="16" y="294.6666666666667" fill="#2d2d2d">Play sound on new message</text>
+</g>
+<g opacity="0.5">
+<rect x="74.4" y="309" width="32" height="18" rx="9" fill="#c4c4c4" />
+<circle cx="83.4" cy="318" r="7" fill="#ffffff" />
+<text x="16" y="322.6666666666667" fill="#2d2d2d">Vibrate</text>
+</g>
+<text x="16" y="366" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">PRIVACY</text>
+<line x1="16" y1="370" x2="284" y2="370" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g opacity="1">
+<rect x="16.5" y="380.5" width="15" height="15" rx="2" fill="#ffffff" stroke="#6b7078" stroke-width="1.2" />
+<text x="40" y="392.6666666666667" fill="#2d2d2d">Share anonymous usage data</text>
+</g>
+<g opacity="1">
+<rect x="16.5" y="408.5" width="15" height="15" rx="2" fill="#ffffff" stroke="#6b7078" stroke-width="1.2" />
+<path d="M 19.52 416.32 L 23.2 419.84 L 28.8 412.48" fill="none" stroke="#2d2d2d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<text x="40" y="420.6666666666667" fill="#2d2d2d">Allow crash reports</text>
+</g>
+<g opacity="1">
+<rect x="16.5" y="436.5" width="15" height="15" rx="2" fill="#ffffff" stroke="#6b7078" stroke-width="1.2" />
+<path d="M 19.52 444.32 L 23.2 447.84 L 28.8 440.48" fill="none" stroke="#2d2d2d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+<text x="40" y="448.6666666666667" fill="#2d2d2d">Show online status to contacts</text>
+</g>
+<line x1="0" y1="482" x2="300" y2="482" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="133.3" y="492.5" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="170.4" y="512.6666666666666" text-anchor="middle" font-weight="500" fill="#2d2d2d">Cancel</text>
+</g>
+<g opacity="1">
+<rect x="216.5" y="492.5" width="67" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="250" y="512.6666666666666" text-anchor="middle" font-weight="500" fill="#ffffff">Apply</text>
+</g>
+</svg>

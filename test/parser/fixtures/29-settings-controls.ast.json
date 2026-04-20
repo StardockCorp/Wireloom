@@ -1,0 +1,373 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "tabs",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "tab",
+            "label": "General",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "active",
+                "position": {
+                  "line": 3,
+                  "column": 19
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Appearance",
+            "attributes": [],
+            "position": {
+              "line": 4,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tab",
+            "label": "Advanced",
+            "attributes": [],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Appearance",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "radio",
+            "label": "Light",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "group",
+                "value": {
+                  "kind": "string",
+                  "value": "theme",
+                  "position": {
+                    "line": 8,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 19
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "label-right",
+                "position": {
+                  "line": 8,
+                  "column": 33
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          },
+          {
+            "kind": "radio",
+            "label": "Dark",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "group",
+                "value": {
+                  "kind": "string",
+                  "value": "theme",
+                  "position": {
+                    "line": 9,
+                    "column": 24
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 18
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "selected",
+                "position": {
+                  "line": 9,
+                  "column": 32
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "label-right",
+                "position": {
+                  "line": 9,
+                  "column": 41
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          },
+          {
+            "kind": "radio",
+            "label": "System",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "group",
+                "value": {
+                  "kind": "string",
+                  "value": "theme",
+                  "position": {
+                    "line": 10,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 20
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "label-right",
+                "position": {
+                  "line": 10,
+                  "column": 34
+                }
+              }
+            ],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 7,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Notifications",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "toggle",
+            "label": "Enable desktop notifications",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "on",
+                "position": {
+                  "line": 13,
+                  "column": 43
+                }
+              }
+            ],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          },
+          {
+            "kind": "toggle",
+            "label": "Play sound on new message",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "off",
+                "position": {
+                  "line": 14,
+                  "column": 40
+                }
+              }
+            ],
+            "position": {
+              "line": 14,
+              "column": 5
+            }
+          },
+          {
+            "kind": "toggle",
+            "label": "Vibrate",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "off",
+                "position": {
+                  "line": 15,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "disabled",
+                "position": {
+                  "line": 15,
+                  "column": 26
+                }
+              }
+            ],
+            "position": {
+              "line": 15,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 12,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Privacy",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "checkbox",
+            "label": "Share anonymous usage data",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "label-right",
+                "position": {
+                  "line": 18,
+                  "column": 43
+                }
+              }
+            ],
+            "position": {
+              "line": 18,
+              "column": 5
+            }
+          },
+          {
+            "kind": "checkbox",
+            "label": "Allow crash reports",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "checked",
+                "position": {
+                  "line": 19,
+                  "column": 36
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "label-right",
+                "position": {
+                  "line": 19,
+                  "column": 44
+                }
+              }
+            ],
+            "position": {
+              "line": 19,
+              "column": 5
+            }
+          },
+          {
+            "kind": "checkbox",
+            "label": "Show online status to contacts",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "checked",
+                "position": {
+                  "line": 20,
+                  "column": 47
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "label-right",
+                "position": {
+                  "line": 20,
+                  "column": 55
+                }
+              }
+            ],
+            "position": {
+              "line": 20,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 17,
+          "column": 3
+        }
+      },
+      {
+        "kind": "footer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "Cancel",
+            "attributes": [],
+            "position": {
+              "line": 23,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Apply",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 24,
+                  "column": 20
+                }
+              }
+            ],
+            "position": {
+              "line": 24,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 22,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Settings"
+  },
+  "sourceLines": 25
+}

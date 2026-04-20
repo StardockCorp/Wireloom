@@ -208,6 +208,74 @@ interface StatNode extends NodeBase {
     label: string;
     value: string;
 }
+interface TreeNode_ extends NodeBase {
+    kind: 'tree';
+    children: TreeItemNode[];
+}
+/**
+ * Single `node "Label"` entry inside a `tree`. Recursive — nodes may contain
+ * other nodes. Serialized as keyword `node` (kind name `treeNode` disambiguates
+ * internally).
+ */
+interface TreeItemNode extends NodeBase {
+    kind: 'treeNode';
+    label: string;
+    children: TreeItemNode[];
+}
+interface CheckboxNode extends NodeBase {
+    kind: 'checkbox';
+    label: string;
+}
+interface RadioNode extends NodeBase {
+    kind: 'radio';
+    label: string;
+}
+interface ToggleNode extends NodeBase {
+    kind: 'toggle';
+    label: string;
+}
+interface MenubarNode extends NodeBase {
+    kind: 'menubar';
+    children: MenuNode[];
+}
+interface MenuNode extends NodeBase {
+    kind: 'menu';
+    label: string;
+    children: MenuChild[];
+}
+type MenuChild = MenuItemNode | SeparatorNode | MenuNode;
+interface MenuItemNode extends NodeBase {
+    kind: 'menuitem';
+    label: string;
+}
+interface SeparatorNode extends NodeBase {
+    kind: 'separator';
+}
+interface ChipNode extends NodeBase {
+    kind: 'chip';
+    label: string;
+}
+interface AvatarNode extends NodeBase {
+    kind: 'avatar';
+    initials: string;
+}
+interface BreadcrumbNode extends NodeBase {
+    kind: 'breadcrumb';
+    children: CrumbNode[];
+}
+interface CrumbNode extends NodeBase {
+    kind: 'crumb';
+    label: string;
+}
+interface SpinnerNode extends NodeBase {
+    kind: 'spinner';
+    label?: string;
+}
+type StatusKind = 'success' | 'info' | 'warning' | 'error';
+interface StatusNode extends NodeBase {
+    kind: 'status';
+    label: string;
+}
 type AnnotationSide = 'left' | 'right' | 'top' | 'bottom';
 /**
  * A user-manual-style label that identifies part of the `window` mockup.
@@ -228,10 +296,10 @@ interface AnnotationNode extends NodeBase {
  * Leaf nodes that can appear in any container (panel/section/row/col/slot).
  * Excludes `tab` (must be inside `tabs`) and `item` (must be inside `list`).
  */
-type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | ProgressNode | ChartNode;
-type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | LeafNode;
-type WindowChild = HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | LeafNode;
-type AnyNode = WindowNode | HeaderNode | FooterNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | AnnotationNode | LeafNode;
+type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | ProgressNode | ChartNode | CheckboxNode | RadioNode | ToggleNode | ChipNode | AvatarNode | SpinnerNode | StatusNode;
+type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
+type WindowChild = HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
+type AnyNode = WindowNode | HeaderNode | FooterNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | TreeNode_ | TreeItemNode | MenubarNode | MenuNode | MenuItemNode | SeparatorNode | BreadcrumbNode | CrumbNode | AnnotationNode | LeafNode;
 interface Document {
     kind: 'document';
     /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
@@ -368,6 +436,63 @@ interface Theme {
     progressHeight: number;
     chartDefaultWidth: number;
     chartDefaultHeight: number;
+    treeIndent: number;
+    treeRowHeight: number;
+    treeIndentGuideColor: string;
+    treeGlyphColor: string;
+    treeSelectedBg: string;
+    treeSelectedText: string;
+    checkboxSize: number;
+    checkboxRowGap: number;
+    checkboxBorderColor: string;
+    checkboxFillColor: string;
+    checkboxCheckColor: string;
+    radioSize: number;
+    toggleWidth: number;
+    toggleHeight: number;
+    toggleOnColor: string;
+    toggleOffColor: string;
+    toggleKnobColor: string;
+    radioGroupGap: number;
+    menubarHeight: number;
+    menubarItemPaddingX: number;
+    menubarBgColor: string;
+    menubarBorderColor: string;
+    menuWidth: number;
+    menuItemHeight: number;
+    menuItemPaddingX: number;
+    menuBgColor: string;
+    menuBorderColor: string;
+    menuShortcutColor: string;
+    menuSeparatorColor: string;
+    chipHeight: number;
+    chipPaddingX: number;
+    chipBg: string;
+    chipBorder: string;
+    chipText: string;
+    chipSelectedBg: string;
+    chipSelectedBorder: string;
+    chipSelectedText: string;
+    avatarSizeSmall: number;
+    avatarSizeMedium: number;
+    avatarSizeLarge: number;
+    avatarBg: string;
+    avatarBorder: string;
+    avatarText: string;
+    breadcrumbHeight: number;
+    breadcrumbGap: number;
+    breadcrumbSeparatorColor: string;
+    breadcrumbCurrentColor: string;
+    spinnerSize: number;
+    spinnerColor: string;
+    statusHeight: number;
+    statusPaddingX: number;
+    /** Per-kind background/text for status pills. Keys: success|info|warning|error. */
+    statusColors: Readonly<Record<'success' | 'info' | 'warning' | 'error', {
+        bg: string;
+        fg: string;
+        border: string;
+    }>>;
     annotationBg: string;
     annotationBorder: string;
     annotationText: string;
@@ -439,4 +564,4 @@ declare const wireloom: {
     render: typeof render;
 };
 
-export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type ButtonNode, type CellNode, type ChartNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type PanelNode, type ProgressNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type StatNode, type StatsNode, type TabNode, type TabsNode, type TextNode, type Theme, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
+export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SeparatorNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };

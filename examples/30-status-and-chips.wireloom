@@ -1,0 +1,36 @@
+window "Dashboard":
+  header:
+    row:
+      text "Project Atlas" weight=bold size=large
+      status "Live" kind=success
+
+  section "Filters":
+    row:
+      chip "Active" selected
+      chip "Archived"
+      chip "Shared" closable
+      chip "Starred" icon="star" accent=warning
+
+  section "Team":
+    row:
+      avatar "BW" size=medium accent=research
+      avatar "JD" size=medium accent=military
+      avatar "KM" size=medium accent=wealth
+      avatar "AL" size=medium
+
+  section "Recent activity":
+    row:
+      status "Deployed" kind=success
+      text "production · 2m ago" size=small muted
+    row:
+      status "Backup running" kind=info
+      text "nightly · started 14:02" size=small muted
+    row:
+      status "Disk 82%" kind=warning
+      text "db-primary" size=small muted
+    row:
+      status "Build failed" kind=error
+      text "ci #1042" size=small muted
+    row:
+      spinner "Syncing index…"
+      text "est. 4 min" size=small muted

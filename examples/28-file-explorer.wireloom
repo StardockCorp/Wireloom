@@ -1,0 +1,52 @@
+window "Files":
+  menubar:
+    menu "File":
+      menuitem "New Folder" shortcut="Ctrl+N"
+      menuitem "Open" shortcut="Ctrl+O"
+      separator
+      menuitem "Quit" shortcut="Ctrl+Q"
+    menu "Edit":
+      menuitem "Cut" shortcut="Ctrl+X"
+      menuitem "Copy" shortcut="Ctrl+C"
+      menuitem "Paste" shortcut="Ctrl+V"
+      separator
+      menuitem "Delete" disabled
+    menu "View":
+      menuitem "Refresh" shortcut="F5"
+    menu "Help":
+      menuitem "About"
+
+  breadcrumb:
+    crumb "This PC" icon="authority"
+    crumb "Projects"
+    crumb "wireloom"
+    crumb "src"
+
+  row:
+    col 200:
+      tree:
+        node "wireloom" icon="policy":
+          node "src" selected:
+            node "parser":
+              node "ast.ts"
+              node "lexer.ts"
+              node "parser.ts"
+            node "renderer":
+              node "layout.ts"
+              node "svg.ts"
+              node "themes.ts"
+          node "test" collapsed:
+            node "parser"
+            node "renderer"
+          node "examples"
+          node "README.md"
+          node "package.json"
+
+    col fill:
+      panel:
+        row:
+          text "parser.ts" weight=semibold
+          text "1,460 lines" size=small muted
+        divider
+        text "Recursive-descent parser producing a Document AST."
+        text "Throws WireloomError with source position on failure." size=small muted

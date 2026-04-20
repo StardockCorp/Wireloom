@@ -309,6 +309,8 @@ var STATE_VALUES = [
 ];
 var CHART_KIND_VALUES = ["bar", "line", "pie"];
 var ANNOTATION_SIDE_VALUES = ["left", "right", "top", "bottom"];
+var AVATAR_SIZE_VALUES = ["small", "medium", "large"];
+var STATUS_KIND_VALUES = ["success", "info", "warning", "error"];
 var UNIVERSAL_ID_SPEC = { kind: "string" };
 var ATTR_RULES = {
   window: { attrs: {}, flags: [] },
@@ -456,9 +458,62 @@ var ATTR_RULES = {
       position: { kind: "enum", values: ANNOTATION_SIDE_VALUES }
     },
     flags: []
+  },
+  tree: { attrs: {}, flags: [] },
+  treeNode: {
+    attrs: { icon: { kind: "string" } },
+    flags: ["collapsed", "selected"]
+  },
+  checkbox: {
+    attrs: {},
+    flags: ["checked", "disabled", "label-right"]
+  },
+  radio: {
+    attrs: { group: { kind: "string" } },
+    flags: ["selected", "disabled", "label-right"]
+  },
+  toggle: {
+    attrs: {},
+    flags: ["on", "off", "disabled", "label-right"]
+  },
+  menubar: { attrs: {}, flags: [] },
+  menu: { attrs: {}, flags: [] },
+  menuitem: {
+    attrs: { shortcut: { kind: "string" } },
+    flags: ["disabled"]
+  },
+  separator: { attrs: {}, flags: [] },
+  chip: {
+    attrs: {
+      icon: { kind: "string" },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
+    flags: ["closable", "selected"]
+  },
+  avatar: {
+    attrs: {
+      size: { kind: "enum", values: AVATAR_SIZE_VALUES },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
+    flags: []
+  },
+  breadcrumb: { attrs: {}, flags: [] },
+  crumb: {
+    attrs: { icon: { kind: "string" } },
+    flags: []
+  },
+  spinner: { attrs: {}, flags: [] },
+  status: {
+    attrs: {
+      kind: { kind: "enum", values: STATUS_KIND_VALUES }
+    },
+    flags: []
   }
 };
-var VALID_PRIMITIVES = new Set(Object.keys(ATTR_RULES));
+var VALID_PRIMITIVES = /* @__PURE__ */ new Set([
+  ...Object.keys(ATTR_RULES).filter((k) => k !== "treeNode" && k !== "slotFooter"),
+  "node"
+]);
 var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "panel",
   "section",
@@ -480,10 +535,21 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "icon",
   "divider",
   "progress",
-  "chart"
+  "chart",
+  "tree",
+  "menubar",
+  "menu",
+  "breadcrumb",
+  "checkbox",
+  "radio",
+  "toggle",
+  "chip",
+  "avatar",
+  "spinner",
+  "status"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -658,6 +724,34 @@ var Parser = class {
         head.column
       );
     }
+    if (name === "node") {
+      throw new WireloomError(
+        '"node" may only appear inside "tree"',
+        head.line,
+        head.column
+      );
+    }
+    if (name === "menuitem") {
+      throw new WireloomError(
+        '"menuitem" may only appear inside "menu"',
+        head.line,
+        head.column
+      );
+    }
+    if (name === "separator") {
+      throw new WireloomError(
+        '"separator" may only appear inside "menu"',
+        head.line,
+        head.column
+      );
+    }
+    if (name === "crumb") {
+      throw new WireloomError(
+        '"crumb" may only appear inside "breadcrumb"',
+        head.line,
+        head.column
+      );
+    }
     if (name === "header") return this.parseHeader();
     if (name === "footer") return this.parseFooter();
     return this.parseContainerChildNamed(name);
@@ -702,7 +796,7 @@ var Parser = class {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : `"${name}" is not allowed here`;
+      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -751,6 +845,28 @@ var Parser = class {
         return this.parseProgress();
       case "chart":
         return this.parseChart();
+      case "tree":
+        return this.parseTree();
+      case "menubar":
+        return this.parseMenubar();
+      case "menu":
+        return this.parseMenu();
+      case "breadcrumb":
+        return this.parseBreadcrumb();
+      case "checkbox":
+        return this.parseCheckbox();
+      case "radio":
+        return this.parseRadio();
+      case "toggle":
+        return this.parseToggle();
+      case "chip":
+        return this.parseChip();
+      case "avatar":
+        return this.parseAvatar();
+      case "spinner":
+        return this.parseSpinner();
+      case "status":
+        return this.parseStatus();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -1240,6 +1356,277 @@ var Parser = class {
     this.parseLeafTerminator("stat", head);
     return { kind: "stat", label, value, attributes, position };
   }
+  // --- Tree / node ---------------------------------------------------------
+  parseTree() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("tree");
+    const hasChildren = this.parseTerminator("tree", head);
+    const children = hasChildren ? this.parseTreeChildren() : [];
+    return { kind: "tree", attributes, children, position };
+  }
+  parseTreeChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "node", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "node") {
+        throw new WireloomError(
+          `"tree" accepts only "node" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseTreeNode());
+    }
+    this.expectKind("dedent", "tree block did not close cleanly");
+    return children;
+  }
+  parseTreeNode() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"node" requires a label string (e.g., node "src":)'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("treeNode");
+    const hasChildren = this.parseTerminator("node", head);
+    const children = hasChildren ? this.parseTreeChildren() : [];
+    return { kind: "treeNode", label, attributes, children, position };
+  }
+  // --- Menubar / Menu ------------------------------------------------------
+  parseMenubar() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("menubar");
+    const hasChildren = this.parseTerminator("menubar", head);
+    const children = hasChildren ? this.parseMenubarChildren() : [];
+    return { kind: "menubar", attributes, children, position };
+  }
+  parseMenubarChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "menu", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "menu") {
+        throw new WireloomError(
+          `"menubar" accepts only "menu" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseMenu());
+    }
+    this.expectKind("dedent", "menubar block did not close cleanly");
+    return children;
+  }
+  parseMenu() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"menu" requires a label string (e.g., menu "File":)'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("menu");
+    const hasChildren = this.parseTerminator("menu", head);
+    const children = hasChildren ? this.parseMenuChildren() : [];
+    return { kind: "menu", label, attributes, children, position };
+  }
+  parseMenuChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "menuitem", "separator", or "menu", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name === "menuitem") {
+        children.push(this.parseMenuItem());
+      } else if (name === "separator") {
+        children.push(this.parseSeparator());
+      } else if (name === "menu") {
+        children.push(this.parseMenu());
+      } else {
+        throw new WireloomError(
+          `"menu" accepts only "menuitem", "separator", or nested "menu" (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+    }
+    this.expectKind("dedent", "menu block did not close cleanly");
+    return children;
+  }
+  parseMenuItem() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"menuitem" requires a label string (e.g., menuitem "Open\u2026")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("menuitem");
+    this.parseLeafTerminator("menuitem", head);
+    return { kind: "menuitem", label, attributes, position };
+  }
+  parseSeparator() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("separator");
+    this.parseLeafTerminator("separator", head);
+    return { kind: "separator", attributes, position };
+  }
+  // --- Breadcrumb / crumb --------------------------------------------------
+  parseBreadcrumb() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("breadcrumb");
+    const hasChildren = this.parseTerminator("breadcrumb", head);
+    const children = hasChildren ? this.parseBreadcrumbChildren() : [];
+    return { kind: "breadcrumb", attributes, children, position };
+  }
+  parseBreadcrumbChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "crumb", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "crumb") {
+        throw new WireloomError(
+          `"breadcrumb" accepts only "crumb" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseCrumb());
+    }
+    this.expectKind("dedent", "breadcrumb block did not close cleanly");
+    return children;
+  }
+  parseCrumb() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"crumb" requires a label string (e.g., crumb "Documents")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("crumb");
+    this.parseLeafTerminator("crumb", head);
+    return { kind: "crumb", label, attributes, position };
+  }
+  // --- Form controls -------------------------------------------------------
+  parseCheckbox() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"checkbox" requires a label string (e.g., checkbox "Enable")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("checkbox");
+    this.parseLeafTerminator("checkbox", head);
+    return { kind: "checkbox", label, attributes, position };
+  }
+  parseRadio() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"radio" requires a label string (e.g., radio "Light" group="theme")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("radio");
+    this.parseLeafTerminator("radio", head);
+    return { kind: "radio", label, attributes, position };
+  }
+  parseToggle() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"toggle" requires a label string (e.g., toggle "Dark mode" on)'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("toggle");
+    this.parseLeafTerminator("toggle", head);
+    return { kind: "toggle", label, attributes, position };
+  }
+  // --- Chip / avatar -------------------------------------------------------
+  parseChip() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"chip" requires a label string (e.g., chip "Filter")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("chip");
+    this.parseLeafTerminator("chip", head);
+    return { kind: "chip", label, attributes, position };
+  }
+  parseAvatar() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const raw = this.expectKind(
+      "string",
+      '"avatar" requires an initials string (e.g., avatar "BW")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("avatar");
+    this.parseLeafTerminator("avatar", head);
+    return { kind: "avatar", initials: raw, attributes, position };
+  }
+  // --- Spinner / status ----------------------------------------------------
+  parseSpinner() {
+    const head = this.consume();
+    const position = positionOf(head);
+    let label;
+    if (this.peek().kind === "string") {
+      label = this.consume().stringValue;
+    }
+    const attributes = this.parseAttributes("spinner");
+    this.parseLeafTerminator("spinner", head);
+    const node = { kind: "spinner", attributes, position };
+    if (label !== void 0) node.label = label;
+    return node;
+  }
+  parseStatus() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"status" requires a label string (e.g., status "Saved" kind=success)'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("status");
+    const kindAttr = getAttrIdentValue(attributes, "kind");
+    if (kindAttr === void 0) {
+      throw new WireloomError(
+        '"status" requires kind=success|info|warning|error',
+        head.line,
+        head.column
+      );
+    }
+    this.parseLeafTerminator("status", head);
+    return { kind: "status", label, attributes, position };
+  }
   // --- Attributes / terminators --------------------------------------------
   parseAttributes(primitive) {
     const rules = ATTR_RULES[primitive] ?? { attrs: {}, flags: [] };
@@ -1469,7 +1856,7 @@ function coerceAttributeValue(token, spec, key, primitive) {
   }
 }
 function unknownPrimitiveMessage(name) {
-  const suggestion = suggestMatch(name, Object.keys(ATTR_RULES));
+  const suggestion = suggestMatch(name, [...VALID_PRIMITIVES]);
   const base = `unknown primitive "${name}" (valid: ${PRIMITIVE_LIST_HUMAN})`;
   return suggestion ? `${base}. Did you mean "${suggestion}"?` : base;
 }
@@ -1524,7 +1911,7 @@ function serialize(doc) {
 }
 function serializeNode(node, depth, out) {
   const indent = "  ".repeat(depth);
-  const keyword = node.kind === "slotFooter" ? "footer" : node.kind;
+  const keyword = node.kind === "slotFooter" ? "footer" : node.kind === "treeNode" ? "node" : node.kind;
   const parts = [keyword];
   switch (node.kind) {
     case "window":
@@ -1579,6 +1966,41 @@ function serializeNode(node, depth, out) {
       break;
     case "annotation":
       parts.push(quoteString(node.body));
+      break;
+    case "treeNode":
+      parts.push(quoteString(node.label));
+      break;
+    case "menu":
+      parts.push(quoteString(node.label));
+      break;
+    case "menuitem":
+      parts.push(quoteString(node.label));
+      break;
+    case "crumb":
+      parts.push(quoteString(node.label));
+      break;
+    case "checkbox":
+      parts.push(quoteString(node.label));
+      break;
+    case "radio":
+      parts.push(quoteString(node.label));
+      break;
+    case "toggle":
+      parts.push(quoteString(node.label));
+      break;
+    case "chip":
+      parts.push(quoteString(node.label));
+      break;
+    case "avatar":
+      parts.push(quoteString(node.initials));
+      break;
+    case "spinner": {
+      const sp = node;
+      if (sp.label !== void 0) parts.push(quoteString(sp.label));
+      break;
+    }
+    case "status":
+      parts.push(quoteString(node.label));
       break;
   }
   for (const attr of node.attributes) {
@@ -1743,6 +2165,63 @@ var DEFAULT_THEME = Object.freeze({
   annotationGap: 48,
   annotationMargin: 16,
   annotationStackGap: 8,
+  treeIndent: 18,
+  treeRowHeight: 22,
+  treeIndentGuideColor: "#d8dadf",
+  treeGlyphColor: "#6b7078",
+  treeSelectedBg: "#e7edf5",
+  treeSelectedText: "#2d2d2d",
+  checkboxSize: 16,
+  checkboxRowGap: 8,
+  checkboxBorderColor: "#6b7078",
+  checkboxFillColor: "#ffffff",
+  checkboxCheckColor: "#2d2d2d",
+  radioSize: 16,
+  toggleWidth: 32,
+  toggleHeight: 18,
+  toggleOnColor: "#3a3a3a",
+  toggleOffColor: "#c4c4c4",
+  toggleKnobColor: "#ffffff",
+  radioGroupGap: 14,
+  menubarHeight: 28,
+  menubarItemPaddingX: 12,
+  menubarBgColor: "#f5f6f8",
+  menubarBorderColor: "#c4c4c4",
+  menuWidth: 200,
+  menuItemHeight: 24,
+  menuItemPaddingX: 12,
+  menuBgColor: "#ffffff",
+  menuBorderColor: "#8a8a8a",
+  menuShortcutColor: "#8a9099",
+  menuSeparatorColor: "#d8dadf",
+  chipHeight: 22,
+  chipPaddingX: 10,
+  chipBg: "#eef0f3",
+  chipBorder: "#c4c8ce",
+  chipText: "#3a3e44",
+  chipSelectedBg: "#3a3a3a",
+  chipSelectedBorder: "#3a3a3a",
+  chipSelectedText: "#ffffff",
+  avatarSizeSmall: 24,
+  avatarSizeMedium: 32,
+  avatarSizeLarge: 44,
+  avatarBg: "#e2e5ea",
+  avatarBorder: "#b5b8bd",
+  avatarText: "#3a3e44",
+  breadcrumbHeight: 22,
+  breadcrumbGap: 6,
+  breadcrumbSeparatorColor: "#8a9099",
+  breadcrumbCurrentColor: "#2d2d2d",
+  spinnerSize: 16,
+  spinnerColor: "#6b7078",
+  statusHeight: 22,
+  statusPaddingX: 10,
+  statusColors: Object.freeze({
+    success: { bg: "#e8f3ec", fg: "#205537", border: "#3f8f5c" },
+    info: { bg: "#e7edf5", fg: "#234273", border: "#3f7cc2" },
+    warning: { bg: "#f7efdc", fg: "#6b4e15", border: "#c79a2e" },
+    error: { bg: "#f5e4e2", fg: "#5c2420", border: "#b0413c" }
+  }),
   accents: Object.freeze({
     research: "#3f7cc2",
     military: "#b55442",
@@ -1842,6 +2321,40 @@ var DARK_THEME = Object.freeze({
   annotationText: "#e8dfc4",
   annotationLineColor: "#a8966a",
   annotationDotColor: "#a8966a",
+  treeIndentGuideColor: "#404040",
+  treeGlyphColor: "#8a9099",
+  treeSelectedBg: "#2f3a4c",
+  treeSelectedText: "#e0e0e0",
+  checkboxBorderColor: "#8a9099",
+  checkboxFillColor: "#252525",
+  checkboxCheckColor: "#e0e0e0",
+  toggleOnColor: "#d4d4d4",
+  toggleOffColor: "#555555",
+  toggleKnobColor: "#1e1e1e",
+  menubarBgColor: "#2a2a2a",
+  menubarBorderColor: "#555555",
+  menuBgColor: "#252525",
+  menuBorderColor: "#6b6b6b",
+  menuShortcutColor: "#8a9099",
+  menuSeparatorColor: "#404040",
+  chipBg: "#353a42",
+  chipBorder: "#555a62",
+  chipText: "#b8bcc4",
+  chipSelectedBg: "#d4d4d4",
+  chipSelectedBorder: "#d4d4d4",
+  chipSelectedText: "#1e1e1e",
+  avatarBg: "#353a42",
+  avatarBorder: "#555a62",
+  avatarText: "#d4d4d4",
+  breadcrumbSeparatorColor: "#707780",
+  breadcrumbCurrentColor: "#f0f0f0",
+  spinnerColor: "#8a9099",
+  statusColors: Object.freeze({
+    success: { bg: "#1f2e24", fg: "#b0e0c2", border: "#6bbd86" },
+    info: { bg: "#1f2a3a", fg: "#b0c7e8", border: "#6ba4e8" },
+    warning: { bg: "#3a2f1c", fg: "#f0d79a", border: "#e2aa57" },
+    error: { bg: "#3a2220", fg: "#edb4ae", border: "#d66863" }
+  }),
   accents: Object.freeze({
     research: "#6ba4e8",
     military: "#d47967",
@@ -2032,7 +2545,131 @@ function measureChild(node, theme) {
       return measureProgress(node, theme);
     case "chart":
       return measureChart(node, theme);
+    case "tree":
+      return measureTree(node, theme);
+    case "menubar":
+      return measureMenubar(node, theme);
+    case "menu":
+      return measureMenu(node, theme);
+    case "breadcrumb":
+      return measureBreadcrumb(node, theme);
+    case "checkbox":
+      return measureCheckbox(node, theme);
+    case "radio":
+      return measureRadio(node, theme);
+    case "toggle":
+      return measureToggle(node, theme);
+    case "chip":
+      return measureChip(node, theme);
+    case "avatar":
+      return measureAvatar(node, theme);
+    case "spinner":
+      return measureSpinner(node, theme);
+    case "status":
+      return measureStatus(node, theme);
   }
+}
+function measureTree(node, theme) {
+  let maxW = 0;
+  let totalRows = 0;
+  const walk = (n, depth) => {
+    totalRows++;
+    const labelW = n.label.length * theme.averageCharWidth;
+    const rowW = depth * theme.treeIndent + theme.treeIndent + labelW;
+    if (rowW > maxW) maxW = rowW;
+    const collapsed = hasFlagAttr(n.attributes, "collapsed");
+    if (!collapsed) {
+      for (const child of n.children) walk(child, depth + 1);
+    }
+  };
+  for (const n of node.children) walk(n, 0);
+  return { width: maxW, height: totalRows * theme.treeRowHeight };
+}
+function measureMenubar(node, theme) {
+  const totalW = node.children.reduce(
+    (acc, m) => acc + m.label.length * theme.averageCharWidth + theme.menubarItemPaddingX * 2,
+    0
+  );
+  return { width: totalW, height: theme.menubarHeight };
+}
+function measureMenu(node, theme) {
+  let maxLabel = node.label.length * theme.averageCharWidth;
+  let itemCount = 0;
+  for (const c of node.children) {
+    if (c.kind === "menuitem") {
+      const shortcut = getAttrString(c.attributes, "shortcut");
+      const rowW = c.label.length * theme.averageCharWidth + (shortcut ? shortcut.length * theme.averageCharWidth + 24 : 0);
+      if (rowW > maxLabel) maxLabel = rowW;
+      itemCount++;
+    } else if (c.kind === "separator") {
+      itemCount++;
+    } else if (c.kind === "menu") {
+      const rowW = c.label.length * theme.averageCharWidth + 24;
+      if (rowW > maxLabel) maxLabel = rowW;
+      itemCount++;
+    }
+  }
+  const width = Math.max(theme.menuWidth, maxLabel + theme.menuItemPaddingX * 2);
+  const height = itemCount * theme.menuItemHeight + 4;
+  return { width, height };
+}
+function measureBreadcrumb(node, theme) {
+  if (node.children.length === 0) return { width: 0, height: theme.breadcrumbHeight };
+  const labels = node.children.map(
+    (c) => c.label.length * theme.averageCharWidth + (getAttrString(c.attributes, "icon") ? theme.iconSize + 4 : 0)
+  );
+  const total = labels.reduce((a, b) => a + b, 0) + (node.children.length - 1) * (theme.breadcrumbGap * 2 + 8);
+  return { width: total, height: theme.breadcrumbHeight };
+}
+function measureCheckbox(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.checkboxSize + theme.checkboxRowGap + labelW,
+    height: Math.max(theme.checkboxSize, theme.lineHeight)
+  };
+}
+function measureRadio(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.radioSize + theme.checkboxRowGap + labelW,
+    height: Math.max(theme.radioSize, theme.lineHeight)
+  };
+}
+function measureToggle(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.toggleWidth + theme.checkboxRowGap + labelW,
+    height: Math.max(theme.toggleHeight, theme.lineHeight)
+  };
+}
+function measureChip(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth;
+  const iconExtra = getAttrString(node.attributes, "icon") ? 16 : 0;
+  const closeExtra = hasFlagAttr(node.attributes, "closable") ? 16 : 0;
+  return {
+    width: labelW + iconExtra + closeExtra + theme.chipPaddingX * 2,
+    height: theme.chipHeight
+  };
+}
+function measureAvatar(node, theme) {
+  const sizeName = getAttrIdent(node.attributes, "size") ?? "medium";
+  const size = sizeName === "small" ? theme.avatarSizeSmall : sizeName === "large" ? theme.avatarSizeLarge : theme.avatarSizeMedium;
+  return { width: size, height: size };
+}
+function measureSpinner(node, theme) {
+  const labelW = node.label ? node.label.length * theme.averageCharWidth + theme.checkboxRowGap : 0;
+  return {
+    width: theme.spinnerSize + labelW,
+    height: Math.max(theme.spinnerSize, theme.lineHeight)
+  };
+}
+function measureStatus(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: labelW + 14 + theme.statusPaddingX * 2,
+    // icon glyph + padding
+    height: theme.statusHeight
+  };
 }
 function measureText(node, theme) {
   return {
@@ -2450,7 +3087,115 @@ function positionContainerChild(child, x, y, width, theme) {
       return positionProgress(child, x, y, width, theme);
     case "chart":
       return positionChart(child, x, y, theme);
+    case "tree":
+      return positionTree(child, x, y, width, theme);
+    case "menubar":
+      return positionMenubar(child, x, y, width, theme);
+    case "menu":
+      return positionMenu(child, x, y, width, theme);
+    case "breadcrumb":
+      return positionBreadcrumb(child, x, y, width, theme);
+    case "checkbox":
+      return positionLeaf(child, x, y, measureCheckbox(child, theme));
+    case "radio":
+      return positionLeaf(child, x, y, measureRadio(child, theme));
+    case "toggle":
+      return positionLeaf(child, x, y, measureToggle(child, theme));
+    case "chip":
+      return positionLeaf(child, x, y, measureChip(child, theme));
+    case "avatar":
+      return positionLeaf(child, x, y, measureAvatar(child, theme));
+    case "spinner":
+      return positionLeaf(child, x, y, measureSpinner(child, theme));
+    case "status":
+      return positionLeaf(child, x, y, measureStatus(child, theme));
   }
+}
+function positionLeaf(node, x, y, size) {
+  return { node, x, y, width: size.width, height: size.height, children: [] };
+}
+function positionTree(node, x, y, width, theme) {
+  const rows = [];
+  const walk = (n, depth) => {
+    const rowX = x + depth * theme.treeIndent;
+    rows.push({
+      node: n,
+      x: rowX,
+      y: y + rows.length * theme.treeRowHeight,
+      width: width - depth * theme.treeIndent,
+      height: theme.treeRowHeight,
+      children: []
+    });
+    const collapsed = hasFlagAttr(n.attributes, "collapsed");
+    if (!collapsed) {
+      for (const c of n.children) walk(c, depth + 1);
+    }
+  };
+  for (const n of node.children) walk(n, 0);
+  const height = rows.length * theme.treeRowHeight;
+  return { node, x, y, width, height, children: rows };
+}
+function positionMenubar(node, x, y, width, theme) {
+  const children = [];
+  let cursorX = x;
+  for (const menu of node.children) {
+    const w = menu.label.length * theme.averageCharWidth + theme.menubarItemPaddingX * 2;
+    children.push({
+      node: menu,
+      x: cursorX,
+      y,
+      width: w,
+      height: theme.menubarHeight,
+      children: []
+    });
+    cursorX += w;
+  }
+  return { node, x, y, width, height: theme.menubarHeight, children };
+}
+function positionMenu(node, x, y, width, theme) {
+  const size = measureMenu(node, theme);
+  const children = [];
+  let cursorY = y + 2;
+  for (const c of node.children) {
+    const rowH = theme.menuItemHeight;
+    children.push({
+      node: c,
+      x: x + 2,
+      y: cursorY,
+      width: size.width - 4,
+      height: rowH,
+      children: []
+    });
+    cursorY += rowH;
+  }
+  return { node, x, y, width: size.width, height: size.height, children };
+}
+function positionBreadcrumb(node, x, y, width, theme) {
+  const children = [];
+  let cursorX = x;
+  for (let i = 0; i < node.children.length; i++) {
+    const c = node.children[i];
+    const iconW = getAttrString(c.attributes, "icon") ? theme.iconSize + 4 : 0;
+    const w = iconW + c.label.length * theme.averageCharWidth;
+    children.push({
+      node: c,
+      x: cursorX,
+      y,
+      width: w,
+      height: theme.breadcrumbHeight,
+      children: []
+    });
+    cursorX += w;
+    if (i < node.children.length - 1) cursorX += theme.breadcrumbGap * 2 + 8;
+  }
+  return {
+    node,
+    x,
+    y,
+    width: cursorX - x,
+    height: theme.breadcrumbHeight,
+    children
+  };
 }
 function positionPanel(node, x, y, width, theme) {
   const innerX = x + theme.panelPadding;
@@ -2846,6 +3591,13 @@ function getAttrIdent(attrs, key) {
   const v = getAttr(attrs, key);
   return v?.kind === "identifier" ? v.value : void 0;
 }
+function hasFlagAttr(attrs, flag) {
+  for (const a of attrs) {
+    const attr = a;
+    if (attr.kind === "flag" && attr.flag === flag) return true;
+  }
+  return false;
+}
 function getAlign(attrs) {
   const v = getAttrIdent(attrs, "align");
   if (v === "center" || v === "right" || v === "left") return v;
@@ -3175,7 +3927,377 @@ function emitNode(laid, theme, out) {
     case "slotFooter":
       for (const c of laid.children) emitNode(c, theme, out);
       break;
+    case "tree":
+      emitTree(laid, theme, out);
+      break;
+    case "treeNode":
+      emitTreeNode(laid, theme, out);
+      break;
+    case "menubar":
+      emitMenubar(laid, theme, out);
+      break;
+    case "menu":
+      emitMenu(laid, theme, out);
+      break;
+    case "menuitem":
+      emitMenuItem(laid, theme, out);
+      break;
+    case "separator":
+      emitMenuSeparator(laid, theme, out);
+      break;
+    case "breadcrumb":
+      emitBreadcrumb(laid, theme, out);
+      break;
+    case "crumb":
+      break;
+    case "checkbox":
+      emitCheckbox(laid, theme, out);
+      break;
+    case "radio":
+      emitRadio(laid, theme, out);
+      break;
+    case "toggle":
+      emitToggle(laid, theme, out);
+      break;
+    case "chip":
+      emitChip(laid, theme, out);
+      break;
+    case "avatar":
+      emitAvatar(laid, theme, out);
+      break;
+    case "spinner":
+      emitSpinner(laid, theme, out);
+      break;
+    case "status":
+      emitStatus(laid, theme, out);
+      break;
   }
+}
+function emitTree(laid, theme, out) {
+  for (const row of laid.children) {
+    emitNode(row, theme, out);
+  }
+}
+function emitTreeNode(laid, theme, out) {
+  const node = laid.node;
+  const isSelected = hasFlag(node.attributes, "selected");
+  const isCollapsed = hasFlag(node.attributes, "collapsed");
+  const hasChildren = node.children.length > 0;
+  const iconName = getAttrString2(node.attributes, "icon");
+  if (isSelected) {
+    out.push(
+      `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" fill="${theme.treeSelectedBg}" rx="2" />`
+    );
+  }
+  let cursorX = laid.x + 4;
+  const midY = laid.y + laid.height / 2;
+  if (hasChildren) {
+    const glyph = isCollapsed ? "\u25B8" : "\u25BE";
+    out.push(
+      `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}" fill="${theme.treeGlyphColor}">${glyph}</text>`
+    );
+  }
+  cursorX += 12;
+  if (iconName && hasIcon(iconName)) {
+    const iconSize = 14;
+    const iconMarkup = emitIconByName(
+      iconName,
+      cursorX,
+      midY - iconSize / 2,
+      iconSize,
+      theme.iconStrokeColor
+    );
+    if (iconMarkup) out.push(iconMarkup);
+    cursorX += iconSize + 4;
+  }
+  const textFill = isSelected ? theme.treeSelectedText : theme.textColor;
+  out.push(
+    `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" fill="${textFill}">${escapeText(node.label)}</text>`
+  );
+}
+function emitMenubar(laid, theme, out) {
+  out.push(
+    `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" fill="${theme.menubarBgColor}" stroke="${theme.menubarBorderColor}" stroke-width="1" />`
+  );
+  for (const m of laid.children) {
+    const menu = m.node;
+    out.push(
+      `<text x="${m.x + theme.menubarItemPaddingX}" y="${m.y + m.height / 2 + theme.fontSize / 3}" fill="${theme.textColor}">${escapeText(menu.label)}</text>`
+    );
+  }
+}
+function emitMenu(laid, theme, out) {
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${theme.menuBgColor}" stroke="${theme.menuBorderColor}" stroke-width="1" rx="3" />`
+  );
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitMenuItem(laid, theme, out) {
+  const node = laid.node;
+  const isDisabled = hasFlag(node.attributes, "disabled");
+  const opacity = isDisabled ? "0.5" : "1";
+  const midY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${laid.x + theme.menuItemPaddingX}" y="${midY}" opacity="${opacity}" fill="${theme.textColor}">${escapeText(node.label)}</text>`
+  );
+  const shortcut = getAttrString2(node.attributes, "shortcut");
+  if (shortcut !== void 0) {
+    out.push(
+      `<text x="${laid.x + laid.width - theme.menuItemPaddingX}" y="${midY}" text-anchor="end" opacity="${opacity}" font-size="${theme.smallFontSize}" fill="${theme.menuShortcutColor}">${escapeText(shortcut)}</text>`
+    );
+  }
+}
+function emitMenuSeparator(laid, theme, out) {
+  const midY = laid.y + laid.height / 2;
+  out.push(
+    `<line x1="${laid.x + 4}" y1="${midY}" x2="${laid.x + laid.width - 4}" y2="${midY}" stroke="${theme.menuSeparatorColor}" stroke-width="1" />`
+  );
+}
+function emitBreadcrumb(laid, theme, out) {
+  const crumbs = laid.children;
+  for (let i = 0; i < crumbs.length; i++) {
+    const c = crumbs[i];
+    const isLast = i === crumbs.length - 1;
+    const node = c.node;
+    const iconName = getAttrString2(node.attributes, "icon");
+    let labelX = c.x;
+    const midY = c.y + c.height / 2 + theme.fontSize / 3;
+    if (iconName && hasIcon(iconName)) {
+      const iconSize = 14;
+      const iconMarkup = emitIconByName(
+        iconName,
+        c.x,
+        c.y + (c.height - iconSize) / 2,
+        iconSize,
+        theme.iconStrokeColor
+      );
+      if (iconMarkup) out.push(iconMarkup);
+      labelX += iconSize + 4;
+    }
+    const fill = isLast ? theme.breadcrumbCurrentColor : theme.mutedTextColor;
+    const weight = isLast ? "600" : "400";
+    out.push(
+      `<text x="${labelX}" y="${midY}" font-weight="${weight}" fill="${fill}">${escapeText(node.label)}</text>`
+    );
+    if (!isLast) {
+      const chevX = c.x + c.width + theme.breadcrumbGap;
+      out.push(
+        `<text x="${chevX}" y="${midY}" fill="${theme.breadcrumbSeparatorColor}">\u203A</text>`
+      );
+    }
+  }
+}
+function emitCheckbox(laid, theme, out) {
+  const node = laid.node;
+  const checked = hasFlag(node.attributes, "checked");
+  const disabled = hasFlag(node.attributes, "disabled");
+  const labelRight = !hasFlag(node.attributes, "label-right") ? false : true;
+  const opacity = disabled ? "0.5" : "1";
+  const size = theme.checkboxSize;
+  const cy = laid.y + laid.height / 2 - size / 2;
+  let controlX;
+  let labelX;
+  if (labelRight) {
+    controlX = laid.x;
+    labelX = controlX + size + theme.checkboxRowGap;
+  } else {
+    labelX = laid.x;
+    controlX = laid.x + laid.width - size;
+  }
+  out.push(`<g opacity="${opacity}">`);
+  out.push(
+    `<rect x="${controlX + 0.5}" y="${cy + 0.5}" width="${size - 1}" height="${size - 1}" rx="2" fill="${theme.checkboxFillColor}" stroke="${theme.checkboxBorderColor}" stroke-width="1.2" />`
+  );
+  if (checked) {
+    out.push(
+      `<path d="M ${controlX + size * 0.22} ${cy + size * 0.52} L ${controlX + size * 0.45} ${cy + size * 0.74} L ${controlX + size * 0.8} ${cy + size * 0.28}" fill="none" stroke="${theme.checkboxCheckColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`
+    );
+  }
+  const midY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${labelX}" y="${midY}" fill="${theme.textColor}">${escapeText(node.label)}</text>`
+  );
+  out.push(`</g>`);
+}
+function emitRadio(laid, theme, out) {
+  const node = laid.node;
+  const selected = hasFlag(node.attributes, "selected");
+  const disabled = hasFlag(node.attributes, "disabled");
+  const labelRight = hasFlag(node.attributes, "label-right");
+  const opacity = disabled ? "0.5" : "1";
+  const size = theme.radioSize;
+  const cy = laid.y + laid.height / 2;
+  let controlCx;
+  let labelX;
+  if (labelRight) {
+    controlCx = laid.x + size / 2;
+    labelX = laid.x + size + theme.checkboxRowGap;
+  } else {
+    labelX = laid.x;
+    controlCx = laid.x + laid.width - size / 2;
+  }
+  out.push(`<g opacity="${opacity}">`);
+  out.push(
+    `<circle cx="${controlCx}" cy="${cy}" r="${size / 2 - 0.5}" fill="${theme.checkboxFillColor}" stroke="${theme.checkboxBorderColor}" stroke-width="1.2" />`
+  );
+  if (selected) {
+    out.push(
+      `<circle cx="${controlCx}" cy="${cy}" r="${size / 4}" fill="${theme.checkboxCheckColor}" />`
+    );
+  }
+  const midY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${labelX}" y="${midY}" fill="${theme.textColor}">${escapeText(node.label)}</text>`
+  );
+  out.push(`</g>`);
+}
+function emitToggle(laid, theme, out) {
+  const node = laid.node;
+  const on = hasFlag(node.attributes, "on") && !hasFlag(node.attributes, "off");
+  const disabled = hasFlag(node.attributes, "disabled");
+  const labelRight = hasFlag(node.attributes, "label-right");
+  const opacity = disabled ? "0.5" : "1";
+  const w = theme.toggleWidth;
+  const h = theme.toggleHeight;
+  const cy = laid.y + laid.height / 2 - h / 2;
+  let controlX;
+  let labelX;
+  if (labelRight) {
+    controlX = laid.x;
+    labelX = laid.x + w + theme.checkboxRowGap;
+  } else {
+    labelX = laid.x;
+    controlX = laid.x + laid.width - w;
+  }
+  const fill = on ? theme.toggleOnColor : theme.toggleOffColor;
+  const knobR = h / 2 - 2;
+  const knobCx = on ? controlX + w - knobR - 2 : controlX + knobR + 2;
+  out.push(`<g opacity="${opacity}">`);
+  out.push(
+    `<rect x="${controlX}" y="${cy}" width="${w}" height="${h}" rx="${h / 2}" fill="${fill}" />`
+  );
+  out.push(
+    `<circle cx="${knobCx}" cy="${cy + h / 2}" r="${knobR}" fill="${theme.toggleKnobColor}" />`
+  );
+  const midY = laid.y + laid.height / 2 + theme.fontSize / 3;
+  out.push(
+    `<text x="${labelX}" y="${midY}" fill="${theme.textColor}">${escapeText(node.label)}</text>`
+  );
+  out.push(`</g>`);
+}
+function emitChip(laid, theme, out) {
+  const node = laid.node;
+  const selected = hasFlag(node.attributes, "selected");
+  const closable = hasFlag(node.attributes, "closable");
+  const accent = getAccent(node.attributes, theme);
+  const iconName = getAttrString2(node.attributes, "icon");
+  let bg;
+  let border;
+  let textColor;
+  if (selected) {
+    bg = accent ?? theme.chipSelectedBg;
+    border = accent ?? theme.chipSelectedBorder;
+    textColor = theme.chipSelectedText;
+  } else {
+    bg = theme.chipBg;
+    border = accent ?? theme.chipBorder;
+    textColor = accent ?? theme.chipText;
+  }
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${laid.height / 2}" fill="${bg}" stroke="${border}" stroke-width="1" />`
+  );
+  let cursorX = laid.x + theme.chipPaddingX;
+  const midY = laid.y + laid.height / 2;
+  if (iconName && hasIcon(iconName)) {
+    const iconSize = 12;
+    const iconMarkup = emitIconByName(
+      iconName,
+      cursorX,
+      midY - iconSize / 2,
+      iconSize,
+      textColor
+    );
+    if (iconMarkup) out.push(iconMarkup);
+    cursorX += iconSize + 4;
+  }
+  out.push(
+    `<text x="${cursorX}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}" fill="${textColor}">${escapeText(node.label)}</text>`
+  );
+  if (closable) {
+    const cx = laid.x + laid.width - theme.chipPaddingX - 4;
+    out.push(
+      `<line x1="${cx - 4}" y1="${midY - 4}" x2="${cx + 4}" y2="${midY + 4}" stroke="${textColor}" stroke-width="1.2" stroke-linecap="round" />`,
+      `<line x1="${cx + 4}" y1="${midY - 4}" x2="${cx - 4}" y2="${midY + 4}" stroke="${textColor}" stroke-width="1.2" stroke-linecap="round" />`
+    );
+  }
+}
+function emitAvatar(laid, theme, out) {
+  const node = laid.node;
+  const accent = getAccent(node.attributes, theme);
+  const bg = accent ?? theme.avatarBg;
+  const border = accent ?? theme.avatarBorder;
+  const text = accent ? "#ffffff" : theme.avatarText;
+  const cx = laid.x + laid.width / 2;
+  const cy = laid.y + laid.height / 2;
+  const r = laid.width / 2 - 0.5;
+  out.push(
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${bg}" stroke="${border}" stroke-width="1" />`
+  );
+  const initials = (node.initials || "?").slice(0, 2).toUpperCase();
+  const fontSize = Math.max(10, Math.round(laid.width * 0.42));
+  out.push(
+    `<text x="${cx}" y="${cy + fontSize / 3}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="${text}">${escapeText(initials)}</text>`
+  );
+}
+function emitSpinner(laid, theme, out) {
+  const node = laid.node;
+  const cx = laid.x + theme.spinnerSize / 2;
+  const cy = laid.y + laid.height / 2;
+  const r = theme.spinnerSize / 2 - 2;
+  out.push(
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${theme.spinnerColor}" stroke-width="1.6" stroke-dasharray="${r * 1.3} ${r * 0.9}" stroke-linecap="round" />`
+  );
+  if (node.label !== void 0) {
+    out.push(
+      `<text x="${laid.x + theme.spinnerSize + theme.rowGap}" y="${cy + theme.fontSize / 3}" font-size="${theme.smallFontSize}" fill="${theme.mutedTextColor}">${escapeText(node.label)}</text>`
+    );
+  }
+}
+function emitStatus(laid, theme, out) {
+  const node = laid.node;
+  const kindRaw = getAttrIdent2(node.attributes, "kind") ?? "info";
+  const kind = ["success", "info", "warning", "error"].includes(
+    kindRaw
+  ) ? kindRaw : "info";
+  const style = theme.statusColors[kind];
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${laid.height / 2}" fill="${style.bg}" stroke="${style.border}" stroke-width="1" />`
+  );
+  const glyphX = laid.x + theme.statusPaddingX;
+  const midY = laid.y + laid.height / 2;
+  if (kind === "success") {
+    out.push(
+      `<path d="M ${glyphX} ${midY} L ${glyphX + 4} ${midY + 4} L ${glyphX + 10} ${midY - 4}" fill="none" stroke="${style.border}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />`
+    );
+  } else if (kind === "warning") {
+    out.push(
+      `<path d="M ${glyphX + 5} ${midY - 5} L ${glyphX + 10} ${midY + 4} L ${glyphX} ${midY + 4} Z" fill="none" stroke="${style.border}" stroke-width="1.4" stroke-linejoin="round" />`,
+      `<line x1="${glyphX + 5}" y1="${midY - 1}" x2="${glyphX + 5}" y2="${midY + 2}" stroke="${style.border}" stroke-width="1.4" stroke-linecap="round" />`
+    );
+  } else if (kind === "error") {
+    out.push(
+      `<line x1="${glyphX}" y1="${midY - 4}" x2="${glyphX + 10}" y2="${midY + 4}" stroke="${style.border}" stroke-width="1.8" stroke-linecap="round" />`,
+      `<line x1="${glyphX + 10}" y1="${midY - 4}" x2="${glyphX}" y2="${midY + 4}" stroke="${style.border}" stroke-width="1.8" stroke-linecap="round" />`
+    );
+  } else {
+    out.push(
+      `<circle cx="${glyphX + 5}" cy="${midY - 4}" r="1.2" fill="${style.border}" />`,
+      `<line x1="${glyphX + 5}" y1="${midY - 1}" x2="${glyphX + 5}" y2="${midY + 4}" stroke="${style.border}" stroke-width="1.6" stroke-linecap="round" />`
+    );
+  }
+  out.push(
+    `<text x="${glyphX + 16}" y="${midY + theme.fontSize / 3}" font-size="${theme.smallFontSize}" font-weight="500" fill="${style.fg}">${escapeText(node.label)}</text>`
+  );
 }
 function emitWindow(laid, theme, out) {
   const node = laid.node;

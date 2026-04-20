@@ -1,0 +1,736 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "menubar",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "menu",
+            "label": "File",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "menuitem",
+                "label": "New Folder",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "shortcut",
+                    "value": {
+                      "kind": "string",
+                      "value": "Ctrl+N",
+                      "position": {
+                        "line": 4,
+                        "column": 38
+                      }
+                    },
+                    "position": {
+                      "line": 4,
+                      "column": 29
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "menuitem",
+                "label": "Open",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "shortcut",
+                    "value": {
+                      "kind": "string",
+                      "value": "Ctrl+O",
+                      "position": {
+                        "line": 5,
+                        "column": 32
+                      }
+                    },
+                    "position": {
+                      "line": 5,
+                      "column": 23
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 5,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "separator",
+                "attributes": [],
+                "position": {
+                  "line": 6,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "menuitem",
+                "label": "Quit",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "shortcut",
+                    "value": {
+                      "kind": "string",
+                      "value": "Ctrl+Q",
+                      "position": {
+                        "line": 7,
+                        "column": 32
+                      }
+                    },
+                    "position": {
+                      "line": 7,
+                      "column": 23
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 7,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          },
+          {
+            "kind": "menu",
+            "label": "Edit",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "menuitem",
+                "label": "Cut",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "shortcut",
+                    "value": {
+                      "kind": "string",
+                      "value": "Ctrl+X",
+                      "position": {
+                        "line": 9,
+                        "column": 31
+                      }
+                    },
+                    "position": {
+                      "line": 9,
+                      "column": 22
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 9,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "menuitem",
+                "label": "Copy",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "shortcut",
+                    "value": {
+                      "kind": "string",
+                      "value": "Ctrl+C",
+                      "position": {
+                        "line": 10,
+                        "column": 32
+                      }
+                    },
+                    "position": {
+                      "line": 10,
+                      "column": 23
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "menuitem",
+                "label": "Paste",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "shortcut",
+                    "value": {
+                      "kind": "string",
+                      "value": "Ctrl+V",
+                      "position": {
+                        "line": 11,
+                        "column": 33
+                      }
+                    },
+                    "position": {
+                      "line": 11,
+                      "column": 24
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 11,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "separator",
+                "attributes": [],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "menuitem",
+                "label": "Delete",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "disabled",
+                    "position": {
+                      "line": 13,
+                      "column": 25
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 13,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          },
+          {
+            "kind": "menu",
+            "label": "View",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "menuitem",
+                "label": "Refresh",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "shortcut",
+                    "value": {
+                      "kind": "string",
+                      "value": "F5",
+                      "position": {
+                        "line": 15,
+                        "column": 35
+                      }
+                    },
+                    "position": {
+                      "line": 15,
+                      "column": 26
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 15,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 14,
+              "column": 5
+            }
+          },
+          {
+            "kind": "menu",
+            "label": "Help",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "menuitem",
+                "label": "About",
+                "attributes": [],
+                "position": {
+                  "line": 17,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 16,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "breadcrumb",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "crumb",
+            "label": "This PC",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "authority",
+                  "position": {
+                    "line": 20,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 20,
+                  "column": 21
+                }
+              }
+            ],
+            "position": {
+              "line": 20,
+              "column": 5
+            }
+          },
+          {
+            "kind": "crumb",
+            "label": "Projects",
+            "attributes": [],
+            "position": {
+              "line": 21,
+              "column": 5
+            }
+          },
+          {
+            "kind": "crumb",
+            "label": "wireloom",
+            "attributes": [],
+            "position": {
+              "line": 22,
+              "column": 5
+            }
+          },
+          {
+            "kind": "crumb",
+            "label": "src",
+            "attributes": [],
+            "position": {
+              "line": 23,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 19,
+          "column": 3
+        }
+      },
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "col",
+            "width": {
+              "kind": "length",
+              "value": 200,
+              "unit": "px"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "tree",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "treeNode",
+                    "label": "wireloom",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "icon",
+                        "value": {
+                          "kind": "string",
+                          "value": "policy",
+                          "position": {
+                            "line": 28,
+                            "column": 30
+                          }
+                        },
+                        "position": {
+                          "line": 28,
+                          "column": 25
+                        }
+                      }
+                    ],
+                    "children": [
+                      {
+                        "kind": "treeNode",
+                        "label": "src",
+                        "attributes": [
+                          {
+                            "kind": "flag",
+                            "flag": "selected",
+                            "position": {
+                              "line": 29,
+                              "column": 22
+                            }
+                          }
+                        ],
+                        "children": [
+                          {
+                            "kind": "treeNode",
+                            "label": "parser",
+                            "attributes": [],
+                            "children": [
+                              {
+                                "kind": "treeNode",
+                                "label": "ast.ts",
+                                "attributes": [],
+                                "children": [],
+                                "position": {
+                                  "line": 31,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "treeNode",
+                                "label": "lexer.ts",
+                                "attributes": [],
+                                "children": [],
+                                "position": {
+                                  "line": 32,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "treeNode",
+                                "label": "parser.ts",
+                                "attributes": [],
+                                "children": [],
+                                "position": {
+                                  "line": 33,
+                                  "column": 15
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 30,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "treeNode",
+                            "label": "renderer",
+                            "attributes": [],
+                            "children": [
+                              {
+                                "kind": "treeNode",
+                                "label": "layout.ts",
+                                "attributes": [],
+                                "children": [],
+                                "position": {
+                                  "line": 35,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "treeNode",
+                                "label": "svg.ts",
+                                "attributes": [],
+                                "children": [],
+                                "position": {
+                                  "line": 36,
+                                  "column": 15
+                                }
+                              },
+                              {
+                                "kind": "treeNode",
+                                "label": "themes.ts",
+                                "attributes": [],
+                                "children": [],
+                                "position": {
+                                  "line": 37,
+                                  "column": 15
+                                }
+                              }
+                            ],
+                            "position": {
+                              "line": 34,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 29,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "treeNode",
+                        "label": "test",
+                        "attributes": [
+                          {
+                            "kind": "flag",
+                            "flag": "collapsed",
+                            "position": {
+                              "line": 38,
+                              "column": 23
+                            }
+                          }
+                        ],
+                        "children": [
+                          {
+                            "kind": "treeNode",
+                            "label": "parser",
+                            "attributes": [],
+                            "children": [],
+                            "position": {
+                              "line": 39,
+                              "column": 13
+                            }
+                          },
+                          {
+                            "kind": "treeNode",
+                            "label": "renderer",
+                            "attributes": [],
+                            "children": [],
+                            "position": {
+                              "line": 40,
+                              "column": 13
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 38,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "treeNode",
+                        "label": "examples",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 41,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "treeNode",
+                        "label": "README.md",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 42,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "treeNode",
+                        "label": "package.json",
+                        "attributes": [],
+                        "children": [],
+                        "position": {
+                          "line": 43,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 28,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 27,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 26,
+              "column": 5
+            }
+          },
+          {
+            "kind": "col",
+            "width": {
+              "kind": "fill"
+            },
+            "attributes": [],
+            "children": [
+              {
+                "kind": "panel",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "row",
+                    "attributes": [],
+                    "children": [
+                      {
+                        "kind": "text",
+                        "content": "parser.ts",
+                        "attributes": [
+                          {
+                            "kind": "pair",
+                            "key": "weight",
+                            "value": {
+                              "kind": "identifier",
+                              "value": "semibold",
+                              "position": {
+                                "line": 48,
+                                "column": 35
+                              }
+                            },
+                            "position": {
+                              "line": 48,
+                              "column": 28
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 48,
+                          "column": 11
+                        }
+                      },
+                      {
+                        "kind": "text",
+                        "content": "1,460 lines",
+                        "attributes": [
+                          {
+                            "kind": "pair",
+                            "key": "size",
+                            "value": {
+                              "kind": "identifier",
+                              "value": "small",
+                              "position": {
+                                "line": 49,
+                                "column": 35
+                              }
+                            },
+                            "position": {
+                              "line": 49,
+                              "column": 30
+                            }
+                          },
+                          {
+                            "kind": "flag",
+                            "flag": "muted",
+                            "position": {
+                              "line": 49,
+                              "column": 41
+                            }
+                          }
+                        ],
+                        "position": {
+                          "line": 49,
+                          "column": 11
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 47,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "divider",
+                    "attributes": [],
+                    "position": {
+                      "line": 50,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Recursive-descent parser producing a Document AST.",
+                    "attributes": [],
+                    "position": {
+                      "line": 51,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Throws WireloomError with source position on failure.",
+                    "attributes": [
+                      {
+                        "kind": "pair",
+                        "key": "size",
+                        "value": {
+                          "kind": "identifier",
+                          "value": "small",
+                          "position": {
+                            "line": 52,
+                            "column": 75
+                          }
+                        },
+                        "position": {
+                          "line": 52,
+                          "column": 70
+                        }
+                      },
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 52,
+                          "column": 81
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 52,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 46,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 45,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 25,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Files"
+  },
+  "sourceLines": 53
+}
