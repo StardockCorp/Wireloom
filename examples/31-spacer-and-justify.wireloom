@@ -1,0 +1,20 @@
+window "Spacer and Justify":
+  section "Dialog footer — spacer":
+    row:
+      button "Cancel"
+      spacer
+      button "Done" primary
+  section "justify=between":
+    row justify=between:
+      text "A"
+      text "B"
+      text "C"
+  section "justify=around":
+    row justify=around:
+      text "A"
+      text "B"
+      text "C"
+  section "justify=end":
+    row justify=end:
+      button "One"
+      button "Two"

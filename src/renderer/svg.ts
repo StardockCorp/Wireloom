@@ -179,6 +179,10 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
     case 'divider':
       emitDivider(laid, theme, out);
       break;
+    case 'spacer':
+      // Nothing to paint — spacer's only job is to consume row slack during
+      // layout so its siblings anchor to the correct edges.
+      break;
     case 'grid':
       emitGrid(laid, theme, out);
       break;

@@ -50,6 +50,7 @@ import type {
   SliderNode,
   SlotFooterNode,
   SlotNode,
+  SpacerNode,
   SpinnerNode,
   StatNode,
   StatsNode,
@@ -232,6 +233,8 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
       return measureInput(node, theme);
     case 'divider':
       return measureDivider(theme);
+    case 'spacer':
+      return measureSpacer();
     case 'panel':
       return measurePanel(node, theme);
     case 'section':
@@ -443,6 +446,13 @@ function measureInput(node: InputNode, theme: Theme): Size {
 
 function measureDivider(theme: Theme): Size {
   return { width: 0, height: theme.dividerHeight };
+}
+
+function measureSpacer(): Size {
+  // Spacer's intrinsic size is zero on both axes. Its rendered width comes
+  // from the row's slack-distribution pass; it contributes no height so it
+  // never forces the row taller than its other children.
+  return { width: 0, height: 0 };
 }
 
 function measurePanel(node: PanelNode, theme: Theme): Size {
@@ -955,6 +965,8 @@ function positionContainerChild(
       return positionIcon(child, x, y, theme);
     case 'divider':
       return positionDivider(child, x, y, width, theme);
+    case 'spacer':
+      return positionSpacer(child, x, y, width);
     case 'grid':
       return positionGrid(child, x, y, width, theme);
     case 'resourcebar':
@@ -1196,14 +1208,20 @@ function positionRow(
   theme: Theme,
 ): LaidOutNode {
   // Pass 1: classify children and compute their base (measured) widths.
+  // `col fill` and `spacer` both get base width 0 — their real width comes
+  // from distributing slack in pass 2.
   const baseWidths: number[] = [];
   let fillCount = 0;
+  let spacerCount = 0;
   for (const child of node.children) {
     if (child.kind === 'col' && child.width.kind === 'fill') {
       baseWidths.push(0);
       fillCount++;
     } else if (child.kind === 'col' && child.width.kind === 'length' && child.width.unit === 'px') {
       baseWidths.push(child.width.value);
+    } else if (child.kind === 'spacer') {
+      baseWidths.push(0);
+      spacerCount++;
     } else {
       baseWidths.push(measureChild(child, theme).width);
     }
@@ -1213,11 +1231,16 @@ function positionRow(
   const fixedTotal = baseWidths.reduce((acc, w) => acc + w, 0);
   const available = Math.max(0, width - fixedTotal - gapTotal);
   const fillWidth = fillCount > 0 ? available / fillCount : 0;
+  // Spacers only consume slack when there are no fills — fills win precedence.
+  const spacerWidth = fillCount === 0 && spacerCount > 0 ? available / spacerCount : 0;
 
-  // Assigned widths per child after fill distribution.
+  // Assigned widths per child after slack distribution.
   const assignedWidths = node.children.map((child, i) => {
     if (child.kind === 'col' && child.width.kind === 'fill') {
       return Math.max(fillWidth, theme.colFillMinWidth);
+    }
+    if (child.kind === 'spacer') {
+      return Math.max(spacerWidth, 0);
     }
     return baseWidths[i] ?? 0;
   });
@@ -1226,11 +1249,32 @@ function positionRow(
   const effectiveWidth =
     assignedWidths.reduce((acc, w) => acc + w, 0) + gapTotal;
 
-  // Alignment only applies when there are no fill cols (fills consume all slack).
+  // Slack that will be consumed by `justify=…` when it applies. When fills or
+  // explicit spacers are present, they already ate the slack — justify is a
+  // no-op and alignment falls back to start.
+  const justify = getJustify(node.attributes);
   const align = getAlign(node.attributes);
+  const justifyActive =
+    fillCount === 0 && spacerCount === 0 && justify !== 'start';
+  const slack = Math.max(0, width - effectiveWidth);
+
   let cursorX: number;
-  if (fillCount > 0) {
+  let extraGapBetween = 0;
+  if (fillCount > 0 || spacerCount > 0) {
     cursorX = x;
+  } else if (justifyActive) {
+    const n = node.children.length;
+    if (justify === 'end') {
+      cursorX = x + slack;
+    } else if (justify === 'between') {
+      cursorX = x;
+      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
+    } else {
+      // 'around' — equal space on both sides of each child (half-units at edges).
+      const unit = n > 0 ? slack / (2 * n) : 0;
+      cursorX = x + unit;
+      extraGapBetween = 2 * unit;
+    }
   } else if (align === 'right') {
     cursorX = x + width - effectiveWidth;
   } else if (align === 'center') {
@@ -1248,7 +1292,7 @@ function positionRow(
     children.push(laidChild);
     cursorX += childWidth;
     if (laidChild.height > maxHeight) maxHeight = laidChild.height;
-    if (i < node.children.length - 1) cursorX += theme.rowGap;
+    if (i < node.children.length - 1) cursorX += theme.rowGap + extraGapBetween;
   }
 
   return {
@@ -1674,6 +1718,17 @@ function positionDivider(
   return { node, x, y, width, height: theme.dividerHeight, children: [] };
 }
 
+function positionSpacer(
+  node: SpacerNode,
+  x: number,
+  y: number,
+  width: number,
+): LaidOutNode {
+  // Spacer has zero intrinsic height so it never makes the row taller; width
+  // is whatever the row-layout pass assigned from the slack budget.
+  return { node, x, y, width, height: 0, children: [] };
+}
+
 // ---------------------------------------------------------------------------
 // Attribute / typography helpers
 // ---------------------------------------------------------------------------
@@ -1713,6 +1768,14 @@ function getAlign(attrs: readonly unknown[]): 'left' | 'center' | 'right' {
   const v = getAttrIdent(attrs, 'align');
   if (v === 'center' || v === 'right' || v === 'left') return v;
   return 'left';
+}
+
+function getJustify(
+  attrs: readonly unknown[],
+): 'start' | 'between' | 'around' | 'end' {
+  const v = getAttrIdent(attrs, 'justify');
+  if (v === 'between' || v === 'around' || v === 'end' || v === 'start') return v;
+  return 'start';
 }
 
 function textSizeScale(attrs: readonly unknown[], theme: Theme): number {

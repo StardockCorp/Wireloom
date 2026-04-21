@@ -51,6 +51,7 @@ import type {
   SlotFooterNode,
   SlotNode,
   SourcePosition,
+  SpacerNode,
   SpinnerNode,
   StatNode,
   StatsNode,
@@ -86,6 +87,7 @@ interface AttrRules {
 const WEIGHT_VALUES = ['light', 'regular', 'semibold', 'bold'] as const;
 const SIZE_VALUES = ['small', 'regular', 'large'] as const;
 const ALIGN_VALUES = ['left', 'center', 'right'] as const;
+const JUSTIFY_VALUES = ['start', 'between', 'around', 'end'] as const;
 const INPUT_TYPE_VALUES = ['text', 'password', 'email'] as const;
 const ACCENT_VALUES = [
   'research',
@@ -140,9 +142,13 @@ const ATTR_RULES: Record<string, AttrRules> = {
     flags: ['active'],
   },
   row: {
-    attrs: { align: { kind: 'enum', values: ALIGN_VALUES } },
+    attrs: {
+      align: { kind: 'enum', values: ALIGN_VALUES },
+      justify: { kind: 'enum', values: JUSTIFY_VALUES },
+    },
     flags: [],
   },
+  spacer: { attrs: {}, flags: [] },
   col: { attrs: {}, flags: [] },
   list: { attrs: {}, flags: [] },
   item: { attrs: {}, flags: [] },
@@ -365,7 +371,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -593,6 +599,13 @@ class Parser {
         head.column,
       );
     }
+    if (name === 'spacer') {
+      throw new WireloomError(
+        '"spacer" may only appear inside "row"',
+        head.line,
+        head.column,
+      );
+    }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
     return this.parseContainerChildNamed(name);
@@ -668,7 +681,9 @@ class Parser {
                               ? '"separator" may only appear inside "menu"'
                               : name === 'crumb'
                                 ? '"crumb" may only appear inside "breadcrumb"'
-                                : `"${name}" is not allowed here`;
+                                : name === 'spacer'
+                                  ? '"spacer" may only appear inside "row"'
+                                  : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -822,8 +837,35 @@ class Parser {
     const position = positionOf(head);
     const attributes = this.parseAttributes('row');
     const hasChildren = this.parseTerminator('row', head);
-    const children = hasChildren ? this.parseContainerChildren() : [];
+    const children = hasChildren ? this.parseRowChildren() : [];
     return { kind: 'row', attributes, children, position };
+  }
+
+  /**
+   * Row children accept everything a normal container does, plus `spacer`
+   * (flex gap — v0.5). Kept as a separate pass so spacer stays grammar-
+   * restricted to rows without widening the general container union.
+   */
+  private parseRowChildren(): ContainerChild[] {
+    const children: ContainerChild[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind === 'ident' && (head.identValue ?? head.raw) === 'spacer') {
+        children.push(this.parseSpacer());
+        continue;
+      }
+      children.push(this.parseContainerChild());
+    }
+    this.expectKind('dedent', 'children block did not close cleanly');
+    return children;
+  }
+
+  private parseSpacer(): SpacerNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('spacer');
+    this.parseLeafTerminator('spacer', head);
+    return { kind: 'spacer', attributes, position };
   }
 
   private parseCol(): ColNode {
@@ -1634,7 +1676,7 @@ class Parser {
       this.expectKind('newline', `expected newline after "${primitive}:"`);
       if (this.peek().kind !== 'indent') {
         throw new WireloomError(
-          `"${primitive}" ends with ":" but has no indented children`,
+          `"${primitive}" ends with ":" but has no indented children (for a flex gap in a row, use the "spacer" primitive)`,
           headToken.line,
           headToken.column,
         );

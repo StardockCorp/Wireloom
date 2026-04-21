@@ -211,6 +211,15 @@ export interface DividerNode extends NodeBase {
   kind: 'divider';
 }
 
+/**
+ * Horizontal flex gap inside a `row`. No args, no attrs (other than universal
+ * `id`), no children. Consumes any slack in the parent row so siblings on
+ * either side anchor left/right. Only valid as a direct child of `row`.
+ */
+export interface SpacerNode extends NodeBase {
+  kind: 'spacer';
+}
+
 export interface ProgressNode extends NodeBase {
   kind: 'progress';
 }
@@ -380,6 +389,7 @@ export type LeafNode =
   | ImageNode
   | IconNode
   | DividerNode
+  | SpacerNode
   | ProgressNode
   | ChartNode
   | CheckboxNode

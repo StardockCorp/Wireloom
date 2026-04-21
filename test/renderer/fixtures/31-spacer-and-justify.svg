@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="198.4" height="364" viewBox="0 0 198.4 364" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="198.4" height="364" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="197.4" height="363" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="198.4" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="99.2" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Spacer and Justify</text>
+<text x="16" y="70" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">DIALOG FOOTER — SPACER</text>
+<line x1="16" y1="74" x2="182.4" y2="74" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g opacity="1">
+<rect x="16.5" y="82.5" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="53.6" y="102.66666666666667" text-anchor="middle" font-weight="500" fill="#2d2d2d">Cancel</text>
+</g>
+<g opacity="1">
+<rect x="122.10000000000001" y="82.5" width="59.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="152" y="102.66666666666667" text-anchor="middle" font-weight="500" fill="#ffffff">Done</text>
+</g>
+<text x="16" y="152" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">JUSTIFY=BETWEEN</text>
+<line x1="16" y1="156" x2="182.4" y2="156" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="16" y="179" fill="#2d2d2d">A</text>
+<text x="95.60000000000001" y="179" fill="#2d2d2d">B</text>
+<text x="175.20000000000002" y="179" fill="#2d2d2d">C</text>
+<text x="16" y="222" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">JUSTIFY=AROUND</text>
+<line x1="16" y1="226" x2="182.4" y2="226" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<text x="37.46666666666667" y="249" fill="#2d2d2d">A</text>
+<text x="95.60000000000001" y="249" fill="#2d2d2d">B</text>
+<text x="153.73333333333335" y="249" fill="#2d2d2d">C</text>
+<text x="16" y="292" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">JUSTIFY=END</text>
+<line x1="16" y1="296" x2="182.4" y2="296" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<g opacity="1">
+<rect x="67.7" y="304.5" width="52.6" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="94" y="324.6666666666667" text-anchor="middle" font-weight="500" fill="#2d2d2d">One</text>
+</g>
+<g opacity="1">
+<rect x="129.3" y="304.5" width="52.6" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="155.60000000000002" y="324.6666666666667" text-anchor="middle" font-weight="500" fill="#2d2d2d">Two</text>
+</g>
+</svg>

@@ -192,6 +192,14 @@ interface IconNode extends NodeBase {
 interface DividerNode extends NodeBase {
     kind: 'divider';
 }
+/**
+ * Horizontal flex gap inside a `row`. No args, no attrs (other than universal
+ * `id`), no children. Consumes any slack in the parent row so siblings on
+ * either side anchor left/right. Only valid as a direct child of `row`.
+ */
+interface SpacerNode extends NodeBase {
+    kind: 'spacer';
+}
 interface ProgressNode extends NodeBase {
     kind: 'progress';
 }
@@ -296,7 +304,7 @@ interface AnnotationNode extends NodeBase {
  * Leaf nodes that can appear in any container (panel/section/row/col/slot).
  * Excludes `tab` (must be inside `tabs`) and `item` (must be inside `list`).
  */
-type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | ProgressNode | ChartNode | CheckboxNode | RadioNode | ToggleNode | ChipNode | AvatarNode | SpinnerNode | StatusNode;
+type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | SpacerNode | ProgressNode | ChartNode | CheckboxNode | RadioNode | ToggleNode | ChipNode | AvatarNode | SpinnerNode | StatusNode;
 type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
 type WindowChild = HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
 type AnyNode = WindowNode | HeaderNode | FooterNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | TreeNode_ | TreeItemNode | MenubarNode | MenuNode | MenuItemNode | SeparatorNode | BreadcrumbNode | CrumbNode | AnnotationNode | LeafNode;
@@ -564,4 +572,4 @@ declare const wireloom: {
     render: typeof render;
 };
 
-export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SeparatorNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
+export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SeparatorNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpacerNode, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };

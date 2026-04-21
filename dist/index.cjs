@@ -285,6 +285,7 @@ function tokenizeLineContent(rawLine, startColumn0, lineNo, tokens) {
 var WEIGHT_VALUES = ["light", "regular", "semibold", "bold"];
 var SIZE_VALUES = ["small", "regular", "large"];
 var ALIGN_VALUES = ["left", "center", "right"];
+var JUSTIFY_VALUES = ["start", "between", "around", "end"];
 var INPUT_TYPE_VALUES = ["text", "password", "email"];
 var ACCENT_VALUES = [
   "research",
@@ -330,9 +331,13 @@ var ATTR_RULES = {
     flags: ["active"]
   },
   row: {
-    attrs: { align: { kind: "enum", values: ALIGN_VALUES } },
+    attrs: {
+      align: { kind: "enum", values: ALIGN_VALUES },
+      justify: { kind: "enum", values: JUSTIFY_VALUES }
+    },
     flags: []
   },
+  spacer: { attrs: {}, flags: [] },
   col: { attrs: {}, flags: [] },
   list: { attrs: {}, flags: [] },
   item: { attrs: {}, flags: [] },
@@ -549,7 +554,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "status"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -752,6 +757,13 @@ var Parser = class {
         head.column
       );
     }
+    if (name === "spacer") {
+      throw new WireloomError(
+        '"spacer" may only appear inside "row"',
+        head.line,
+        head.column
+      );
+    }
     if (name === "header") return this.parseHeader();
     if (name === "footer") return this.parseFooter();
     return this.parseContainerChildNamed(name);
@@ -796,7 +808,7 @@ var Parser = class {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : `"${name}" is not allowed here`;
+      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : name === "spacer" ? '"spacer" may only appear inside "row"' : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -942,8 +954,33 @@ var Parser = class {
     const position = positionOf(head);
     const attributes = this.parseAttributes("row");
     const hasChildren = this.parseTerminator("row", head);
-    const children = hasChildren ? this.parseContainerChildren() : [];
+    const children = hasChildren ? this.parseRowChildren() : [];
     return { kind: "row", attributes, children, position };
+  }
+  /**
+   * Row children accept everything a normal container does, plus `spacer`
+   * (flex gap — v0.5). Kept as a separate pass so spacer stays grammar-
+   * restricted to rows without widening the general container union.
+   */
+  parseRowChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind === "ident" && (head.identValue ?? head.raw) === "spacer") {
+        children.push(this.parseSpacer());
+        continue;
+      }
+      children.push(this.parseContainerChild());
+    }
+    this.expectKind("dedent", "children block did not close cleanly");
+    return children;
+  }
+  parseSpacer() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("spacer");
+    this.parseLeafTerminator("spacer", head);
+    return { kind: "spacer", attributes, position };
   }
   parseCol() {
     const head = this.consume();
@@ -1671,7 +1708,7 @@ var Parser = class {
       this.expectKind("newline", `expected newline after "${primitive}:"`);
       if (this.peek().kind !== "indent") {
         throw new WireloomError(
-          `"${primitive}" ends with ":" but has no indented children`,
+          `"${primitive}" ends with ":" but has no indented children (for a flex gap in a row, use the "spacer" primitive)`,
           headToken.line,
           headToken.column
         );
@@ -2511,6 +2548,8 @@ function measureChild(node, theme) {
       return measureInput(node, theme);
     case "divider":
       return measureDivider(theme);
+    case "spacer":
+      return measureSpacer();
     case "panel":
       return measurePanel(node, theme);
     case "section":
@@ -2695,6 +2734,9 @@ function measureInput(node, theme) {
 }
 function measureDivider(theme) {
   return { width: 0, height: theme.dividerHeight };
+}
+function measureSpacer() {
+  return { width: 0, height: 0 };
 }
 function measurePanel(node, theme) {
   const inner = measureStack(node.children, theme, "vertical");
@@ -3077,6 +3119,8 @@ function positionContainerChild(child, x, y, width, theme) {
       return positionIcon(child, x, y, theme);
     case "divider":
       return positionDivider(child, x, y, width, theme);
+    case "spacer":
+      return positionSpacer(child, x, y, width);
     case "grid":
       return positionGrid(child, x, y, width, theme);
     case "resourcebar":
@@ -3250,12 +3294,16 @@ function positionTabs(node, x, y, width, theme) {
 function positionRow(node, x, y, width, theme) {
   const baseWidths = [];
   let fillCount = 0;
+  let spacerCount = 0;
   for (const child of node.children) {
     if (child.kind === "col" && child.width.kind === "fill") {
       baseWidths.push(0);
       fillCount++;
     } else if (child.kind === "col" && child.width.kind === "length" && child.width.unit === "px") {
       baseWidths.push(child.width.value);
+    } else if (child.kind === "spacer") {
+      baseWidths.push(0);
+      spacerCount++;
     } else {
       baseWidths.push(measureChild(child, theme).width);
     }
@@ -3264,17 +3312,37 @@ function positionRow(node, x, y, width, theme) {
   const fixedTotal = baseWidths.reduce((acc, w) => acc + w, 0);
   const available = Math.max(0, width - fixedTotal - gapTotal);
   const fillWidth = fillCount > 0 ? available / fillCount : 0;
+  const spacerWidth = fillCount === 0 && spacerCount > 0 ? available / spacerCount : 0;
   const assignedWidths = node.children.map((child, i) => {
     if (child.kind === "col" && child.width.kind === "fill") {
       return Math.max(fillWidth, theme.colFillMinWidth);
     }
+    if (child.kind === "spacer") {
+      return Math.max(spacerWidth, 0);
+    }
     return baseWidths[i] ?? 0;
   });
   const effectiveWidth = assignedWidths.reduce((acc, w) => acc + w, 0) + gapTotal;
+  const justify = getJustify(node.attributes);
   const align = getAlign(node.attributes);
+  const justifyActive = fillCount === 0 && spacerCount === 0 && justify !== "start";
+  const slack = Math.max(0, width - effectiveWidth);
   let cursorX;
-  if (fillCount > 0) {
+  let extraGapBetween = 0;
+  if (fillCount > 0 || spacerCount > 0) {
     cursorX = x;
+  } else if (justifyActive) {
+    const n = node.children.length;
+    if (justify === "end") {
+      cursorX = x + slack;
+    } else if (justify === "between") {
+      cursorX = x;
+      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
+    } else {
+      const unit = n > 0 ? slack / (2 * n) : 0;
+      cursorX = x + unit;
+      extraGapBetween = 2 * unit;
+    }
   } else if (align === "right") {
     cursorX = x + width - effectiveWidth;
   } else if (align === "center") {
@@ -3291,7 +3359,7 @@ function positionRow(node, x, y, width, theme) {
     children.push(laidChild);
     cursorX += childWidth;
     if (laidChild.height > maxHeight) maxHeight = laidChild.height;
-    if (i < node.children.length - 1) cursorX += theme.rowGap;
+    if (i < node.children.length - 1) cursorX += theme.rowGap + extraGapBetween;
   }
   return {
     node,
@@ -3572,6 +3640,9 @@ function positionIcon(node, x, y, theme) {
 function positionDivider(node, x, y, width, theme) {
   return { node, x, y, width, height: theme.dividerHeight, children: [] };
 }
+function positionSpacer(node, x, y, width) {
+  return { node, x, y, width, height: 0, children: [] };
+}
 function getAttr(attrs, key) {
   for (const a of attrs) {
     const attr = a;
@@ -3602,6 +3673,11 @@ function getAlign(attrs) {
   const v = getAttrIdent(attrs, "align");
   if (v === "center" || v === "right" || v === "left") return v;
   return "left";
+}
+function getJustify(attrs) {
+  const v = getAttrIdent(attrs, "justify");
+  if (v === "between" || v === "around" || v === "end" || v === "start") return v;
+  return "start";
 }
 function textSizeScale(attrs, theme) {
   const size = getAttrIdent(attrs, "size");
@@ -3899,6 +3975,8 @@ function emitNode(laid, theme, out) {
       break;
     case "divider":
       emitDivider(laid, theme, out);
+      break;
+    case "spacer":
       break;
     case "grid":
       emitGrid(laid, theme, out);
