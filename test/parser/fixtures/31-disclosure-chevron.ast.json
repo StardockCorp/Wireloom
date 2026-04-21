@@ -1,0 +1,224 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "section",
+        "title": "Account",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "list",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "item",
+                "text": "Profile",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "chevron",
+                    "position": {
+                      "line": 4,
+                      "column": 22
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "item",
+                "text": "Password",
+                "attributes": [],
+                "position": {
+                  "line": 5,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "item",
+                "text": "Privacy",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "chevron",
+                    "position": {
+                      "line": 6,
+                      "column": 22
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 6,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Subscriptions",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "list",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "slot",
+                "title": "Billing",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "chevron",
+                    "position": {
+                      "line": 9,
+                      "column": 22
+                    }
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Visa •••• 4242",
+                    "attributes": [],
+                    "position": {
+                      "line": 10,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "Renews Jan 1",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 11,
+                          "column": 29
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 11,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 9,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "slot",
+                "title": "Plan",
+                "attributes": [],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Pro",
+                    "attributes": [],
+                    "position": {
+                      "line": 13,
+                      "column": 9
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "content": "50 GB included",
+                    "attributes": [
+                      {
+                        "kind": "flag",
+                        "flag": "muted",
+                        "position": {
+                          "line": 14,
+                          "column": 31
+                        }
+                      }
+                    ],
+                    "position": {
+                      "line": 14,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "slot",
+                "title": "Data export",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "active",
+                    "position": {
+                      "line": 15,
+                      "column": 26
+                    }
+                  },
+                  {
+                    "kind": "flag",
+                    "flag": "chevron",
+                    "position": {
+                      "line": 15,
+                      "column": 33
+                    }
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "text",
+                    "content": "Download your account data",
+                    "attributes": [],
+                    "position": {
+                      "line": 16,
+                      "column": 9
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 15,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 7,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Settings"
+  },
+  "sourceLines": 17
+}

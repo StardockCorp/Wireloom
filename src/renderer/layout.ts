@@ -517,15 +517,17 @@ function measureList(node: ListNode, theme: Theme): Size {
 
 function measureItem(node: ItemNode, theme: Theme): Size {
   const textW = node.text.length * theme.averageCharWidth;
+  const chevronExtra = hasFlagAttr(node.attributes, 'chevron') ? theme.chevronGlyphGutter : 0;
   return {
-    width: theme.bulletWidth + textW,
+    width: theme.bulletWidth + textW + chevronExtra,
     height: theme.lineHeight,
   };
 }
 
 function measureSlot(node: SlotNode, theme: Theme): Size {
   const inner = measureStack(node.children, theme, 'vertical');
-  const titleW = node.title.length * theme.averageCharWidth;
+  const chevronExtra = hasFlagAttr(node.attributes, 'chevron') ? theme.chevronGlyphGutter : 0;
+  const titleW = node.title.length * theme.averageCharWidth + chevronExtra;
   let footerH = 0;
   let footerW = 0;
   if (node.slotFooter) {

@@ -145,13 +145,13 @@ const ATTR_RULES: Record<string, AttrRules> = {
   },
   col: { attrs: {}, flags: [] },
   list: { attrs: {}, flags: [] },
-  item: { attrs: {}, flags: [] },
+  item: { attrs: {}, flags: ['chevron'] },
   slot: {
     attrs: {
       state: { kind: 'enum', values: STATE_VALUES },
       accent: { kind: 'enum', values: ACCENT_VALUES },
     },
-    flags: ['active'],
+    flags: ['active', 'chevron'],
   },
   slotFooter: { attrs: {}, flags: [] },
   grid: {

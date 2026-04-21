@@ -1,0 +1,16 @@
+window "Settings":
+  section "Account":
+    list:
+      item "Profile" chevron
+      item "Password"
+      item "Privacy" chevron
+  section "Subscriptions":
+    list:
+      slot "Billing" chevron:
+        text "Visa •••• 4242"
+        text "Renews Jan 1" muted
+      slot "Plan":
+        text "Pro"
+        text "50 GB included" muted
+      slot "Data export" active chevron:
+        text "Download your account data"

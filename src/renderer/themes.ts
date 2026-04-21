@@ -199,6 +199,12 @@ export interface Theme {
   breadcrumbSeparatorColor: string;
   breadcrumbCurrentColor: string;
 
+  // Disclosure chevron (v0.5) — trailing glyph on `slot`/`item` flagged with `chevron`.
+  chevronGlyphSize: number;
+  chevronGlyphGutter: number;
+  chevronGlyphStrokeWidth: number;
+  chevronGlyphColor: string;
+
   spinnerSize: number;
   spinnerColor: string;
 
@@ -399,6 +405,11 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   breadcrumbSeparatorColor: '#8a9099',
   breadcrumbCurrentColor: '#2d2d2d',
 
+  chevronGlyphSize: 5,
+  chevronGlyphGutter: 14,
+  chevronGlyphStrokeWidth: 1.4,
+  chevronGlyphColor: '#8a9099',
+
   spinnerSize: 16,
   spinnerColor: '#6b7078',
 
@@ -546,6 +557,8 @@ export const DARK_THEME: Theme = Object.freeze({
 
   breadcrumbSeparatorColor: '#707780',
   breadcrumbCurrentColor: '#f0f0f0',
+
+  chevronGlyphColor: '#8a9099',
 
   spinnerColor: '#8a9099',
 

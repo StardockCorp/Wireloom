@@ -785,6 +785,14 @@ function emitItem(laid: LaidOutNode, theme: Theme, out: string[]): void {
   out.push(
     `<text x="${textX}" y="${textY}" fill="${theme.textColor}">${escapeText(node.text)}</text>`,
   );
+  if (hasFlag(node.attributes, 'chevron')) {
+    emitDisclosureChevron(
+      laid.x + laid.width - theme.chevronGlyphGutter / 2,
+      laid.y + laid.height / 2,
+      theme,
+      out,
+    );
+  }
 }
 
 function emitSlot(laid: LaidOutNode, theme: Theme, out: string[]): void {
@@ -830,16 +838,48 @@ function emitSlot(laid: LaidOutNode, theme: Theme, out: string[]): void {
     `<text x="${titleX}" y="${titleY}" font-weight="600" fill="${textColor}">${escapeText(node.title)}</text>`,
   );
 
+  const hasChevron = hasFlag(node.attributes, 'chevron');
+
   // State badge in the top-right corner (lock/check/star, if the state supplies one).
+  // When a chevron is also present, slide the badge inward so both are visible.
   if (badgeIcon !== undefined) {
     const sz = 14;
-    const bx = laid.x + laid.width - theme.slotPadding - sz;
+    const chevronShift = hasChevron ? theme.chevronGlyphGutter : 0;
+    const bx = laid.x + laid.width - theme.slotPadding - sz - chevronShift;
     const by = laid.y + theme.slotPadding + (theme.slotTitleHeight - sz) / 2;
     const iconMarkup = emitIconByName(badgeIcon, bx, by, sz, stroke);
     if (iconMarkup) out.push(iconMarkup);
   }
 
+  if (hasChevron) {
+    emitDisclosureChevron(
+      laid.x + laid.width - theme.slotPadding - theme.chevronGlyphSize,
+      laid.y + theme.slotPadding + theme.slotTitleHeight / 2,
+      theme,
+      out,
+    );
+  }
+
   for (const c of laid.children) emitNode(c, theme, out);
+}
+
+/**
+ * Trailing right-chevron glyph. Rendered as a path (rather than the unicode
+ * `›` character) so it looks identical across browsers, fonts, and rasterizers.
+ * Centered at (cx, cy); two diagonals meet at the right tip.
+ */
+function emitDisclosureChevron(
+  cx: number,
+  cy: number,
+  theme: Theme,
+  out: string[],
+): void {
+  const s = theme.chevronGlyphSize;
+  out.push(
+    `<path d="M ${cx - s} ${cy - s} L ${cx} ${cy} L ${cx - s} ${cy + s}" ` +
+      `fill="none" stroke="${theme.chevronGlyphColor}" stroke-width="${theme.chevronGlyphStrokeWidth}" ` +
+      `stroke-linecap="round" stroke-linejoin="round" />`,
+  );
 }
 
 // ---------------------------------------------------------------------------
