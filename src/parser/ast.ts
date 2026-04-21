@@ -79,6 +79,31 @@ export interface FooterNode extends NodeBase {
   children: ContainerChild[];
 }
 
+/**
+ * Mobile-style navigation bar (v0.50). Direct child of `window` only, same
+ * placement rule as `header`. Holds two optional sub-slots — `leading` (left)
+ * and `trailing` (right) — separated by an internal spacer so the slots
+ * anchor to opposite edges. At least one of leading/trailing must be present.
+ *
+ * Mutually exclusive with `header`: the parser rejects a window that contains
+ * both, since they serve overlapping roles in the chrome band.
+ */
+export interface NavbarNode extends NodeBase {
+  kind: 'navbar';
+  leading?: NavbarSlotNode;
+  trailing?: NavbarSlotNode;
+}
+
+/**
+ * One side of a `navbar` (kind `navbarLeading` or `navbarTrailing`). Written
+ * in source as a bare `leading:` / `trailing:` block. Holds the same children
+ * a normal container row would.
+ */
+export interface NavbarSlotNode extends NodeBase {
+  kind: 'navbarLeading' | 'navbarTrailing';
+  children: ContainerChild[];
+}
+
 export interface PanelNode extends NodeBase {
   kind: 'panel';
   children: ContainerChild[];
@@ -420,6 +445,7 @@ export type ContainerChild =
 export type WindowChild =
   | HeaderNode
   | FooterNode
+  | NavbarNode
   | PanelNode
   | SectionNode
   | TabsNode
@@ -440,6 +466,8 @@ export type AnyNode =
   | WindowNode
   | HeaderNode
   | FooterNode
+  | NavbarNode
+  | NavbarSlotNode
   | SlotFooterNode
   | PanelNode
   | SectionNode

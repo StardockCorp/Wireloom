@@ -1,0 +1,13 @@
+window "Mobile Inbox":
+  navbar:
+    leading:
+      button "Back"
+    trailing:
+      button "Edit"
+      button "New" primary
+  panel:
+    text "Three unread messages."
+    list:
+      item "Wren — spacer landed"
+      item "Tobin — back button on track"
+      item "Nyx — annotations refresh"

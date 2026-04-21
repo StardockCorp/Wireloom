@@ -40,6 +40,8 @@ import type {
   ListNode,
   MenubarNode,
   MenuNode,
+  NavbarNode,
+  NavbarSlotNode,
   PanelNode,
   ProgressNode,
   RadioNode,
@@ -715,12 +717,13 @@ interface WindowMeasurement {
   outer: Size;
   body: Size;
   headerHeight: number;
+  navbarHeight: number;
   footerHeight: number;
   hasTitleBar: boolean;
 }
 
 function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, bodyChildren } = classifyWindowChildren(node);
 
   const bodyStack = measureStack(bodyChildren, theme, 'vertical');
   let bodyWidth = bodyStack.width;
@@ -731,6 +734,12 @@ function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
     const hs = measureHeaderOrFooter(header, theme, 'header');
     headerHeight = hs.height;
     bodyWidth = Math.max(bodyWidth, hs.width);
+  }
+  let navbarHeight = 0;
+  if (navbar) {
+    const ns = measureNavbar(navbar, theme);
+    navbarHeight = ns.height;
+    bodyWidth = Math.max(bodyWidth, ns.width);
   }
   let footerHeight = 0;
   if (footer) {
@@ -747,14 +756,40 @@ function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
   };
   const outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
   const outerHeight =
-    (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + bodySize.height + footerHeight;
+    (hasTitleBar ? theme.titleBarHeight : 0) +
+    headerHeight +
+    navbarHeight +
+    bodySize.height +
+    footerHeight;
 
   return {
     outer: { width: outerWidth, height: outerHeight },
     body: bodySize,
     headerHeight,
+    navbarHeight,
     footerHeight,
     hasTitleBar,
+  };
+}
+
+/**
+ * Measure a navbar's intrinsic size. Width is `leading + trailing` plus
+ * window padding (the central spacer's width is variable). Height is the
+ * tallest slot child plus chrome-band vertical padding, with a floor of
+ * the standard button height so an empty-ish navbar still reads as a band.
+ */
+function measureNavbar(node: NavbarNode, theme: Theme): Size {
+  const leadingSize = node.leading
+    ? measureStack(node.leading.children, theme, 'horizontal')
+    : { width: 0, height: 0 };
+  const trailingSize = node.trailing
+    ? measureStack(node.trailing.children, theme, 'horizontal')
+    : { width: 0, height: 0 };
+  const innerHeight = Math.max(leadingSize.height, trailingSize.height, theme.buttonHeight);
+  const minGap = leadingSize.width > 0 && trailingSize.width > 0 ? theme.rowGap : 0;
+  return {
+    width: leadingSize.width + trailingSize.width + minGap + theme.windowPadding * 2,
+    height: innerHeight + theme.headerPaddingY * 2,
   };
 }
 
@@ -782,18 +817,21 @@ function footerHorizontal(node: HeaderNode | FooterNode, kind: 'header' | 'foote
 
 function classifyWindowChildren(node: WindowNode): {
   header: HeaderNode | undefined;
+  navbar: NavbarNode | undefined;
   footer: FooterNode | undefined;
   bodyChildren: ContainerChild[];
 } {
   let header: HeaderNode | undefined;
+  let navbar: NavbarNode | undefined;
   let footer: FooterNode | undefined;
   const bodyChildren: ContainerChild[] = [];
   for (const child of node.children) {
     if (child.kind === 'header') header = child;
+    else if (child.kind === 'navbar') navbar = child;
     else if (child.kind === 'footer') footer = child;
-    else bodyChildren.push(child);
+    else bodyChildren.push(child as ContainerChild);
   }
-  return { header, footer, bodyChildren };
+  return { header, navbar, footer, bodyChildren };
 }
 
 function titleWidth(title: string | undefined, theme: Theme): number {
@@ -823,7 +861,7 @@ function positionWindow(
     cursorY += theme.titleBarHeight;
   }
 
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, bodyChildren } = classifyWindowChildren(node);
 
   if (header) {
     const laidHeader = positionHeaderOrFooter(
@@ -837,6 +875,12 @@ function positionWindow(
     );
     childrenLaid.push(laidHeader);
     cursorY += m.headerHeight;
+  }
+
+  if (navbar) {
+    const laidNavbar = positionNavbar(navbar, x, cursorY, outerWidth, m.navbarHeight, theme);
+    childrenLaid.push(laidNavbar);
+    cursorY += m.navbarHeight;
   }
 
   const bodyY = cursorY;
@@ -923,6 +967,73 @@ function positionHeaderOrFooter(
   }
 
   return { node, x, y, width, height, children };
+}
+
+/**
+ * Lay out a navbar as a chrome band: leading children anchor to the left of
+ * the inner padding, trailing children anchor to the right. Each child is
+ * vertically centered within the band's content area.
+ */
+function positionNavbar(
+  node: NavbarNode,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  theme: Theme,
+): LaidOutNode {
+  const innerX = x + theme.windowPadding;
+  const innerY = y + theme.headerPaddingY;
+  const innerWidth = width - theme.windowPadding * 2;
+  const innerHeight = height - theme.headerPaddingY * 2;
+
+  const slotChildren: LaidOutNode[] = [];
+  if (node.leading) {
+    slotChildren.push(
+      positionNavbarSlot(node.leading, innerX, innerY, innerHeight, theme, 'left'),
+    );
+  }
+  if (node.trailing) {
+    const trailingRight = innerX + innerWidth;
+    slotChildren.push(
+      positionNavbarSlot(node.trailing, trailingRight, innerY, innerHeight, theme, 'right'),
+    );
+  }
+  return { node, x, y, width, height, children: slotChildren };
+}
+
+function positionNavbarSlot(
+  node: NavbarSlotNode,
+  anchorX: number,
+  innerY: number,
+  innerHeight: number,
+  theme: Theme,
+  anchor: 'left' | 'right',
+): LaidOutNode {
+  const sizes = node.children.map((c) => measureChild(c, theme));
+  const totalChildWidth =
+    sizes.reduce((acc, s) => acc + s.width, 0) +
+    Math.max(0, node.children.length - 1) * theme.rowGap;
+
+  let cursorX = anchor === 'left' ? anchorX : anchorX - totalChildWidth;
+  const slotX = cursorX;
+  const childrenLaid: LaidOutNode[] = [];
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i]!;
+    const size = sizes[i]!;
+    const childY = innerY + (innerHeight - size.height) / 2;
+    childrenLaid.push(positionContainerChild(child, cursorX, childY, size.width, theme));
+    cursorX += size.width;
+    if (i < node.children.length - 1) cursorX += theme.rowGap;
+  }
+  return {
+    node,
+    x: slotX,
+    y: innerY,
+    width: totalChildWidth,
+    height: innerHeight,
+    children: childrenLaid,
+  };
 }
 
 function positionContainerChild(

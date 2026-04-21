@@ -39,6 +39,8 @@ import type {
   MenuChild,
   MenuItemNode,
   MenuNode,
+  NavbarNode,
+  NavbarSlotNode,
   PanelNode,
   ProgressNode,
   RadioNode,
@@ -128,6 +130,9 @@ const ATTR_RULES: Record<string, AttrRules> = {
   window: { attrs: {}, flags: [] },
   header: { attrs: {}, flags: [] },
   footer: { attrs: {}, flags: [] },
+  navbar: { attrs: {}, flags: [] },
+  leading: { attrs: {}, flags: [] },
+  trailing: { attrs: {}, flags: [] },
   panel: { attrs: {}, flags: [] },
   section: {
     attrs: {
@@ -371,7 +376,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, navbar, leading, trailing, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -509,8 +514,34 @@ class Parser {
 
   private parseWindowChildren(): WindowChild[] {
     const children: WindowChild[] = [];
+    let navbarSeen: WindowChild | undefined;
+    let headerSeen: WindowChild | undefined;
     while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
-      children.push(this.parseWindowChild());
+      // Capture the source position of the next primitive *before* parsing
+      // it, so the navbar/header conflict error points at the offending
+      // keyword rather than wherever the parser advanced to.
+      const head = this.peek();
+      const child = this.parseWindowChild();
+      if (child.kind === 'navbar') {
+        if (headerSeen) {
+          throw new WireloomError(
+            'navbar and header cannot both appear in a window — pick one (they share the chrome band)',
+            head.line,
+            head.column,
+          );
+        }
+        navbarSeen = child;
+      } else if (child.kind === 'header') {
+        if (navbarSeen) {
+          throw new WireloomError(
+            'navbar and header cannot both appear in a window — pick one (they share the chrome band)',
+            head.line,
+            head.column,
+          );
+        }
+        headerSeen = child;
+      }
+      children.push(child);
     }
     this.expectKind('dedent', 'children block did not close cleanly');
     return children;
@@ -606,8 +637,16 @@ class Parser {
         head.column,
       );
     }
+    if (name === 'leading' || name === 'trailing') {
+      throw new WireloomError(
+        `"${name}" may only appear inside "navbar"`,
+        head.line,
+        head.column,
+      );
+    }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
+    if (name === 'navbar') return this.parseNavbar();
     return this.parseContainerChildNamed(name);
   }
 
@@ -629,6 +668,88 @@ class Parser {
     const hasChildren = this.parseTerminator('footer', head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     return { kind: 'footer', attributes, children, position };
+  }
+
+  // --- Navbar ---------------------------------------------------------------
+
+  private parseNavbar(): NavbarNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('navbar');
+    const hasChildren = this.parseTerminator('navbar', head);
+    if (!hasChildren) {
+      throw new WireloomError(
+        '"navbar" requires "leading:" and/or "trailing:" sub-blocks (e.g., navbar:\n  leading:\n    button "Back")',
+        head.line,
+        head.column,
+      );
+    }
+    const { leading, trailing } = this.parseNavbarChildren();
+    const node: NavbarNode = { kind: 'navbar', attributes, position };
+    if (leading) node.leading = leading;
+    if (trailing) node.trailing = trailing;
+    return node;
+  }
+
+  /**
+   * Parse a navbar's child block. Only `leading:` and `trailing:` are accepted,
+   * and each may appear at most once. Source order doesn't matter — the
+   * renderer always anchors leading on the left and trailing on the right.
+   */
+  private parseNavbarChildren(): {
+    leading?: NavbarSlotNode;
+    trailing?: NavbarSlotNode;
+  } {
+    let leading: NavbarSlotNode | undefined;
+    let trailing: NavbarSlotNode | undefined;
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "leading:" or "trailing:" inside "navbar", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name === 'leading') {
+        if (leading !== undefined) {
+          throw new WireloomError(
+            '"navbar" may contain at most one "leading:" block',
+            head.line,
+            head.column,
+          );
+        }
+        leading = this.parseNavbarSlot('leading');
+      } else if (name === 'trailing') {
+        if (trailing !== undefined) {
+          throw new WireloomError(
+            '"navbar" may contain at most one "trailing:" block',
+            head.line,
+            head.column,
+          );
+        }
+        trailing = this.parseNavbarSlot('trailing');
+      } else {
+        throw new WireloomError(
+          `"navbar" accepts only "leading:" or "trailing:" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+    }
+    this.expectKind('dedent', 'navbar block did not close cleanly');
+    return { leading, trailing };
+  }
+
+  private parseNavbarSlot(side: 'leading' | 'trailing'): NavbarSlotNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes(side);
+    const hasChildren = this.parseTerminator(side, head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const kind = side === 'leading' ? 'navbarLeading' : 'navbarTrailing';
+    return { kind, attributes, children, position };
   }
 
   // --- Container children ---------------------------------------------------
@@ -665,25 +786,29 @@ class Parser {
               ? '"header" may only appear directly inside "window"'
               : name === 'footer'
                 ? '"footer" may only appear directly inside "window" or "slot"'
-                : name === 'window'
-                  ? '"window" cannot be nested'
-                  : name === 'cell'
-                    ? '"cell" may only appear inside "grid"'
-                    : name === 'resource'
-                      ? '"resource" may only appear inside "resourcebar"'
-                      : name === 'stat'
-                        ? '"stat" may only appear inside "stats"'
-                        : name === 'node'
-                          ? '"node" may only appear inside "tree"'
-                          : name === 'menuitem'
-                            ? '"menuitem" may only appear inside "menu"'
-                            : name === 'separator'
-                              ? '"separator" may only appear inside "menu"'
-                              : name === 'crumb'
-                                ? '"crumb" may only appear inside "breadcrumb"'
-                                : name === 'spacer'
-                                  ? '"spacer" may only appear inside "row"'
-                                  : `"${name}" is not allowed here`;
+                : name === 'navbar'
+                  ? '"navbar" may only appear directly inside "window"'
+                  : name === 'leading' || name === 'trailing'
+                    ? `"${name}" may only appear inside "navbar"`
+                    : name === 'window'
+                      ? '"window" cannot be nested'
+                      : name === 'cell'
+                        ? '"cell" may only appear inside "grid"'
+                        : name === 'resource'
+                          ? '"resource" may only appear inside "resourcebar"'
+                          : name === 'stat'
+                            ? '"stat" may only appear inside "stats"'
+                            : name === 'node'
+                              ? '"node" may only appear inside "tree"'
+                              : name === 'menuitem'
+                                ? '"menuitem" may only appear inside "menu"'
+                                : name === 'separator'
+                                  ? '"separator" may only appear inside "menu"'
+                                  : name === 'crumb'
+                                    ? '"crumb" may only appear inside "breadcrumb"'
+                                    : name === 'spacer'
+                                      ? '"spacer" may only appear inside "row"'
+                                      : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);

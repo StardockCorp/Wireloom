@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { parse } from '../../src/parser/parser.js';
 import { serialize } from '../../src/parser/serializer.js';
 import { WireloomError } from '../../src/parser/errors.js';
-import type { RowNode, SpacerNode } from '../../src/parser/ast.js';
+import type { NavbarNode, RowNode, SpacerNode } from '../../src/parser/ast.js';
 
 function expectParseError(source: string): WireloomError {
   try {
@@ -111,5 +111,159 @@ describe('v0.50 — row justify attribute', () => {
 
   it('roundtrips a row with justify=between', () => {
     roundtripEquals('window:\n  row justify=between:\n    text "A"\n    text "B"\n');
+  });
+});
+
+describe('v0.50 — navbar primitive', () => {
+  it('parses navbar with leading and trailing slots', () => {
+    const doc = parse(
+      [
+        'window:',
+        '  navbar:',
+        '    leading:',
+        '      button "Back"',
+        '    trailing:',
+        '      button "Edit"',
+        '      button "New" primary',
+        '',
+      ].join('\n'),
+    );
+    const nav = doc.root?.children[0] as NavbarNode;
+    expect(nav.kind).toBe('navbar');
+    expect(nav.leading?.kind).toBe('navbarLeading');
+    expect(nav.leading?.children.length).toBe(1);
+    expect(nav.trailing?.kind).toBe('navbarTrailing');
+    expect(nav.trailing?.children.length).toBe(2);
+  });
+
+  it('parses navbar with only leading', () => {
+    const doc = parse('window:\n  navbar:\n    leading:\n      button "Back"\n');
+    const nav = doc.root?.children[0] as NavbarNode;
+    expect(nav.leading).toBeDefined();
+    expect(nav.trailing).toBeUndefined();
+  });
+
+  it('parses navbar with only trailing', () => {
+    const doc = parse('window:\n  navbar:\n    trailing:\n      button "Done"\n');
+    const nav = doc.root?.children[0] as NavbarNode;
+    expect(nav.trailing).toBeDefined();
+    expect(nav.leading).toBeUndefined();
+  });
+
+  it('accepts the universal id attribute on navbar', () => {
+    const doc = parse('window:\n  navbar id="top-bar":\n    leading:\n      button "X"\n');
+    const nav = doc.root?.children[0] as NavbarNode;
+    expect(nav.attributes.some((a) => a.kind === 'pair' && a.key === 'id')).toBe(true);
+  });
+
+  it('rejects navbar inside a row', () => {
+    const err = expectParseError('window:\n  row:\n    navbar:\n      leading:\n        text "x"\n');
+    expect(err.message).toMatch(/navbar.*only appear directly inside.*window/);
+  });
+
+  it('rejects navbar inside a panel', () => {
+    const err = expectParseError(
+      'window:\n  panel:\n    navbar:\n      leading:\n        text "x"\n',
+    );
+    expect(err.message).toMatch(/navbar.*only appear directly inside.*window/);
+  });
+
+  it('rejects leading: at the window level', () => {
+    const err = expectParseError('window:\n  leading:\n    button "X"\n');
+    expect(err.message).toMatch(/leading.*only appear inside.*navbar/);
+  });
+
+  it('rejects trailing: at the window level', () => {
+    const err = expectParseError('window:\n  trailing:\n    button "X"\n');
+    expect(err.message).toMatch(/trailing.*only appear inside.*navbar/);
+  });
+
+  it('rejects non-leading/trailing children inside navbar', () => {
+    const err = expectParseError('window:\n  navbar:\n    text "Hello"\n');
+    expect(err.message).toMatch(/navbar.*accepts only "leading:" or "trailing:"/);
+  });
+
+  it('rejects duplicate leading: blocks', () => {
+    const err = expectParseError(
+      [
+        'window:',
+        '  navbar:',
+        '    leading:',
+        '      button "A"',
+        '    leading:',
+        '      button "B"',
+        '',
+      ].join('\n'),
+    );
+    expect(err.message).toMatch(/at most one "leading:"/);
+  });
+
+  it('rejects duplicate trailing: blocks', () => {
+    const err = expectParseError(
+      [
+        'window:',
+        '  navbar:',
+        '    trailing:',
+        '      button "A"',
+        '    trailing:',
+        '      button "B"',
+        '',
+      ].join('\n'),
+    );
+    expect(err.message).toMatch(/at most one "trailing:"/);
+  });
+
+  it('rejects navbar without a child block', () => {
+    const err = expectParseError('window:\n  navbar\n');
+    expect(err.message).toMatch(/navbar.*requires "leading:" and\/or "trailing:"/);
+  });
+
+  it('rejects a window containing both navbar and header (navbar first)', () => {
+    const err = expectParseError(
+      [
+        'window:',
+        '  navbar:',
+        '    leading:',
+        '      button "Back"',
+        '  header:',
+        '    text "Hi"',
+        '',
+      ].join('\n'),
+    );
+    expect(err.message).toMatch(/navbar and header cannot both appear/);
+  });
+
+  it('rejects a window containing both header and navbar (header first)', () => {
+    const err = expectParseError(
+      [
+        'window:',
+        '  header:',
+        '    text "Hi"',
+        '  navbar:',
+        '    leading:',
+        '      button "Back"',
+        '',
+      ].join('\n'),
+    );
+    expect(err.message).toMatch(/navbar and header cannot both appear/);
+  });
+
+  it('roundtrips a navbar with both slots', () => {
+    roundtripEquals(
+      [
+        'window:',
+        '  navbar:',
+        '    leading:',
+        '      button "Back"',
+        '    trailing:',
+        '      button "Edit"',
+        '      button "Done" primary',
+        '',
+      ].join('\n'),
+    );
+  });
+
+  it('roundtrips a navbar with only trailing', () => {
+    roundtripEquals('window:\n  navbar:\n    trailing:\n      button "Done"\n');
   });
 });

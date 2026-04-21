@@ -150,3 +150,71 @@ describe('v0.50 layout — row justify', () => {
     expect(fill!.width).toBeGreaterThan(0);
   });
 });
+
+describe('v0.50 layout — navbar', () => {
+  function findNavbar(root: ReturnType<typeof layoutSource>) {
+    const stack = [...root.children];
+    while (stack.length > 0) {
+      const n = stack.shift()!;
+      if (n.node.kind === 'navbar') return n;
+      stack.push(...n.children);
+    }
+    throw new Error('no navbar found');
+  }
+
+  it('anchors leading children to the left and trailing to the right', () => {
+    const root = layoutSource(
+      [
+        'window:',
+        '  navbar:',
+        '    leading:',
+        '      button "Back"',
+        '    trailing:',
+        '      button "Edit"',
+        '      button "Done" primary',
+        '  text "body"',
+        '',
+      ].join('\n'),
+    );
+    const nav = findNavbar(root);
+    const [leadingSlot, trailingSlot] = nav.children;
+    // Leading slot starts at the navbar's inner-left padding edge.
+    expect(leadingSlot!.x).toBeGreaterThanOrEqual(nav.x);
+    expect(leadingSlot!.x).toBeLessThan(nav.x + nav.width / 2);
+    // Trailing slot's right edge sits at the navbar's inner-right padding edge.
+    const trailingRight = trailingSlot!.x + trailingSlot!.width;
+    expect(trailingRight).toBeLessThanOrEqual(nav.x + nav.width);
+    expect(trailingRight).toBeGreaterThan(nav.x + nav.width / 2);
+  });
+
+  it('renders cleanly with only leading (no trailing slot present)', () => {
+    const root = layoutSource(
+      'window:\n  navbar:\n    leading:\n      button "Back"\n  text "body"\n',
+    );
+    const nav = findNavbar(root);
+    expect(nav.children.length).toBe(1);
+    expect(nav.children[0]!.node.kind).toBe('navbarLeading');
+  });
+
+  it('renders cleanly with only trailing (no leading slot present)', () => {
+    const root = layoutSource(
+      'window:\n  navbar:\n    trailing:\n      button "Done"\n  text "body"\n',
+    );
+    const nav = findNavbar(root);
+    expect(nav.children.length).toBe(1);
+    expect(nav.children[0]!.node.kind).toBe('navbarTrailing');
+    // Trailing-only still right-anchors.
+    const slot = nav.children[0]!;
+    expect(slot.x + slot.width).toBeLessThanOrEqual(nav.x + nav.width);
+  });
+
+  it('navbar sits above the body — body content starts below it', () => {
+    const root = layoutSource(
+      'window:\n  navbar:\n    leading:\n      button "Back"\n  text "body"\n',
+    );
+    const nav = findNavbar(root);
+    const body = root.children.find((c) => c.node.kind === 'text');
+    expect(body).toBeDefined();
+    expect(body!.y).toBeGreaterThanOrEqual(nav.y + nav.height);
+  });
+});
