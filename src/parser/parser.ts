@@ -52,6 +52,8 @@ import type {
   RowNode,
   SectionNode,
   SeparatorNode,
+  SheetNode,
+  SheetPlacement,
   SliderNode,
   SlotFooterNode,
   SlotNode,
@@ -125,6 +127,7 @@ const CHART_KIND_VALUES = ['bar', 'line', 'pie'] as const;
 const ANNOTATION_SIDE_VALUES = ['left', 'right', 'top', 'bottom'] as const;
 const AVATAR_SIZE_VALUES = ['small', 'medium', 'large'] as const;
 const STATUS_KIND_VALUES = ['success', 'info', 'warning', 'error'] as const;
+const SHEET_POSITION_VALUES = ['bottom', 'center'] as const;
 
 /** Spec for the universal `id="…"` attribute, accepted on every primitive. */
 const UNIVERSAL_ID_SPEC: AttrSpec = { kind: 'string' };
@@ -136,6 +139,13 @@ const ATTR_RULES: Record<string, AttrRules> = {
   navbar: { attrs: {}, flags: [] },
   leading: { attrs: {}, flags: [] },
   trailing: { attrs: {}, flags: [] },
+  sheet: {
+    attrs: {
+      position: { kind: 'enum', values: SHEET_POSITION_VALUES },
+      title: { kind: 'string' },
+    },
+    flags: [],
+  },
   panel: { attrs: {}, flags: [] },
   section: {
     attrs: {
@@ -392,7 +402,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, navbar, leading, trailing, tabbar, tabitem, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, navbar, leading, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -547,11 +557,20 @@ class Parser {
     const children: WindowChild[] = [];
     let navbarSeen: WindowChild | undefined;
     let headerSeen: WindowChild | undefined;
+    let sawSheet = false;
     while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
       // Capture the source position of the next primitive *before* parsing
-      // it, so the navbar/header conflict error points at the offending
-      // keyword rather than wherever the parser advanced to.
+      // it, so conflict errors (navbar/header, second sheet) point at the
+      // offending keyword rather than wherever the parser advanced to.
       const head = this.peek();
+      const name = head.kind === 'ident' ? head.identValue ?? head.raw : '';
+      if (name === 'sheet' && sawSheet) {
+        throw new WireloomError(
+          'only one "sheet" is allowed per "window"',
+          head.line,
+          head.column,
+        );
+      }
       const child = this.parseWindowChild();
       if (child.kind === 'navbar') {
         if (headerSeen) {
@@ -571,6 +590,8 @@ class Parser {
           );
         }
         headerSeen = child;
+      } else if (child.kind === 'sheet') {
+        sawSheet = true;
       }
       children.push(child);
     }
@@ -686,6 +707,7 @@ class Parser {
     if (name === 'footer') return this.parseFooter();
     if (name === 'navbar') return this.parseNavbar();
     if (name === 'tabbar') return this.parseTabBar();
+    if (name === 'sheet') return this.parseSheet();
     return this.parseContainerChildNamed(name);
   }
 
@@ -839,6 +861,29 @@ class Parser {
     return { kind: 'tabitem', label, attributes, position };
   }
 
+  // --- Sheet ----------------------------------------------------------------
+
+  private parseSheet(): SheetNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('sheet');
+    const placementAttr = getAttrIdentValue(attributes, 'position');
+    const placement: SheetPlacement =
+      placementAttr === 'center' ? 'center' : 'bottom';
+    const title = getAttrStringValue(attributes, 'title');
+    const hasChildren = this.parseTerminator('sheet', head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const node: SheetNode = {
+      kind: 'sheet',
+      placement,
+      attributes,
+      children,
+      position,
+    };
+    if (title !== undefined) node.title = title;
+    return node;
+  }
+
   // --- Container children ---------------------------------------------------
 
   private parseContainerChildren(): ContainerChild[] {
@@ -864,42 +909,7 @@ class Parser {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason =
-        name === 'tab'
-          ? '"tab" may only appear inside "tabs"'
-          : name === 'item'
-            ? '"item" may only appear inside "list"'
-            : name === 'header'
-              ? '"header" may only appear directly inside "window"'
-              : name === 'footer'
-                ? '"footer" may only appear directly inside "window" or "slot"'
-                : name === 'navbar'
-                  ? '"navbar" may only appear directly inside "window"'
-                  : name === 'leading' || name === 'trailing'
-                    ? `"${name}" may only appear inside "navbar"`
-                    : name === 'tabbar'
-                      ? '"tabbar" may only appear as a direct child of "window"'
-                      : name === 'tabitem'
-                        ? '"tabitem" may only appear inside "tabbar"'
-                        : name === 'window'
-                          ? '"window" cannot be nested'
-                          : name === 'cell'
-                            ? '"cell" may only appear inside "grid"'
-                            : name === 'resource'
-                              ? '"resource" may only appear inside "resourcebar"'
-                              : name === 'stat'
-                                ? '"stat" may only appear inside "stats"'
-                                : name === 'node'
-                                  ? '"node" may only appear inside "tree"'
-                                  : name === 'menuitem'
-                                    ? '"menuitem" may only appear inside "menu"'
-                                    : name === 'separator'
-                                      ? '"separator" may only appear inside "menu"'
-                                      : name === 'crumb'
-                                        ? '"crumb" may only appear inside "breadcrumb"'
-                                        : name === 'spacer'
-                                          ? '"spacer" may only appear inside "row"'
-                                          : `"${name}" is not allowed here`;
+      const reason = placementErrorFor(name);
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -2114,6 +2124,50 @@ function coerceAttributeValue(
       }
       return { kind: 'identifier', value, position };
     }
+  }
+}
+
+function placementErrorFor(name: string): string {
+  switch (name) {
+    case 'tab':
+      return '"tab" may only appear inside "tabs"';
+    case 'item':
+      return '"item" may only appear inside "list"';
+    case 'header':
+      return '"header" may only appear directly inside "window"';
+    case 'footer':
+      return '"footer" may only appear directly inside "window" or "slot"';
+    case 'navbar':
+      return '"navbar" may only appear directly inside "window"';
+    case 'leading':
+    case 'trailing':
+      return `"${name}" may only appear inside "navbar"`;
+    case 'tabbar':
+      return '"tabbar" may only appear as a direct child of "window"';
+    case 'tabitem':
+      return '"tabitem" may only appear inside "tabbar"';
+    case 'sheet':
+      return '"sheet" may only appear directly inside "window"';
+    case 'spacer':
+      return '"spacer" may only appear inside "row"';
+    case 'window':
+      return '"window" cannot be nested';
+    case 'cell':
+      return '"cell" may only appear inside "grid"';
+    case 'resource':
+      return '"resource" may only appear inside "resourcebar"';
+    case 'stat':
+      return '"stat" may only appear inside "stats"';
+    case 'node':
+      return '"node" may only appear inside "tree"';
+    case 'menuitem':
+      return '"menuitem" may only appear inside "menu"';
+    case 'separator':
+      return '"separator" may only appear inside "menu"';
+    case 'crumb':
+      return '"crumb" may only appear inside "breadcrumb"';
+    default:
+      return `"${name}" is not allowed here`;
   }
 }
 

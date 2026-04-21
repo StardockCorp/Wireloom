@@ -217,6 +217,24 @@ export interface Theme {
   /** Per-kind background/text for status pills. Keys: success|info|warning|error. */
   statusColors: Readonly<Record<'success' | 'info' | 'warning' | 'error', { bg: string; fg: string; border: string }>>;
 
+  // v0.50 — sheet overlay
+  sheetScrimColor: string;
+  sheetScrimOpacity: number;
+  sheetBg: string;
+  sheetBorder: string;
+  sheetStrokeWidth: number;
+  sheetCornerRadius: number;
+  sheetPadding: number;
+  sheetTitleHeight: number;
+  sheetTitleFontSize: number;
+  sheetGrabberWidth: number;
+  sheetGrabberHeight: number;
+  sheetGrabberColor: string;
+  sheetGrabberGap: number;
+  sheetCenterMinWidth: number;
+  sheetCenterMinHeight: number;
+  sheetCenterMargin: number;
+
   // Annotations (user-manual-style callouts with leader lines)
   annotationBg: string;
   annotationBorder: string;
@@ -431,6 +449,23 @@ export const DEFAULT_THEME: Theme = Object.freeze({
     error: { bg: '#f5e4e2', fg: '#5c2420', border: '#b0413c' },
   }),
 
+  sheetScrimColor: '#1a1a1a',
+  sheetScrimOpacity: 0.45,
+  sheetBg: '#ffffff',
+  sheetBorder: '#8a8a8a',
+  sheetStrokeWidth: 1,
+  sheetCornerRadius: 14,
+  sheetPadding: 16,
+  sheetTitleHeight: 22,
+  sheetTitleFontSize: 15,
+  sheetGrabberWidth: 40,
+  sheetGrabberHeight: 4,
+  sheetGrabberColor: '#b5b8bd',
+  sheetGrabberGap: 10,
+  sheetCenterMinWidth: 260,
+  sheetCenterMinHeight: 120,
+  sheetCenterMargin: 24,
+
   accents: Object.freeze({
     research: '#3f7cc2',
     military: '#b55442',
@@ -578,6 +613,12 @@ export const DARK_THEME: Theme = Object.freeze({
     warning: { bg: '#3a2f1c', fg: '#f0d79a', border: '#e2aa57' },
     error: { bg: '#3a2220', fg: '#edb4ae', border: '#d66863' },
   }),
+
+  sheetScrimColor: '#000000',
+  sheetScrimOpacity: 0.55,
+  sheetBg: '#2a2a2a',
+  sheetBorder: '#6b6b6b',
+  sheetGrabberColor: '#555a62',
 
   accents: Object.freeze({
     research: '#6ba4e8',

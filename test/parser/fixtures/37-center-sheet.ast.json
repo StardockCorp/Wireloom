@@ -1,0 +1,203 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Budget 2026.xlsx",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "weight",
+                "value": {
+                  "kind": "identifier",
+                  "value": "bold",
+                  "position": {
+                    "line": 3,
+                    "column": 36
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 29
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Last modified 2 hours ago",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "muted",
+                "position": {
+                  "line": 5,
+                  "column": 38
+                }
+              }
+            ],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 4,
+          "column": 3
+        }
+      },
+      {
+        "kind": "sheet",
+        "placement": "center",
+        "attributes": [
+          {
+            "kind": "pair",
+            "key": "position",
+            "value": {
+              "kind": "identifier",
+              "value": "center",
+              "position": {
+                "line": 6,
+                "column": 18
+              }
+            },
+            "position": {
+              "line": 6,
+              "column": 9
+            }
+          },
+          {
+            "kind": "pair",
+            "key": "title",
+            "value": {
+              "kind": "string",
+              "value": "Delete file?",
+              "position": {
+                "line": 6,
+                "column": 31
+              }
+            },
+            "position": {
+              "line": 6,
+              "column": 25
+            }
+          }
+        ],
+        "children": [
+          {
+            "kind": "text",
+            "content": "This action cannot be undone. The file will be moved to Trash.",
+            "attributes": [],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          },
+          {
+            "kind": "row",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "align",
+                "value": {
+                  "kind": "identifier",
+                  "value": "right",
+                  "position": {
+                    "line": 8,
+                    "column": 15
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 9
+                }
+              }
+            ],
+            "children": [
+              {
+                "kind": "button",
+                "label": "Cancel",
+                "attributes": [],
+                "position": {
+                  "line": 9,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "button",
+                "label": "Delete",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "primary",
+                    "position": {
+                      "line": 10,
+                      "column": 23
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "danger",
+                      "position": {
+                        "line": 10,
+                        "column": 38
+                      }
+                    },
+                    "position": {
+                      "line": 10,
+                      "column": 31
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 6,
+          "column": 3
+        },
+        "title": "Delete file?"
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Documents"
+  },
+  "sourceLines": 11
+}
