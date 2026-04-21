@@ -46,6 +46,8 @@ import type {
   ResourceNode,
   RowNode,
   SectionNode,
+  SegmentedNode,
+  SegmentNode,
   SeparatorNode,
   SliderNode,
   SlotFooterNode,
@@ -319,6 +321,11 @@ const ATTR_RULES: Record<string, AttrRules> = {
     },
     flags: [],
   },
+  segmented: { attrs: {}, flags: [] },
+  segment: {
+    attrs: {},
+    flags: ['selected', 'disabled'],
+  },
 };
 
 const VALID_PRIMITIVES = new Set([
@@ -360,12 +367,13 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
   'avatar',
   'spinner',
   'status',
+  'segmented',
 ]);
 
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status, segmented, segment';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -593,6 +601,13 @@ class Parser {
         head.column,
       );
     }
+    if (name === 'segment') {
+      throw new WireloomError(
+        '"segment" may only appear inside "segmented"',
+        head.line,
+        head.column,
+      );
+    }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
     return this.parseContainerChildNamed(name);
@@ -668,7 +683,9 @@ class Parser {
                               ? '"separator" may only appear inside "menu"'
                               : name === 'crumb'
                                 ? '"crumb" may only appear inside "breadcrumb"'
-                                : `"${name}" is not allowed here`;
+                                : name === 'segment'
+                                  ? '"segment" may only appear inside "segmented"'
+                                  : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -740,6 +757,8 @@ class Parser {
         return this.parseSpinner();
       case 'status':
         return this.parseStatus();
+      case 'segmented':
+        return this.parseSegmented();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -1477,6 +1496,86 @@ class Parser {
     const attributes = this.parseAttributes('crumb');
     this.parseLeafTerminator('crumb', head);
     return { kind: 'crumb', label, attributes, position };
+  }
+
+  // --- Segmented / segment -------------------------------------------------
+
+  private parseSegmented(): SegmentedNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('segmented');
+    const hasChildren = this.parseTerminator('segmented', head);
+    const children = hasChildren ? this.parseSegmentedChildren(head) : [];
+
+    // Exactly one segment may carry `selected`. Multiple is a parse error —
+    // the semantic of a segmented control is "pick one of N".
+    let selectedCount = 0;
+    let firstExtraSelected: SegmentNode | undefined;
+    for (const seg of children) {
+      if (seg.attributes.some((a) => a.kind === 'flag' && a.flag === 'selected')) {
+        selectedCount++;
+        if (selectedCount > 1 && firstExtraSelected === undefined) {
+          firstExtraSelected = seg;
+        }
+      }
+    }
+    if (firstExtraSelected) {
+      throw new WireloomError(
+        '"segmented" allows at most one "segment" with the "selected" flag; pick exactly one',
+        firstExtraSelected.position.line,
+        firstExtraSelected.position.column,
+      );
+    }
+
+    // Zero or one segment is syntactically legal but renders as a degenerate
+    // control. Warn so authors notice; don't block rendering.
+    if (children.length < 2) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `wireloom: "segmented" with ${children.length} segment${children.length === 1 ? '' : 's'} at ` +
+          `line ${position.line} — at least 2 segments recommended.`,
+      );
+    }
+
+    return { kind: 'segmented', attributes, children, position };
+  }
+
+  private parseSegmentedChildren(containerHead: Token): SegmentNode[] {
+    const children: SegmentNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "segment", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'segment') {
+        throw new WireloomError(
+          `"segmented" accepts only "segment" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseSegment());
+    }
+    this.expectKind('dedent', 'segmented block did not close cleanly');
+    void containerHead;
+    return children;
+  }
+
+  private parseSegment(): SegmentNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"segment" requires a label string (e.g., segment "Day")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('segment');
+    this.parseLeafTerminator('segment', head);
+    return { kind: 'segment', label, attributes, position };
   }
 
   // --- Form controls -------------------------------------------------------

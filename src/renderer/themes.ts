@@ -205,6 +205,18 @@ export interface Theme {
   chevronGlyphStrokeWidth: number;
   chevronGlyphColor: string;
 
+  // Segmented control (v0.5) — rounded pill with equal-width, mutually-exclusive segments.
+  segmentedHeight: number;
+  segmentedPaddingX: number;
+  segmentedMinSegmentWidth: number;
+  segmentedCornerRadius: number;
+  segmentedBg: string;
+  segmentedBorder: string;
+  segmentedDividerColor: string;
+  segmentedText: string;
+  segmentedSelectedBg: string;
+  segmentedSelectedText: string;
+
   spinnerSize: number;
   spinnerColor: string;
 
@@ -410,6 +422,17 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   chevronGlyphStrokeWidth: 1.4,
   chevronGlyphColor: '#8a9099',
 
+  segmentedHeight: 28,
+  segmentedPaddingX: 14,
+  segmentedMinSegmentWidth: 64,
+  segmentedCornerRadius: 6,
+  segmentedBg: '#eef0f3',
+  segmentedBorder: '#c4c8ce',
+  segmentedDividerColor: '#b5b8bd',
+  segmentedText: '#3a3e44',
+  segmentedSelectedBg: '#3a3a3a',
+  segmentedSelectedText: '#ffffff',
+
   spinnerSize: 16,
   spinnerColor: '#6b7078',
 
@@ -559,6 +582,13 @@ export const DARK_THEME: Theme = Object.freeze({
   breadcrumbCurrentColor: '#f0f0f0',
 
   chevronGlyphColor: '#8a9099',
+
+  segmentedBg: '#353a42',
+  segmentedBorder: '#555a62',
+  segmentedDividerColor: '#555a62',
+  segmentedText: '#b8bcc4',
+  segmentedSelectedBg: '#d4d4d4',
+  segmentedSelectedText: '#1e1e1e',
 
   spinnerColor: '#8a9099',
 

@@ -47,6 +47,8 @@ import type {
   ResourceNode,
   RowNode,
   SectionNode,
+  SegmentedNode,
+  SegmentNode,
   SliderNode,
   SlotFooterNode,
   SlotNode,
@@ -288,6 +290,8 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
       return measureSpinner(node, theme);
     case 'status':
       return measureStatus(node, theme);
+    case 'segmented':
+      return measureSegmented(node, theme);
   }
 }
 
@@ -413,6 +417,22 @@ function measureStatus(node: StatusNode, theme: Theme): Size {
   return {
     width: labelW + 14 + theme.statusPaddingX * 2, // icon glyph + padding
     height: theme.statusHeight,
+  };
+}
+
+function measureSegmented(node: SegmentedNode, theme: Theme): Size {
+  if (node.children.length === 0) {
+    return { width: theme.segmentedMinSegmentWidth, height: theme.segmentedHeight };
+  }
+  // All segments get the same width — take the widest label plus padding.
+  let maxSegW = theme.segmentedMinSegmentWidth;
+  for (const seg of node.children) {
+    const labelW = seg.label.length * theme.averageCharWidth + theme.segmentedPaddingX * 2;
+    if (labelW > maxSegW) maxSegW = labelW;
+  }
+  return {
+    width: maxSegW * node.children.length,
+    height: theme.segmentedHeight,
   };
 }
 
@@ -989,6 +1009,8 @@ function positionContainerChild(
       return positionLeaf(child, x, y, measureSpinner(child, theme));
     case 'status':
       return positionLeaf(child, x, y, measureStatus(child, theme));
+    case 'segmented':
+      return positionSegmented(child, x, y, width, theme);
   }
 }
 
@@ -1078,6 +1100,32 @@ function positionMenu(
       children: [],
     });
     cursorY += rowH;
+  }
+  return { node, x, y, width: size.width, height: size.height, children };
+}
+
+function positionSegmented(
+  node: SegmentedNode,
+  x: number,
+  y: number,
+  width: number,
+  theme: Theme,
+): LaidOutNode {
+  void width;
+  const size = measureSegmented(node, theme);
+  const n = node.children.length;
+  const segW = n > 0 ? size.width / n : 0;
+  const children: LaidOutNode[] = [];
+  for (let i = 0; i < n; i++) {
+    const seg = node.children[i]!;
+    children.push({
+      node: seg,
+      x: x + i * segW,
+      y,
+      width: segW,
+      height: theme.segmentedHeight,
+      children: [],
+    });
   }
   return { node, x, y, width: size.width, height: size.height, children };
 }

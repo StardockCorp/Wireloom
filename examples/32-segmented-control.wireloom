@@ -1,0 +1,14 @@
+window "Calendar":
+  panel:
+    text "Scope" muted
+    segmented:
+      segment "Day"
+      segment "Week" selected
+      segment "Month"
+      segment "Year"
+  panel:
+    text "Filter" muted
+    segmented:
+      segment "All"
+      segment "Unread" selected
+      segment "Flagged" disabled

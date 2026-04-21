@@ -341,6 +341,29 @@ export interface StatusNode extends NodeBase {
 }
 
 // ---------------------------------------------------------------------------
+// Segmented control (v0.5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Pill-shaped, mutually-exclusive selector with 2+ equal-width segments.
+ * Unlike `tabs` (which switches views), a `segmented` filters content
+ * within the current view.
+ */
+export interface SegmentedNode extends NodeBase {
+  kind: 'segmented';
+  children: SegmentNode[];
+}
+
+/**
+ * Leaf child of `segmented`. Takes a required label string and may carry
+ * `selected` (at most one per control) or `disabled` flags.
+ */
+export interface SegmentNode extends NodeBase {
+  kind: 'segment';
+  label: string;
+}
+
+// ---------------------------------------------------------------------------
 // Annotations (v0.4 — user-manual-style labels pointing at window elements)
 // ---------------------------------------------------------------------------
 
@@ -405,6 +428,7 @@ export type ContainerChild =
   | MenubarNode
   | MenuNode
   | BreadcrumbNode
+  | SegmentedNode
   | LeafNode;
 
 export type WindowChild =
@@ -424,6 +448,7 @@ export type WindowChild =
   | MenubarNode
   | MenuNode
   | BreadcrumbNode
+  | SegmentedNode
   | LeafNode;
 
 export type AnyNode =
@@ -454,6 +479,8 @@ export type AnyNode =
   | SeparatorNode
   | BreadcrumbNode
   | CrumbNode
+  | SegmentedNode
+  | SegmentNode
   | AnnotationNode
   | LeafNode;
 

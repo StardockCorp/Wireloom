@@ -30,6 +30,7 @@ import type {
   MenuNode,
   RadioNode,
   SectionNode,
+  SegmentNode,
   SlotNode,
   SpinnerNode,
   StatNode,
@@ -149,6 +150,9 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
     }
     case 'status':
       parts.push(quoteString((node as StatusNode).label));
+      break;
+    case 'segment':
+      parts.push(quoteString((node as SegmentNode).label));
       break;
     default:
       // No positional args for header/footer/panel/tabs/row/list/input/slider/image/icon/divider/
