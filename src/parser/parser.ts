@@ -736,8 +736,8 @@ class Parser {
    * renderer always anchors leading on the left and trailing on the right.
    */
   private parseNavbarChildren(): {
-    leading?: NavbarSlotNode;
-    trailing?: NavbarSlotNode;
+    leading: NavbarSlotNode | undefined;
+    trailing: NavbarSlotNode | undefined;
   } {
     let leading: NavbarSlotNode | undefined;
     let trailing: NavbarSlotNode | undefined;

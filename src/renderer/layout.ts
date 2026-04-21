@@ -750,7 +750,7 @@ function positionTabBar(
   y: number,
   width: number,
   height: number,
-  theme: Theme,
+  _theme: Theme,
 ): LaidOutNode {
   const n = node.children.length;
   const children: LaidOutNode[] = [];

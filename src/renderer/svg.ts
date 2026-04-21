@@ -16,7 +16,6 @@ import type {
   BackButtonNode,
   ButtonNode,
   CellNode,
-  TabBarNode,
   TabItemNode,
   ChartNode,
   CheckboxNode,
