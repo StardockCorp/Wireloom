@@ -187,9 +187,11 @@ describe('v0.50 — navbar primitive', () => {
     expect(err.message).toMatch(/trailing.*only appear inside.*navbar/);
   });
 
-  it('rejects non-leading/trailing children inside navbar', () => {
+  it('rejects non-leading/center/trailing children inside navbar', () => {
     const err = expectParseError('window:\n  navbar:\n    text "Hello"\n');
-    expect(err.message).toMatch(/navbar.*accepts only "leading:" or "trailing:"/);
+    expect(err.message).toMatch(
+      /navbar.*accepts only "leading:", "center:", or "trailing:"/,
+    );
   });
 
   it('rejects duplicate leading: blocks', () => {
@@ -224,7 +226,9 @@ describe('v0.50 — navbar primitive', () => {
 
   it('rejects navbar without a child block', () => {
     const err = expectParseError('window:\n  navbar\n');
-    expect(err.message).toMatch(/navbar.*requires "leading:" and\/or "trailing:"/);
+    expect(err.message).toMatch(
+      /navbar.*requires "leading:", "center:", and\/or "trailing:"/,
+    );
   });
 
   it('rejects a window containing both navbar and header (navbar first)', () => {
@@ -274,6 +278,72 @@ describe('v0.50 — navbar primitive', () => {
 
   it('roundtrips a navbar with only trailing', () => {
     roundtripEquals('window:\n  navbar:\n    trailing:\n      button "Done"\n');
+  });
+
+  it('parses navbar with a center slot', () => {
+    const doc = parse(
+      [
+        'window:',
+        '  navbar:',
+        '    leading:',
+        '      backbutton "Messages"',
+        '    center:',
+        '      text "Sarah Kim" bold',
+        '    trailing:',
+        '      icon name="leader"',
+        '',
+      ].join('\n'),
+    );
+    const nav = doc.root?.children[0] as NavbarNode;
+    expect(nav.kind).toBe('navbar');
+    expect(nav.leading?.kind).toBe('navbarLeading');
+    expect(nav.center?.kind).toBe('navbarCenter');
+    expect(nav.center?.children.length).toBe(1);
+    expect(nav.trailing?.kind).toBe('navbarTrailing');
+  });
+
+  it('parses navbar with only a center slot', () => {
+    const doc = parse('window:\n  navbar:\n    center:\n      text "Title" bold\n');
+    const nav = doc.root?.children[0] as NavbarNode;
+    expect(nav.center).toBeDefined();
+    expect(nav.leading).toBeUndefined();
+    expect(nav.trailing).toBeUndefined();
+  });
+
+  it('rejects duplicate center: blocks', () => {
+    const err = expectParseError(
+      [
+        'window:',
+        '  navbar:',
+        '    center:',
+        '      text "A"',
+        '    center:',
+        '      text "B"',
+        '',
+      ].join('\n'),
+    );
+    expect(err.message).toMatch(/at most one "center:"/);
+  });
+
+  it('rejects center: at the window level', () => {
+    const err = expectParseError('window:\n  center:\n    text "X"\n');
+    expect(err.message).toMatch(/center.*only appear inside.*navbar/);
+  });
+
+  it('roundtrips a navbar with all three slots', () => {
+    roundtripEquals(
+      [
+        'window:',
+        '  navbar:',
+        '    leading:',
+        '      backbutton "Messages"',
+        '    center:',
+        '      text "Sarah Kim" bold',
+        '    trailing:',
+        '      icon name="leader"',
+        '',
+      ].join('\n'),
+    );
   });
 });
 describe('v0.50 — backbutton', () => {

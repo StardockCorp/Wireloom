@@ -282,7 +282,7 @@ var WEIGHT_VALUES = ["light", "regular", "semibold", "bold"];
 var SIZE_VALUES = ["small", "regular", "large"];
 var ALIGN_VALUES = ["left", "center", "right"];
 var JUSTIFY_VALUES = ["start", "between", "around", "end"];
-var INPUT_TYPE_VALUES = ["text", "password", "email"];
+var INPUT_TYPE_VALUES = ["text", "password", "email", "search"];
 var ACCENT_VALUES = [
   "research",
   "military",
@@ -316,6 +316,7 @@ var ATTR_RULES = {
   footer: { attrs: {}, flags: [] },
   navbar: { attrs: {}, flags: [] },
   leading: { attrs: {}, flags: [] },
+  center: { attrs: {}, flags: [] },
   trailing: { attrs: {}, flags: [] },
   sheet: {
     attrs: {
@@ -580,7 +581,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "segmented"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, navbar, leading, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, navbar, leading, center, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -834,7 +835,7 @@ var Parser = class {
         head.column
       );
     }
-    if (name === "leading" || name === "trailing") {
+    if (name === "leading" || name === "center" || name === "trailing") {
       throw new WireloomError(
         `"${name}" may only appear inside "navbar"`,
         head.line,
@@ -887,30 +888,33 @@ var Parser = class {
     const hasChildren = this.parseTerminator("navbar", head);
     if (!hasChildren) {
       throw new WireloomError(
-        '"navbar" requires "leading:" and/or "trailing:" sub-blocks (e.g., navbar:\n  leading:\n    button "Back")',
+        '"navbar" requires "leading:", "center:", and/or "trailing:" sub-blocks (e.g., navbar:\n  leading:\n    button "Back")',
         head.line,
         head.column
       );
     }
-    const { leading, trailing } = this.parseNavbarChildren();
+    const { leading, center, trailing } = this.parseNavbarChildren();
     const node = { kind: "navbar", attributes, position };
     if (leading) node.leading = leading;
+    if (center) node.center = center;
     if (trailing) node.trailing = trailing;
     return node;
   }
   /**
-   * Parse a navbar's child block. Only `leading:` and `trailing:` are accepted,
-   * and each may appear at most once. Source order doesn't matter — the
-   * renderer always anchors leading on the left and trailing on the right.
+   * Parse a navbar's child block. `leading:`, `center:`, and `trailing:` are
+   * accepted; each may appear at most once. Source order doesn't matter — the
+   * renderer always anchors leading on the left, center horizontally centered,
+   * and trailing on the right.
    */
   parseNavbarChildren() {
     let leading;
+    let center;
     let trailing;
     while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
       const head = this.peek();
       if (head.kind !== "ident") {
         throw new WireloomError(
-          `expected "leading:" or "trailing:" inside "navbar", got ${describeToken(head)}`,
+          `expected "leading:", "center:", or "trailing:" inside "navbar", got ${describeToken(head)}`,
           head.line,
           head.column
         );
@@ -925,6 +929,15 @@ var Parser = class {
           );
         }
         leading = this.parseNavbarSlot("leading");
+      } else if (name === "center") {
+        if (center !== void 0) {
+          throw new WireloomError(
+            '"navbar" may contain at most one "center:" block',
+            head.line,
+            head.column
+          );
+        }
+        center = this.parseNavbarSlot("center");
       } else if (name === "trailing") {
         if (trailing !== void 0) {
           throw new WireloomError(
@@ -936,14 +949,14 @@ var Parser = class {
         trailing = this.parseNavbarSlot("trailing");
       } else {
         throw new WireloomError(
-          `"navbar" accepts only "leading:" or "trailing:" children (got "${name}")`,
+          `"navbar" accepts only "leading:", "center:", or "trailing:" children (got "${name}")`,
           head.line,
           head.column
         );
       }
     }
     this.expectKind("dedent", "navbar block did not close cleanly");
-    return { leading, trailing };
+    return { leading, center, trailing };
   }
   parseNavbarSlot(side) {
     const head = this.consume();
@@ -951,7 +964,7 @@ var Parser = class {
     const attributes = this.parseAttributes(side);
     const hasChildren = this.parseTerminator(side, head);
     const children = hasChildren ? this.parseContainerChildren() : [];
-    const kind = side === "leading" ? "navbarLeading" : "navbarTrailing";
+    const kind = side === "leading" ? "navbarLeading" : side === "center" ? "navbarCenter" : "navbarTrailing";
     return { kind, attributes, children, position };
   }
   // --- TabBar / TabItem -----------------------------------------------------
@@ -2219,6 +2232,7 @@ function placementErrorFor(name) {
     case "navbar":
       return '"navbar" may only appear directly inside "window"';
     case "leading":
+    case "center":
     case "trailing":
       return `"${name}" may only appear inside "navbar"`;
     case "tabbar":
@@ -2307,7 +2321,7 @@ function serialize(doc) {
 }
 function serializeNode(node, depth, out) {
   const indent = "  ".repeat(depth);
-  const keyword = node.kind === "slotFooter" ? "footer" : node.kind === "treeNode" ? "node" : node.kind === "navbarLeading" ? "leading" : node.kind === "navbarTrailing" ? "trailing" : node.kind;
+  const keyword = node.kind === "slotFooter" ? "footer" : node.kind === "treeNode" ? "node" : node.kind === "navbarLeading" ? "leading" : node.kind === "navbarCenter" ? "center" : node.kind === "navbarTrailing" ? "trailing" : node.kind;
   const parts = [keyword];
   switch (node.kind) {
     case "window":
@@ -2432,6 +2446,7 @@ function nodeChildren(node) {
     const navbar = node;
     const kids = [];
     if (navbar.leading) kids.push(navbar.leading);
+    if (navbar.center) kids.push(navbar.center);
     if (navbar.trailing) kids.push(navbar.trailing);
     return kids;
   }
@@ -3470,11 +3485,18 @@ function measureWindow(node, theme) {
 }
 function measureNavbar(node, theme) {
   const leadingSize = node.leading ? measureStack(node.leading.children, theme, "horizontal") : { width: 0, height: 0 };
+  const centerSize = node.center ? measureStack(node.center.children, theme, "horizontal") : { width: 0, height: 0 };
   const trailingSize = node.trailing ? measureStack(node.trailing.children, theme, "horizontal") : { width: 0, height: 0 };
-  const innerHeight = Math.max(leadingSize.height, trailingSize.height, theme.buttonHeight);
-  const minGap = leadingSize.width > 0 && trailingSize.width > 0 ? theme.rowGap : 0;
+  const innerHeight = Math.max(
+    leadingSize.height,
+    centerSize.height,
+    trailingSize.height,
+    theme.buttonHeight
+  );
+  const presentSlots = (leadingSize.width > 0 ? 1 : 0) + (centerSize.width > 0 ? 1 : 0) + (trailingSize.width > 0 ? 1 : 0);
+  const totalGap = Math.max(0, presentSlots - 1) * theme.rowGap;
   return {
-    width: leadingSize.width + trailingSize.width + minGap + theme.windowPadding * 2,
+    width: leadingSize.width + centerSize.width + trailingSize.width + totalGap + theme.windowPadding * 2,
     height: innerHeight + theme.headerPaddingY * 2
   };
 }
@@ -3735,6 +3757,13 @@ function positionNavbar(node, x, y, width, height, theme) {
   if (node.leading) {
     slotChildren.push(
       positionNavbarSlot(node.leading, innerX, innerY, innerHeight, theme, "left")
+    );
+  }
+  if (node.center) {
+    const centerWidth = measureStack(node.center.children, theme, "horizontal").width;
+    const centerAnchorX = innerX + (innerWidth - centerWidth) / 2;
+    slotChildren.push(
+      positionNavbarSlot(node.center, centerAnchorX, innerY, innerHeight, theme, "left")
     );
   }
   if (node.trailing) {
@@ -4633,6 +4662,7 @@ function emitNode(laid, theme, out) {
       emitNavbar(laid, theme, out);
       break;
     case "navbarLeading":
+    case "navbarCenter":
     case "navbarTrailing":
       for (const c of laid.children) emitNode(c, theme, out);
       break;

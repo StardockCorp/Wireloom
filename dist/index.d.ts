@@ -102,9 +102,9 @@ interface FooterNode extends NodeBase {
 }
 /**
  * Mobile-style navigation bar (v0.50). Direct child of `window` only, same
- * placement rule as `header`. Holds two optional sub-slots — `leading` (left)
- * and `trailing` (right) — separated by an internal spacer so the slots
- * anchor to opposite edges. At least one of leading/trailing must be present.
+ * placement rule as `header`. Holds up to three optional sub-slots — `leading`
+ * (left), `center` (horizontally centered, added v0.51), and `trailing`
+ * (right). At least one slot must be present.
  *
  * Mutually exclusive with `header`: the parser rejects a window that contains
  * both, since they serve overlapping roles in the chrome band.
@@ -112,15 +112,16 @@ interface FooterNode extends NodeBase {
 interface NavbarNode extends NodeBase {
     kind: 'navbar';
     leading?: NavbarSlotNode;
+    center?: NavbarSlotNode;
     trailing?: NavbarSlotNode;
 }
 /**
- * One side of a `navbar` (kind `navbarLeading` or `navbarTrailing`). Written
- * in source as a bare `leading:` / `trailing:` block. Holds the same children
- * a normal container row would.
+ * One side of a `navbar` (`navbarLeading`, `navbarCenter`, or `navbarTrailing`).
+ * Written in source as a bare `leading:` / `center:` / `trailing:` block. Holds
+ * the same children a normal container row would.
  */
 interface NavbarSlotNode extends NodeBase {
-    kind: 'navbarLeading' | 'navbarTrailing';
+    kind: 'navbarLeading' | 'navbarCenter' | 'navbarTrailing';
     children: ContainerChild[];
 }
 /**

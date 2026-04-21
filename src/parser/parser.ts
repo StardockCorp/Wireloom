@@ -97,7 +97,7 @@ const WEIGHT_VALUES = ['light', 'regular', 'semibold', 'bold'] as const;
 const SIZE_VALUES = ['small', 'regular', 'large'] as const;
 const ALIGN_VALUES = ['left', 'center', 'right'] as const;
 const JUSTIFY_VALUES = ['start', 'between', 'around', 'end'] as const;
-const INPUT_TYPE_VALUES = ['text', 'password', 'email'] as const;
+const INPUT_TYPE_VALUES = ['text', 'password', 'email', 'search'] as const;
 const ACCENT_VALUES = [
   'research',
   'military',
@@ -140,6 +140,7 @@ const ATTR_RULES: Record<string, AttrRules> = {
   footer: { attrs: {}, flags: [] },
   navbar: { attrs: {}, flags: [] },
   leading: { attrs: {}, flags: [] },
+  center: { attrs: {}, flags: [] },
   trailing: { attrs: {}, flags: [] },
   sheet: {
     attrs: {
@@ -410,7 +411,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, navbar, leading, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, navbar, leading, center, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -697,7 +698,7 @@ class Parser {
         head.column,
       );
     }
-    if (name === 'leading' || name === 'trailing') {
+    if (name === 'leading' || name === 'center' || name === 'trailing') {
       throw new WireloomError(
         `"${name}" may only appear inside "navbar"`,
         head.line,
@@ -755,34 +756,38 @@ class Parser {
     const hasChildren = this.parseTerminator('navbar', head);
     if (!hasChildren) {
       throw new WireloomError(
-        '"navbar" requires "leading:" and/or "trailing:" sub-blocks (e.g., navbar:\n  leading:\n    button "Back")',
+        '"navbar" requires "leading:", "center:", and/or "trailing:" sub-blocks (e.g., navbar:\n  leading:\n    button "Back")',
         head.line,
         head.column,
       );
     }
-    const { leading, trailing } = this.parseNavbarChildren();
+    const { leading, center, trailing } = this.parseNavbarChildren();
     const node: NavbarNode = { kind: 'navbar', attributes, position };
     if (leading) node.leading = leading;
+    if (center) node.center = center;
     if (trailing) node.trailing = trailing;
     return node;
   }
 
   /**
-   * Parse a navbar's child block. Only `leading:` and `trailing:` are accepted,
-   * and each may appear at most once. Source order doesn't matter — the
-   * renderer always anchors leading on the left and trailing on the right.
+   * Parse a navbar's child block. `leading:`, `center:`, and `trailing:` are
+   * accepted; each may appear at most once. Source order doesn't matter — the
+   * renderer always anchors leading on the left, center horizontally centered,
+   * and trailing on the right.
    */
   private parseNavbarChildren(): {
     leading: NavbarSlotNode | undefined;
+    center: NavbarSlotNode | undefined;
     trailing: NavbarSlotNode | undefined;
   } {
     let leading: NavbarSlotNode | undefined;
+    let center: NavbarSlotNode | undefined;
     let trailing: NavbarSlotNode | undefined;
     while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
       const head = this.peek();
       if (head.kind !== 'ident') {
         throw new WireloomError(
-          `expected "leading:" or "trailing:" inside "navbar", got ${describeToken(head)}`,
+          `expected "leading:", "center:", or "trailing:" inside "navbar", got ${describeToken(head)}`,
           head.line,
           head.column,
         );
@@ -797,6 +802,15 @@ class Parser {
           );
         }
         leading = this.parseNavbarSlot('leading');
+      } else if (name === 'center') {
+        if (center !== undefined) {
+          throw new WireloomError(
+            '"navbar" may contain at most one "center:" block',
+            head.line,
+            head.column,
+          );
+        }
+        center = this.parseNavbarSlot('center');
       } else if (name === 'trailing') {
         if (trailing !== undefined) {
           throw new WireloomError(
@@ -808,23 +822,28 @@ class Parser {
         trailing = this.parseNavbarSlot('trailing');
       } else {
         throw new WireloomError(
-          `"navbar" accepts only "leading:" or "trailing:" children (got "${name}")`,
+          `"navbar" accepts only "leading:", "center:", or "trailing:" children (got "${name}")`,
           head.line,
           head.column,
         );
       }
     }
     this.expectKind('dedent', 'navbar block did not close cleanly');
-    return { leading, trailing };
+    return { leading, center, trailing };
   }
 
-  private parseNavbarSlot(side: 'leading' | 'trailing'): NavbarSlotNode {
+  private parseNavbarSlot(side: 'leading' | 'center' | 'trailing'): NavbarSlotNode {
     const head = this.consume();
     const position = positionOf(head);
     const attributes = this.parseAttributes(side);
     const hasChildren = this.parseTerminator(side, head);
     const children = hasChildren ? this.parseContainerChildren() : [];
-    const kind = side === 'leading' ? 'navbarLeading' : 'navbarTrailing';
+    const kind =
+      side === 'leading'
+        ? 'navbarLeading'
+        : side === 'center'
+          ? 'navbarCenter'
+          : 'navbarTrailing';
     return { kind, attributes, children, position };
   }
 
@@ -2237,6 +2256,7 @@ function placementErrorFor(name: string): string {
     case 'navbar':
       return '"navbar" may only appear directly inside "window"';
     case 'leading':
+    case 'center':
     case 'trailing':
       return `"${name}" may only appear inside "navbar"`;
     case 'tabbar':

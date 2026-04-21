@@ -135,6 +135,7 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
       emitNavbar(laid, theme, out);
       break;
     case 'navbarLeading':
+    case 'navbarCenter':
     case 'navbarTrailing':
       // Slot wrapper paints nothing of its own; children carry the visuals.
       for (const c of laid.children) emitNode(c, theme, out);

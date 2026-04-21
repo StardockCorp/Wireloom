@@ -82,6 +82,19 @@ describe('parser — error messages', () => {
     expect(err.message).toContain('unknown flag "sparkle" on "button"');
   });
 
+  it('accepts type=search on input', () => {
+    // Regression: v0.5.1 added `search` to the input type enum so mobile
+    // search fields stop requiring the authors to fake it as type=text.
+    expect(() => parse('window:\n  input placeholder="Search" type=search\n')).not.toThrow();
+  });
+
+  it('rejects unknown input type with the full valid set listed', () => {
+    const err = expectParseError('window:\n  input type=rainbow\n');
+    expect(err.message).toMatch(
+      /"rainbow" is not a valid type on "input" \(expected one of: text, password, email, search\)/,
+    );
+  });
+
   it('rejects colon on leaf primitives', () => {
     const err = expectParseError('window:\n  text "hi":\n    text "bad"');
     expect(err.line).toBe(2);

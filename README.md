@@ -126,11 +126,11 @@ window:
   navbar:
     leading:
       backbutton "Notes"
+    center:
+      text "Q2 Review" bold
     trailing:
       button "Share"
       button "Edit" primary
-  header large:
-    text "Q2 Review"
   panel:
     text "Revenue up 18% QoQ."
 ```
@@ -277,7 +277,7 @@ Full grammar at [`design/grammar.md`](design/grammar.md). Integrating into your 
 - ✅ **v0.4** — Game-UI primitives: `grid`/`cell`, `progress`, `chart` placeholder, `resourcebar`, `stats`/`stat`, slot `footer`, unified `state=`/`accent=`, real named icon library.
 - ✅ **v0.4.1** — Annotations (callouts): universal `id="…"` attribute, top-level `annotation` node with leader lines to `id`-tagged elements. A single source now renders both a wireframe and its callouts in one SVG.
 - ✅ **v0.4.5** — Widgets HTML doesn't have: `tree`/`node`, `checkbox`/`radio`/`toggle`, `menubar`/`menu`/`menuitem`/`separator`, `breadcrumb`/`crumb`, `chip`, `avatar`, `spinner`/`status`.
-- ✅ **v0.50** — Mobile navigation primitives: `spacer` + `row justify=`, `navbar` with `leading:`/`trailing:` slots, `tabbar`/`tabitem`, `backbutton`, `header large`, `chevron` flag on `slot`/`item`, `sheet` overlay (`position=bottom|center`), `segmented`/`segment` content filter.
+- ✅ **v0.50** — Mobile navigation primitives: `spacer` + `row justify=`, `navbar` with `leading:`/`center:`/`trailing:` slots, `tabbar`/`tabitem`, `backbutton`, `header large`, `chevron` flag on `slot`/`item`, `sheet` overlay (`position=bottom|center`), `segmented`/`segment` content filter.
 - **v0.6** — Documentation site with live editor. Visual regression via headless Chromium.
 - **v1.0** — Stable public API, ecosystem adapters (`remark-wireloom`, `markdown-it-wireloom`), VS Code extension.
 

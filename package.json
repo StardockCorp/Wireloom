@@ -1,6 +1,6 @@
 {
   "name": "wireloom",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "UI wireframe mockups from a Markdown-embedded DSL, rendered as inline SVG.",
   "license": "MIT",
   "author": "Brad Wardell",

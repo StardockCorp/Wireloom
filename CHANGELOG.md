@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] — 2026-04-21
+
+Small follow-up to v0.50's mobile-nav release. Authors kept pairing `navbar:` with `header:` to express a centered title alongside leading/trailing actions — the canonical iOS detail-view shape — but the two are mutually exclusive, so the source wouldn't parse. The root cause was that `navbar` had no slot for a centered cluster. This release adds one.
+
+### Added
+- **`navbar` gains an optional `center:` slot** alongside `leading:` and `trailing:`. Accepts the same row-legal children as the other two. Renders horizontally centered within the navbar's inner band, regardless of the width of the leading/trailing clusters. At most one `center:` per navbar. Existing v0.50 sources render byte-identical.
+- **`input type=search`** accepted as a valid input type. Renders identically to `type=text` for now; the value exists so mobile search-field mockups stop getting rejected by the parser (`AGENTS.md` already documented `type=search`, so this also closes a docs/parser-drift bug). Reserved for a future magnifier-icon affordance without a grammar change.
+
+### Changed
+- `navbar` parse errors updated to mention all three slots. The "missing children" error now reads `"navbar" requires "leading:", "center:", and/or "trailing:" sub-blocks`; the "wrong child kind" error reads `"navbar" accepts only "leading:", "center:", or "trailing:" children`.
+- README detail-view example now uses `navbar` with a `center:` title instead of pairing `navbar:` with `header large:` (which was a documentation bug — the two chrome bands are mutually exclusive).
+
 ## [0.5.0] — 2026-04-20
 
 Mobile-navigation primitives. The release centers on the shapes mobile mockups

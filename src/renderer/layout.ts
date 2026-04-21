@@ -875,13 +875,33 @@ function measureNavbar(node: NavbarNode, theme: Theme): Size {
   const leadingSize = node.leading
     ? measureStack(node.leading.children, theme, 'horizontal')
     : { width: 0, height: 0 };
+  const centerSize = node.center
+    ? measureStack(node.center.children, theme, 'horizontal')
+    : { width: 0, height: 0 };
   const trailingSize = node.trailing
     ? measureStack(node.trailing.children, theme, 'horizontal')
     : { width: 0, height: 0 };
-  const innerHeight = Math.max(leadingSize.height, trailingSize.height, theme.buttonHeight);
-  const minGap = leadingSize.width > 0 && trailingSize.width > 0 ? theme.rowGap : 0;
+  const innerHeight = Math.max(
+    leadingSize.height,
+    centerSize.height,
+    trailingSize.height,
+    theme.buttonHeight,
+  );
+  // Minimum navbar width: enough to fit all three clusters side-by-side with
+  // gaps, so the center cluster can sit between leading and trailing without
+  // overlap at the smallest measured size.
+  const presentSlots =
+    (leadingSize.width > 0 ? 1 : 0) +
+    (centerSize.width > 0 ? 1 : 0) +
+    (trailingSize.width > 0 ? 1 : 0);
+  const totalGap = Math.max(0, presentSlots - 1) * theme.rowGap;
   return {
-    width: leadingSize.width + trailingSize.width + minGap + theme.windowPadding * 2,
+    width:
+      leadingSize.width +
+      centerSize.width +
+      trailingSize.width +
+      totalGap +
+      theme.windowPadding * 2,
     height: innerHeight + theme.headerPaddingY * 2,
   };
 }
@@ -1238,6 +1258,18 @@ function positionNavbar(
   if (node.leading) {
     slotChildren.push(
       positionNavbarSlot(node.leading, innerX, innerY, innerHeight, theme, 'left'),
+    );
+  }
+  if (node.center) {
+    // Center cluster: horizontally centered within the navbar's inner band,
+    // regardless of leading/trailing widths. The intrinsic-width calculation
+    // in measureNavbar guarantees enough room for all three at minimum size;
+    // at larger window widths the cluster stays centered and may visually
+    // drift off-balance from leading/trailing (acceptable for a wireframe).
+    const centerWidth = measureStack(node.center.children, theme, 'horizontal').width;
+    const centerAnchorX = innerX + (innerWidth - centerWidth) / 2;
+    slotChildren.push(
+      positionNavbarSlot(node.center, centerAnchorX, innerY, innerHeight, theme, 'left'),
     );
   }
   if (node.trailing) {

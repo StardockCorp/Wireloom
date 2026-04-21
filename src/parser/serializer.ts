@@ -65,9 +65,11 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
         ? 'node'
         : node.kind === 'navbarLeading'
           ? 'leading'
-          : node.kind === 'navbarTrailing'
-            ? 'trailing'
-            : node.kind;
+          : node.kind === 'navbarCenter'
+            ? 'center'
+            : node.kind === 'navbarTrailing'
+              ? 'trailing'
+              : node.kind;
   const parts: string[] = [keyword];
 
   // Positional args by kind.
@@ -205,6 +207,7 @@ function nodeChildren(node: AnyNode): AnyNode[] {
     const navbar = node as NavbarNode;
     const kids: AnyNode[] = [];
     if (navbar.leading) kids.push(navbar.leading);
+    if (navbar.center) kids.push(navbar.center);
     if (navbar.trailing) kids.push(navbar.trailing);
     return kids;
   }

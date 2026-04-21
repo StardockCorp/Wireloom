@@ -220,6 +220,40 @@ describe('v0.50 layout — navbar', () => {
     expect(slot.x + slot.width).toBeLessThanOrEqual(nav.x + nav.width);
   });
 
+  it('centers the center slot horizontally within the navbar', () => {
+    const root = layoutSource(
+      [
+        'window:',
+        '  navbar:',
+        '    leading:',
+        '      backbutton "Back"',
+        '    center:',
+        '      text "Sarah Kim" bold',
+        '    trailing:',
+        '      icon name="leader"',
+        '  text "body"',
+        '',
+      ].join('\n'),
+    );
+    const nav = findNavbar(root);
+    const center = nav.children.find((c) => c.node.kind === 'navbarCenter');
+    expect(center).toBeDefined();
+    const navMid = nav.x + nav.width / 2;
+    const centerMid = center!.x + center!.width / 2;
+    // Slot should sit near the navbar's horizontal midpoint; a few px slop
+    // accommodates rounding / sub-pixel child measurements.
+    expect(Math.abs(centerMid - navMid)).toBeLessThan(4);
+  });
+
+  it('renders cleanly with only a center slot', () => {
+    const root = layoutSource(
+      'window:\n  navbar:\n    center:\n      text "Title" bold\n  text "body"\n',
+    );
+    const nav = findNavbar(root);
+    expect(nav.children.length).toBe(1);
+    expect(nav.children[0]!.node.kind).toBe('navbarCenter');
+  });
+
   it('navbar sits above the body — body content starts below it', () => {
     const root = layoutSource(
       'window:\n  navbar:\n    leading:\n      button "Back"\n  text "body"\n',
