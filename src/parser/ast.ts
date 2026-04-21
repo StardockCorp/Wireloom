@@ -180,6 +180,11 @@ export interface ButtonNode extends NodeBase {
   label: string;
 }
 
+export interface BackButtonNode extends NodeBase {
+  kind: 'backbutton';
+  label: string;
+}
+
 export interface InputNode extends NodeBase {
   kind: 'input';
 }
@@ -373,6 +378,7 @@ export interface AnnotationNode extends NodeBase {
 export type LeafNode =
   | TextNode
   | ButtonNode
+  | BackButtonNode
   | InputNode
   | ComboNode
   | SliderNode

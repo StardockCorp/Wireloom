@@ -13,6 +13,7 @@ import type {
   AttributePair,
   AttributeValue,
   AvatarNode,
+  BackButtonNode,
   BreadcrumbNode,
   ButtonNode,
   CellNode,
@@ -124,7 +125,7 @@ const UNIVERSAL_ID_SPEC: AttrSpec = { kind: 'string' };
 
 const ATTR_RULES: Record<string, AttrRules> = {
   window: { attrs: {}, flags: [] },
-  header: { attrs: {}, flags: [] },
+  header: { attrs: {}, flags: ['large'] },
   footer: { attrs: {}, flags: [] },
   panel: { attrs: {}, flags: [] },
   section: {
@@ -197,6 +198,10 @@ const ATTR_RULES: Record<string, AttrRules> = {
       accent: { kind: 'enum', values: ACCENT_VALUES },
     },
     flags: ['primary', 'disabled'],
+  },
+  backbutton: {
+    attrs: {},
+    flags: ['disabled'],
   },
   input: {
     attrs: {
@@ -340,6 +345,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
   'stats',
   'text',
   'button',
+  'backbutton',
   'input',
   'combo',
   'slider',
@@ -365,7 +371,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -694,6 +700,8 @@ class Parser {
         return this.parseText();
       case 'button':
         return this.parseButton();
+      case 'backbutton':
+        return this.parseBackButton();
       case 'input':
         return this.parseInput();
       case 'combo':
@@ -995,6 +1003,18 @@ class Parser {
     const attributes = this.parseAttributes('button');
     this.parseLeafTerminator('button', head);
     return { kind: 'button', label, attributes, position };
+  }
+
+  private parseBackButton(): BackButtonNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"backbutton" requires a parent label string (e.g., backbutton "Notes")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('backbutton');
+    this.parseLeafTerminator('backbutton', head);
+    return { kind: 'backbutton', label, attributes, position };
   }
 
   private parseInput(): InputNode {

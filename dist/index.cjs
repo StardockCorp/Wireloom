@@ -314,7 +314,7 @@ var STATUS_KIND_VALUES = ["success", "info", "warning", "error"];
 var UNIVERSAL_ID_SPEC = { kind: "string" };
 var ATTR_RULES = {
   window: { attrs: {}, flags: [] },
-  header: { attrs: {}, flags: [] },
+  header: { attrs: {}, flags: ["large"] },
   footer: { attrs: {}, flags: [] },
   panel: { attrs: {}, flags: [] },
   section: {
@@ -387,6 +387,10 @@ var ATTR_RULES = {
       accent: { kind: "enum", values: ACCENT_VALUES }
     },
     flags: ["primary", "disabled"]
+  },
+  backbutton: {
+    attrs: {},
+    flags: ["disabled"]
   },
   input: {
     attrs: {
@@ -527,6 +531,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "stats",
   "text",
   "button",
+  "backbutton",
   "input",
   "combo",
   "slider",
@@ -549,7 +554,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "status"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -821,6 +826,8 @@ var Parser = class {
         return this.parseText();
       case "button":
         return this.parseButton();
+      case "backbutton":
+        return this.parseBackButton();
       case "input":
         return this.parseInput();
       case "combo":
@@ -1095,6 +1102,17 @@ var Parser = class {
     const attributes = this.parseAttributes("button");
     this.parseLeafTerminator("button", head);
     return { kind: "button", label, attributes, position };
+  }
+  parseBackButton() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"backbutton" requires a parent label string (e.g., backbutton "Notes")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("backbutton");
+    this.parseLeafTerminator("backbutton", head);
+    return { kind: "backbutton", label, attributes, position };
   }
   parseInput() {
     const head = this.consume();
@@ -1937,6 +1955,9 @@ function serializeNode(node, depth, out) {
     case "button":
       parts.push(quoteString(node.label));
       break;
+    case "backbutton":
+      parts.push(quoteString(node.label));
+      break;
     case "kv":
       parts.push(quoteString(node.label));
       parts.push(quoteString(node.value));
@@ -2109,6 +2130,7 @@ var DEFAULT_THEME = Object.freeze({
   titleBarHeight: 36,
   panelPadding: 12,
   headerPaddingY: 10,
+  largeHeaderHeight: 64,
   footerPaddingY: 10,
   sectionTitleHeight: 22,
   sectionTitlePaddingBottom: 8,
@@ -2120,6 +2142,9 @@ var DEFAULT_THEME = Object.freeze({
   dividerHeight: 12,
   buttonHeight: 32,
   buttonPaddingX: 16,
+  backButtonChevronWidth: 8,
+  backButtonChevronGap: 6,
+  backButtonChevronColor: "#2d2d2d",
   inputHeight: 32,
   inputPaddingX: 12,
   inputMinWidth: 220,
@@ -2136,6 +2161,12 @@ var DEFAULT_THEME = Object.freeze({
   tabHeight: 36,
   tabPaddingX: 14,
   tabGap: 2,
+  tabbarHeight: 56,
+  tabbarIconSize: 22,
+  tabbarLabelFontSize: 11,
+  tabbarIconLabelGap: 3,
+  tabbarSelectedColor: "#2d2d2d",
+  tabbarInactiveColor: "#8a8f97",
   bulletWidth: 16,
   badgeHeight: 18,
   badgePaddingX: 8,
@@ -2299,6 +2330,9 @@ var DARK_THEME = Object.freeze({
   buttonBorderColor: "#b0b0b0",
   buttonFill: "#2a2a2a",
   buttonText: "#e0e0e0",
+  backButtonChevronColor: "#e0e0e0",
+  tabbarSelectedColor: "#f0f0f0",
+  tabbarInactiveColor: "#707780",
   primaryButtonFill: "#d4d4d4",
   primaryButtonText: "#1e1e1e",
   disabledColor: "#5a5a5a",
@@ -2507,6 +2541,8 @@ function measureChild(node, theme) {
       return measureText(node, theme);
     case "button":
       return measureButton(node, theme);
+    case "backbutton":
+      return measureBackButton(node, theme);
     case "input":
       return measureInput(node, theme);
     case "divider":
@@ -2682,6 +2718,13 @@ function measureButton(node, theme) {
   const badgeW = badgeWidthOf(node.attributes, theme);
   return {
     width: labelW + theme.buttonPaddingX * 2 + (badgeW > 0 ? badgeW + theme.rowGap : 0),
+    height: theme.buttonHeight
+  };
+}
+function measureBackButton(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.backButtonChevronWidth + theme.backButtonChevronGap + labelW + theme.buttonPaddingX * 2,
     height: theme.buttonHeight
   };
 }
@@ -2924,6 +2967,23 @@ function measureWindow(node, theme) {
   };
 }
 function measureHeaderOrFooter(node, theme, kind) {
+  if (kind === "header" && hasFlagAttr(node.attributes, "large")) {
+    const scale = theme.largeFontSize / theme.fontSize;
+    let titleWidth2 = 0;
+    for (const c of node.children) {
+      if (c.kind === "text") {
+        const w = c.content.length * theme.averageCharWidth * scale;
+        if (w > titleWidth2) titleWidth2 = w;
+      } else {
+        const w = measureChild(c, theme).width;
+        if (w > titleWidth2) titleWidth2 = w;
+      }
+    }
+    return {
+      width: titleWidth2 + theme.windowPadding * 2,
+      height: theme.largeHeaderHeight
+    };
+  }
   const direction = footerHorizontal(node, kind) ? "horizontal" : "vertical";
   const inner = measureStack(node.children, theme, direction);
   const padY = kind === "header" ? theme.headerPaddingY : theme.footerPaddingY;
@@ -3012,6 +3072,26 @@ function positionWindow(node, m, x, y, theme) {
   };
 }
 function positionHeaderOrFooter(node, kind, x, y, width, height, theme) {
+  if (kind === "header" && hasFlagAttr(node.attributes, "large")) {
+    const innerX2 = x + theme.windowPadding;
+    const innerWidth2 = width - theme.windowPadding * 2;
+    const scale = theme.largeFontSize / theme.fontSize;
+    const rowHeight = Math.round(theme.lineHeight * scale);
+    const children2 = [];
+    for (const child of node.children) {
+      let childW;
+      if (child.kind === "text") {
+        childW = child.content.length * theme.averageCharWidth * scale;
+      } else {
+        childW = measureChild(child, theme).width;
+      }
+      const childY = y + (height - rowHeight) / 2;
+      children2.push(
+        positionContainerChild(child, innerX2, childY, Math.min(childW, innerWidth2), theme)
+      );
+    }
+    return { node, x, y, width, height, children: children2 };
+  }
   const horizontal = footerHorizontal(node, kind);
   const padY = kind === "header" ? theme.headerPaddingY : theme.footerPaddingY;
   const innerX = x + theme.windowPadding;
@@ -3063,6 +3143,8 @@ function positionContainerChild(child, x, y, width, theme) {
       return positionText(child, x, y, width, theme);
     case "button":
       return positionButton(child, x, y, theme);
+    case "backbutton":
+      return positionLeaf(child, x, y, measureBackButton(child, theme));
     case "input":
       return positionInput(child, x, y, width, theme);
     case "combo":
@@ -3879,6 +3961,9 @@ function emitNode(laid, theme, out) {
     case "button":
       emitButton(laid, theme, out);
       break;
+    case "backbutton":
+      emitBackButton(laid, theme, out);
+      break;
     case "input":
       emitInput(laid, theme, out);
       break;
@@ -4326,7 +4411,22 @@ function emitChromeBand(laid, kind, theme, out) {
       `<line x1="${laid.x}" y1="${laid.y}" x2="${laid.x + laid.width}" y2="${laid.y}" stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`
     );
   }
-  for (const c of laid.children) emitNode(c, theme, out);
+  const headerNode = laid.node;
+  const isLarge = kind === "header" && hasFlag(headerNode.attributes, "large");
+  for (const c of laid.children) {
+    if (isLarge && c.node.kind === "text") {
+      emitLargeHeaderTitle(c, theme, out);
+    } else {
+      emitNode(c, theme, out);
+    }
+  }
+}
+function emitLargeHeaderTitle(laid, theme, out) {
+  const node = laid.node;
+  const baseline = laid.y + laid.height * 0.75;
+  out.push(
+    `<text x="${laid.x}" y="${baseline}" font-size="${theme.largeFontSize}" font-weight="700" fill="${theme.textColor}">${escapeText(node.content)}</text>`
+  );
 }
 function emitPanel(laid, theme, out) {
   out.push(
@@ -4499,6 +4599,25 @@ function emitButton(laid, theme, out) {
       out
     );
   }
+}
+function emitBackButton(laid, theme, out) {
+  const node = laid.node;
+  const isDisabled = hasFlag(node.attributes, "disabled");
+  const color = isDisabled ? theme.disabledColor : theme.backButtonChevronColor;
+  const opacity = isDisabled ? "0.55" : "1";
+  const chevronGlyphHeight = 12;
+  const chevronX = laid.x + theme.buttonPaddingX;
+  const chevronCenterY = laid.y + laid.height / 2;
+  const top = chevronCenterY - chevronGlyphHeight / 2;
+  const bottom = chevronCenterY + chevronGlyphHeight / 2;
+  const tip = chevronX;
+  const right = chevronX + theme.backButtonChevronWidth;
+  out.push(
+    `<g opacity="${opacity}">`,
+    `<path d="M ${right} ${top} L ${tip} ${chevronCenterY} L ${right} ${bottom}" fill="none" stroke="${color}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />`,
+    `<text x="${right + theme.backButtonChevronGap}" y="${chevronCenterY + theme.fontSize / 3}" fill="${color}">${escapeText(node.label)}</text>`,
+    `</g>`
+  );
 }
 function emitInput(laid, theme, out) {
   const node = laid.node;

@@ -17,6 +17,7 @@ import type {
   AttributePair,
   AttributeValue,
   AvatarNode,
+  BackButtonNode,
   BreadcrumbNode,
   ButtonNode,
   CellNode,
@@ -228,6 +229,8 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
       return measureText(node, theme);
     case 'button':
       return measureButton(node, theme);
+    case 'backbutton':
+      return measureBackButton(node, theme);
     case 'input':
       return measureInput(node, theme);
     case 'divider':
@@ -428,6 +431,14 @@ function measureButton(node: ButtonNode, theme: Theme): Size {
   const badgeW = badgeWidthOf(node.attributes, theme);
   return {
     width: labelW + theme.buttonPaddingX * 2 + (badgeW > 0 ? badgeW + theme.rowGap : 0),
+    height: theme.buttonHeight,
+  };
+}
+
+function measureBackButton(node: BackButtonNode, theme: Theme): Size {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.backButtonChevronWidth + theme.backButtonChevronGap + labelW + theme.buttonPaddingX * 2,
     height: theme.buttonHeight,
   };
 }
@@ -753,6 +764,25 @@ function measureHeaderOrFooter(
   theme: Theme,
   kind: 'header' | 'footer',
 ): Size {
+  if (kind === 'header' && hasFlagAttr(node.attributes, 'large')) {
+    // Large-title header: tall band, text child promoted to largeFontSize/bold
+    // for width calculation so outer window grows to fit the oversized title.
+    const scale = theme.largeFontSize / theme.fontSize;
+    let titleWidth = 0;
+    for (const c of node.children) {
+      if (c.kind === 'text') {
+        const w = c.content.length * theme.averageCharWidth * scale;
+        if (w > titleWidth) titleWidth = w;
+      } else {
+        const w = measureChild(c, theme).width;
+        if (w > titleWidth) titleWidth = w;
+      }
+    }
+    return {
+      width: titleWidth + theme.windowPadding * 2,
+      height: theme.largeHeaderHeight,
+    };
+  }
   const direction = footerHorizontal(node, kind) ? 'horizontal' : 'vertical';
   const inner = measureStack(node.children, theme, direction);
   const padY = kind === 'header' ? theme.headerPaddingY : theme.footerPaddingY;
@@ -879,6 +909,29 @@ function positionHeaderOrFooter(
   height: number,
   theme: Theme,
 ): LaidOutNode {
+  // Large-title header: single visible row, left-aligned, vertically centered.
+  // Text children are sized at largeFontSize so their laid rect matches the
+  // forced style emitted by emitChromeBand.
+  if (kind === 'header' && hasFlagAttr(node.attributes, 'large')) {
+    const innerX = x + theme.windowPadding;
+    const innerWidth = width - theme.windowPadding * 2;
+    const scale = theme.largeFontSize / theme.fontSize;
+    const rowHeight = Math.round(theme.lineHeight * scale);
+    const children: LaidOutNode[] = [];
+    for (const child of node.children) {
+      let childW: number;
+      if (child.kind === 'text') {
+        childW = child.content.length * theme.averageCharWidth * scale;
+      } else {
+        childW = measureChild(child, theme).width;
+      }
+      const childY = y + (height - rowHeight) / 2;
+      children.push(
+        positionContainerChild(child, innerX, childY, Math.min(childW, innerWidth), theme),
+      );
+    }
+    return { node, x, y, width, height, children };
+  }
   const horizontal = footerHorizontal(node, kind);
   const padY = kind === 'header' ? theme.headerPaddingY : theme.footerPaddingY;
   const innerX = x + theme.windowPadding;
@@ -941,6 +994,8 @@ function positionContainerChild(
       return positionText(child, x, y, width, theme);
     case 'button':
       return positionButton(child, x, y, theme);
+    case 'backbutton':
+      return positionLeaf(child, x, y, measureBackButton(child, theme));
     case 'input':
       return positionInput(child, x, y, width, theme);
     case 'combo':

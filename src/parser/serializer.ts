@@ -84,6 +84,9 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
     case 'button':
       parts.push(quoteString(node.label));
       break;
+    case 'backbutton':
+      parts.push(quoteString(node.label));
+      break;
     case 'kv':
       parts.push(quoteString((node as KvNode).label));
       parts.push(quoteString((node as KvNode).value));

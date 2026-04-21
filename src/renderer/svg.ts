@@ -13,6 +13,7 @@ import type {
   AttributePair,
   AttributeValue,
   AvatarNode,
+  BackButtonNode,
   ButtonNode,
   CellNode,
   ChartNode,
@@ -157,6 +158,9 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
       break;
     case 'button':
       emitButton(laid, theme, out);
+      break;
+    case 'backbutton':
+      emitBackButton(laid, theme, out);
       break;
     case 'input':
       emitInput(laid, theme, out);
@@ -674,7 +678,23 @@ function emitChromeBand(
         `stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`,
     );
   }
-  for (const c of laid.children) emitNode(c, theme, out);
+  const headerNode = laid.node as { attributes: readonly Attribute[] };
+  const isLarge = kind === 'header' && hasFlag(headerNode.attributes, 'large');
+  for (const c of laid.children) {
+    if (isLarge && c.node.kind === 'text') {
+      emitLargeHeaderTitle(c, theme, out);
+    } else {
+      emitNode(c, theme, out);
+    }
+  }
+}
+
+function emitLargeHeaderTitle(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as TextNode;
+  const baseline = laid.y + laid.height * 0.75;
+  out.push(
+    `<text x="${laid.x}" y="${baseline}" font-size="${theme.largeFontSize}" font-weight="700" fill="${theme.textColor}">${escapeText(node.content)}</text>`,
+  );
 }
 
 function emitPanel(laid: LaidOutNode, theme: Theme, out: string[]): void {
@@ -895,6 +915,30 @@ function emitButton(laid: LaidOutNode, theme: Theme, out: string[]): void {
       out,
     );
   }
+}
+
+function emitBackButton(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as BackButtonNode;
+  const isDisabled = hasFlag(node.attributes, 'disabled');
+  const color = isDisabled ? theme.disabledColor : theme.backButtonChevronColor;
+  const opacity = isDisabled ? '0.55' : '1';
+  const chevronGlyphHeight = 12;
+  const chevronX = laid.x + theme.buttonPaddingX;
+  const chevronCenterY = laid.y + laid.height / 2;
+  // Path chevron: two strokes forming `<`. Drawn as a path (not unicode char)
+  // so the glyph doesn't depend on the viewer's font substitution.
+  const top = chevronCenterY - chevronGlyphHeight / 2;
+  const bottom = chevronCenterY + chevronGlyphHeight / 2;
+  const tip = chevronX;
+  const right = chevronX + theme.backButtonChevronWidth;
+  out.push(
+    `<g opacity="${opacity}">`,
+    `<path d="M ${right} ${top} L ${tip} ${chevronCenterY} L ${right} ${bottom}" ` +
+      `fill="none" stroke="${color}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />`,
+    `<text x="${right + theme.backButtonChevronGap}" y="${chevronCenterY + theme.fontSize / 3}" ` +
+      `fill="${color}">${escapeText(node.label)}</text>`,
+    `</g>`,
+  );
 }
 
 function emitInput(laid: LaidOutNode, theme: Theme, out: string[]): void {
