@@ -40,9 +40,9 @@ window:
 
 Rendered: a bordered window containing the text.
 
-## Primitives (v0.4 / v0.4.1 / v0.4.5)
+## Primitives (v0.4 / v0.4.1 / v0.4.5 / v0.50)
 
-Every source must start with a single `window` root. In v0.4.1, one or more `annotation` nodes may follow the `window` as siblings to add user-manual-style callouts (see [Annotations (Callouts)](#annotations-callouts--v041)). v0.4.5 adds form controls (checkbox/radio/toggle), file trees, menubars, breadcrumbs, chips, avatars, and inline status indicators — see [v0.4.5 Primitives](#v045-primitives).
+Every source must start with a single `window` root. In v0.4.1, one or more `annotation` nodes may follow the `window` as siblings to add user-manual-style callouts (see [Annotations (Callouts)](#annotations-callouts--v041)). v0.4.5 adds form controls (checkbox/radio/toggle), file trees, menubars, breadcrumbs, chips, avatars, and inline status indicators — see [v0.4.5 Primitives](#v045-primitives). v0.50 adds the mobile-navigation primitive set (`spacer`, `navbar`, `tabbar`, `tabitem`, `backbutton`, `sheet`, `segmented`, `segment`) plus `row justify=`, `header large`, and the `chevron` flag on `slot`/`item`: see [v0.50 Primitives](#v050-primitives).
 
 ### Structural containers
 
@@ -61,6 +61,10 @@ Every source must start with a single `window` root. In v0.4.1, one or more `ann
 | `grid`      | Yes (`cell` children only)  | —                          | Fixed `cols=N rows=M` grid. Cells auto-flow or take explicit `row=`/`col=`. **v0.4** |
 | `resourcebar` | Yes (`resource` children only) | —                      | Horizontal resource strip for game-UI headers. **v0.4** |
 | `stats`     | Yes (`stat` children only)  | —                          | Terse inline stat strip (LABEL value). **v0.4** |
+| `navbar`    | Yes (`leading:`/`trailing:` only) | —                    | Top chrome band with `leading:` and `trailing:` slots on one line. Direct child of `window` only, mutually exclusive with `header`. **v0.50** |
+| `tabbar`    | Yes (`tabitem` children only) | —                        | Bottom chrome band for primary mobile navigation. Direct child of `window` only, mutually exclusive with `footer`. **v0.50** |
+| `sheet`     | Yes                         | —                          | Modal overlay (bottom sheet by default, centered modal with `position=center`). Direct child of `window` only, at most one per window. Supports `position=bottom\|center`, `title="…"`. **v0.50** |
+| `segmented` | Yes (`segment` children only) | —                        | Rounded-pill segmented control for mutually-exclusive content filters. Inline content, never a direct child of `window`. **v0.50** |
 
 ### Leaves (no children)
 
@@ -82,6 +86,10 @@ Every source must start with a single `window` root. In v0.4.1, one or more `ann
 | `stat`      | required label + value strings | Inline LABEL value pair (inside `stats`). Supports `bold`, `muted`. **v0.4** |
 | `progress`  | —                          | Horizontal bar. `value=`, `max=`, optional `label=`, `accent=`. **v0.4** |
 | `chart`     | —                          | Placeholder chart. `kind=bar|line|pie`, optional `label=`, `width=`, `height=`, `accent=`. Renders a stylized shape — no real data. **v0.4** |
+| `spacer`    | —                          | Flex gap inside a `row`. Consumes slack so siblings anchor to opposite ends. Only legal directly inside `row`. **v0.50** |
+| `tabitem`   | required string label      | Icon+label cell inside `tabbar`. Attributes: `icon="<name>"`, `badge="…"`. Flags: `selected`, `disabled`. **v0.50** |
+| `backbutton`| required string label      | Chevron+label button (e.g., `‹ Notes`). Legal anywhere a `button` is. Flag: `disabled`. **v0.50** |
+| `segment`   | required string label      | Cell inside `segmented`. Flags: `selected` (exactly one per `segmented`), `disabled`. **v0.50** |
 
 ## Attributes and Flags
 
@@ -121,6 +129,12 @@ Combine freely: `text "Heading" bold size=large`, `kv "Net" "+235 bc" bold`.
 | `row=N col=M`   | `cell` (**v0.4**) | 1-indexed explicit placement. Otherwise cells auto-flow L→R, T→B. |
 | `value=N max=M label="…"` | `progress` (**v0.4**) | `value`/`max` required for a filled bar; `label` optional. |
 | `kind=…` | `chart` (**v0.4**) | `bar`, `line`, or `pie`. Renders a placeholder glyph — no real data. |
+| `justify=…` | `row` (**v0.50**) | `start` (default), `between`, `around`, `end`. Distributes children along the horizontal axis. If a `spacer` child is present, `spacer` wins and `justify` is ignored. Fill cols still win over both. |
+| `large` | `header` (**v0.50**) | Bare flag. Turns the header into a tall large-title band (forces its `text` child to render bold at large size). |
+| `chevron` | `slot`, `item` (**v0.50**) | Bare flag. Reserves a trailing gutter and draws a right-chevron glyph. Used to signal "tap for detail" on list rows. |
+| `position=…` | `sheet` (**v0.50**) | `bottom` (default, anchors to window bottom with rounded top corners) or `center` (floating centered rectangle). |
+| `title="…"` | `sheet` (**v0.50**) | Optional title string. Renders bold and centered below the grabber. |
+| `icon="…"`, `badge="…"` | `tabitem` (**v0.50**) | Named-library icon above the label, optional trailing badge pill on the icon. |
 
 Unknown attributes or flags on the wrong primitive produce parse errors that list the expected options.
 
@@ -312,6 +326,300 @@ window "Settings":
     button "Cancel"
     button "Apply" primary
 ```
+
+## v0.50 Primitives
+
+v0.50 is the mobile-navigation release. Authors who tried to mock up list/detail/edit flows on phones were stacking two rows for Cancel/Done headers, hand-rolling tab bars with `footer` + `row` + `button`, and faking modals with a second panel. v0.50 replaces all of that with real primitives. No breaking changes: existing sources render identically. When in doubt, reach for these primitives before inventing a layout.
+
+### Row layout: `spacer` and `justify=`
+
+Rows gain two complementary tools for distributing children along the main axis:
+
+- **`spacer`**: a leaf primitive that fills remaining horizontal space inside a `row`. Use it explicitly where you want the gap (most common: between a `leading` cluster and a `trailing` cluster).
+- **`row justify=start|between|around|end`**: distributes all children along the row. `start` (default) packs left, `between` pushes first and last to opposite ends with even gaps between, `around` gives each child equal surrounding space, `end` packs right.
+
+Precedence when they combine: a `fill` col wins over everything, then `spacer` wins over `justify`, then `justify` wins over `align=`. Unknown `justify=` values produce a parse error listing the valid set.
+
+```wireloom
+window "Dialog":
+  panel:
+    row:
+      button "Cancel"
+      spacer
+      button "Done" primary
+    row justify=between:
+      text "Step 2 of 4" muted
+      text "Draft saved" muted
+```
+
+### `navbar` with `leading:` / `trailing:` slots
+
+`navbar` is the top chrome band for mobile list/detail flows. Direct child of `window` only, and mutually exclusive with `header` (you pick one). Children must be `leading:` and/or `trailing:` sub-blocks (at least one required, each at most once). Each slot accepts row-legal children (`button`, `backbutton`, `text`, `icon`, `chip`, `image`, etc.).
+
+| Primitive | Positional | Children | Attributes | Flags |
+|-----------|-----------|----------|------------|-------|
+| `navbar`  | —         | `leading:` and/or `trailing:` (at least one) | — | — |
+| `leading` | —         | row-legal children | — | — |
+| `trailing`| —         | row-legal children | — | — |
+
+```wireloom
+window "Note":
+  navbar:
+    leading:
+      backbutton "Notes"
+    trailing:
+      button "Share"
+      button "Done" primary
+  panel:
+    text "Body copy goes here."
+```
+
+### `header large:` for large-title bands
+
+`header` gains a `large` bare flag. With `large`, the header renders as a tall band with a bold large-size title (the "Notes", "Mail", "Settings" style on iOS list roots). The title `text` child is forced bold and large regardless of typography attrs on it. An empty `header large:` is legal and renders an empty large-title band (useful for placeholders). `header` without `large` renders identically to v0.4.5.
+
+```wireloom
+window:
+  header large:
+    text "Q2 Review"
+  panel:
+    text "Document body."
+```
+
+### `backbutton "Parent"`
+
+A leaf primitive that renders as a path-drawn chevron plus parent label. Drawn as an SVG `<path>` element, not unicode, so it's consistent across browsers. Legal anywhere a `button` is: inside `row`, `navbar` slots, `panel`, `section` content, slot `footer:`. Supports the `disabled` flag.
+
+```wireloom
+row:
+  backbutton "Inbox"
+  backbutton "Archive" disabled
+```
+
+### `tabbar` / `tabitem` — bottom navigation
+
+`tabbar` is the bottom chrome band for primary navigation. Direct child of `window` only, and mutually exclusive with `footer` (you pick one). Accepts only `tabitem` children, evenly distributed across the window width.
+
+| Primitive | Positional | Children | Attributes | Flags |
+|-----------|-----------|----------|------------|-------|
+| `tabbar`  | —         | `tabitem` only | — | — |
+| `tabitem` | required string label | (leaf) | `icon="<name>"`, `badge="…"` | `selected`, `disabled` |
+
+Each `tabitem` renders as icon-above-label. Unknown icon names fall back to the boxed-first-letter placeholder (same rule as `icon`). `selected` uses the accent/emphasis styling; `badge=` renders a small pill on the icon's top-right.
+
+```wireloom
+window "Home":
+  header:
+    text "Inbox" bold size=large
+  list:
+    item "Welcome"
+    item "Quarterly report"
+  tabbar:
+    tabitem "Home"     icon="planet" selected
+    tabitem "Inbox"    icon="policy" badge="3"
+    tabitem "Settings" icon="gear"
+```
+
+### `sheet` — modal overlay
+
+`sheet` draws over the underlying window content with a scrim. Direct child of `window`, at most one per window. Defaults to a bottom sheet (rounded top corners, grabber pill, anchored to window bottom). `position=center` instead renders a centered floating modal. Optional `title="…"` renders bold and centered under the grabber. The sheet body accepts any window-legal content (rows, panels, sections, lists, buttons, etc.).
+
+| Attribute | Values |
+|-----------|--------|
+| `position=` | `bottom` (default), `center` |
+| `title="…"` | Optional title string |
+
+```wireloom
+window "Photos":
+  header:
+    text "Vacation 2026" bold size=large
+  row:
+    image label="beach"
+    image label="mountain"
+  sheet title="Share":
+    list:
+      item "Messages"
+      item "Mail"
+      item "AirDrop"
+      item "Copy link"
+    row justify=end:
+      button "Cancel"
+```
+
+```wireloom
+window "Documents":
+  header:
+    text "Budget 2026.xlsx" bold
+  sheet position=center title="Delete file?":
+    text "This action cannot be undone."
+    row justify=end:
+      button "Cancel"
+      button "Delete" primary accent=danger
+```
+
+### `segmented` / `segment` — content filters
+
+A rounded-pill control for mutually-exclusive filters that change which content shows inside a view. Visually distinct from `tabs`: segmented is inline pill-shaped and content-filtering, `tabs` is full-width underlined and view-switching. Never a direct child of `window`: place inside `panel`, `section`, `row`, etc.
+
+| Primitive | Positional | Children | Flags |
+|-----------|-----------|----------|-------|
+| `segmented` | — | `segment` only | — |
+| `segment`   | required string label | (leaf) | `selected`, `disabled` |
+
+Exactly one segment may carry `selected`. Multiple `selected` flags produce a parse error; zero or one total segments emit a `console.warn` but still render (a hint, not a hard fail, so authoring stays forgiving).
+
+```wireloom
+window "Calendar":
+  panel:
+    text "Scope" muted
+    segmented:
+      segment "Day"
+      segment "Week" selected
+      segment "Month"
+      segment "Year"
+```
+
+### `chevron` flag on `slot` and `item`
+
+Disclosure affordance for list rows. Add the bare `chevron` flag to a `slot` or an `item` and the row gets a trailing right-chevron glyph (drawn as a `<path>`, muted color). Unflagged rows render unchanged from v0.4.5, so you can sprinkle it only on the rows that push to detail.
+
+```wireloom
+window "Settings":
+  section "Account":
+    list:
+      item "Profile" chevron
+      item "Password"
+      item "Privacy" chevron
+  section "Subscriptions":
+    list:
+      slot "Billing" chevron:
+        text "Visa •••• 4242"
+      slot "Plan":
+        text "Pro"
+```
+
+## Mobile navigation patterns
+
+Canonical flows for phone mockups. Reach for these shapes when the user asks for a mobile screen, a list+detail pair, a form-style edit screen, or a confirm sheet.
+
+### 1. List screen: `tabbar` + `header large:` + search
+
+Root of a mobile app. Large title on top, search field below the title, list in the middle, tab bar docked at the bottom.
+
+```wireloom
+window "Notes":
+  header large:
+    text "Notes"
+  panel:
+    input placeholder="Search" type=search
+  list:
+    slot "Ideas" chevron:
+      text "3 items" muted
+    slot "Recipes" chevron:
+      text "12 items" muted
+    slot "Trips" chevron:
+      text "5 items" muted
+  tabbar:
+    tabitem "Notes"   icon="policy" selected
+    tabitem "Inbox"   icon="planet" badge="2"
+    tabitem "Profile" icon="leader"
+```
+
+### 2. Detail view: `navbar` (backbutton + actions) + `header large:`
+
+One level deeper. Back button on the left, actions on the right, large title underneath identifies the current record.
+
+```wireloom
+window:
+  navbar:
+    leading:
+      backbutton "Notes"
+    trailing:
+      button "Share"
+      button "Edit" primary
+  header large:
+    text "Q2 Review"
+  panel:
+    text "Revenue up 18% QoQ. Plan review scheduled for May 7."
+    text "Draft saved 2 minutes ago" muted
+```
+
+### 3. Edit view: `navbar` (Cancel / Done) + input panel
+
+Modal-style edit. Cancel leading, Done trailing, form fields below. The `navbar` here replaces the `header` entirely, which matches the iOS modal edit pattern.
+
+```wireloom
+window:
+  navbar:
+    leading:
+      button "Cancel"
+    trailing:
+      button "Done" primary
+  panel:
+    kv "Title" "Q2 Review"
+    input placeholder="Title"
+    input placeholder="Summary" type=text
+    toggle "Pin to top" on
+    toggle "Include in weekly digest" off
+```
+
+### 4. Confirmation flow: `sheet` overlay
+
+The underlying screen stays visible under the scrim; the sheet draws on top with its own actions.
+
+```wireloom
+window "Documents":
+  navbar:
+    leading:
+      backbutton "Files"
+    trailing:
+      button "Edit"
+  header:
+    text "Budget 2026.xlsx" bold
+  panel:
+    text "Last modified 2 hours ago" muted
+  sheet position=center title="Delete file?":
+    text "This action cannot be undone. The file will be moved to Trash."
+    row justify=end:
+      button "Cancel"
+      button "Delete" primary accent=danger
+```
+
+### 5. Segmented content filter inside a section
+
+Segmented sits inside content, not chrome. Use it when the view itself has a few exclusive "show me X" modes.
+
+```wireloom
+window "Analytics":
+  header large:
+    text "Revenue"
+  panel:
+    segmented:
+      segment "Day"
+      segment "Week" selected
+      segment "Month"
+      segment "Year"
+    chart kind=line label="Weekly revenue" accent=wealth
+```
+
+## Spacers and right-alignment
+
+For anchoring items within a single row (Cancel on the left, Done on the right; title on the left, actions on the right), use `spacer` or `row justify=between`:
+
+```wireloom
+# Preferred: explicit spacer
+row:
+  button "Cancel"
+  spacer
+  button "Done" primary
+
+# Also valid: distribute via justify
+row justify=between:
+  text "Step 2 of 4"
+  text "Draft saved" muted
+```
+
+`align=right` on `row` still works for its original case (pack all children to the right), but when you want two clusters anchored to opposite ends of the same row, reach for `spacer` or `justify=between` instead.
 
 ### Universal attribute: `id` (v0.4.1)
 
@@ -544,14 +852,15 @@ window "Analysis":
 
 `chart` is a placeholder — it renders a stylized bar/line/pie shape, not a real chart from data. Use it the same way you use `image`: to signal "a chart goes here" in a mockup.
 
-## v0.4 Limitations — Things You Cannot Yet Do
+## v0.50 Limitations — Things You Cannot Yet Do
 
-- **No interactivity.** No click handlers, no tab-switching, no form submission. Wireloom is static SVG.
+- **No interactivity.** No click handlers, no tab-switching, no form submission, no sheet open/close. Wireloom is static SVG.
 - **No color overrides beyond `accent=`.** Choose from the named accent palette; fully-custom hex colors are not supported per-element.
-- **No animation or transitions.**
-- **No nested `window`**. Only one root per source.
+- **No animation or transitions.** Sheets do not slide in, large-title headers do not collapse on scroll, segmented thumb positions do not animate.
+- **No nested `window`.** Only one root per source.
 - **`chart` does not plot real data.** It's a stylized placeholder shape. If you need real data visualization, use a real charting library in actual code, not a wireframe.
 - **Icons outside the named set** render as the v0.3 boxed-first-letter placeholder. Add new names to the library (PR welcome) if you need them broadly.
+- **At most one `sheet` per window.** Stacked modals are out of scope (no modal-stack semantics in the DSL).
 
 ## How Agents Should Think About Wireloom
 
@@ -587,6 +896,22 @@ Don't use it for:
 | `Line N, col C: range must be N-M with M > N, got "100-0"` | Slider range inverted | Swap to `range=0-100` |
 | `Line N, col C: unknown attribute "xyz" on "input"` | Attribute not in the table above | Remove or use a supported attribute |
 | `Line N, col C: "text" cannot have children` | A leaf primitive ends with `:` and has indented content under it | Remove the colon; leaves don't nest |
+| `Line N, col C: "spacer" may only appear inside "row"` | `spacer` placed outside a `row` | Wrap the `spacer` in a `row:`, or delete it if the gap was intended inside a `col` (use `col fill` instead) |
+| `Line N, col C: "xyz" is not a valid justify on "row" (expected one of: start, between, around, end)` | Unknown `justify=` value | Pick one of the four values |
+| `Line N, col C: "navbar" may only appear directly inside "window"` | `navbar` placed inside a `row`, `panel`, `section`, etc. | Move the `navbar:` up to be a direct child of `window:` |
+| `Line N, col C: navbar and header cannot both appear in a window — pick one (they share the chrome band)` | Both `header:` and `navbar:` used at window level | Delete one. Use `navbar` for back/action mobile chrome, `header` for plain title bands |
+| `Line N, col C: "navbar" accepts only "leading:" or "trailing:" children (got "xyz")` | A primitive other than `leading:` / `trailing:` placed directly under `navbar:` | Wrap it in one of the two slots, e.g. `leading: button "Back"` |
+| `Line N, col C: "navbar" may contain at most one "leading:" block` (and similarly for `trailing:`) | Two `leading:` or two `trailing:` blocks under the same `navbar` | Merge their children into a single slot |
+| `Line N, col C: "leading" may only appear inside "navbar"` / `"trailing" may only appear inside "navbar"` | `leading:` or `trailing:` used at window or container scope | Only valid inside `navbar:` |
+| `Line N, col C: "tabbar" and "footer" are mutually exclusive in the same window — use one or the other` | Both `tabbar:` and `footer:` at window level | Pick one. `tabbar` for mobile primary nav, `footer` for desktop action bars |
+| `Line N, col C: "tabbar" accepts only "tabitem" children (got "xyz")` | Non-`tabitem` child under `tabbar` | Wrap each tab as `tabitem "Label" icon="…"` |
+| `Line N, col C: "tabitem" may only appear inside "tabbar"` | `tabitem` used outside `tabbar` | Wrap in `tabbar:` |
+| `Line N, col C: only one "sheet" is allowed per "window"` | Two `sheet:` blocks in one window | Keep one. Wireloom does not model stacked modals |
+| `Line N, col C: "xyz" is not a valid position on "sheet" (expected one of: bottom, center)` | Unknown `position=` on `sheet` | Use `position=bottom` (default) or `position=center` |
+| `Line N, col C: "sheet" may only appear directly inside "window"` | `sheet:` nested inside a container | Move it up to the window level |
+| `Line N, col C: "segmented" allows at most one "segment" with the "selected" flag; pick exactly one` | Two or more `segment`s flagged `selected` | Remove `selected` from all but one segment |
+| `Line N, col C: "segmented" accepts only "segment" children (got "xyz")` | Non-`segment` child inside `segmented` | Wrap each option as `segment "Label"` |
+| `Line N, col C: "segment" may only appear inside "segmented"` | `segment` used outside `segmented` | Wrap in `segmented:` |
 
 ## Where Wireloom Renders
 

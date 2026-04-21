@@ -17,7 +17,9 @@ Because Wireloom sources are plain text, they live in git, diff cleanly, review 
 
 ## Status
 
-**v0.4.5 — widgets HTML doesn't have, at wireframe fidelity.** New primitives fill the gaps LLM authors kept simulating with `panel` + `kv` rows: `tree`/`node` (collapsible), `checkbox`/`radio`/`toggle`, `menubar`/`menu`/`menuitem`/`separator`, `chip`, `avatar`, `breadcrumb`/`crumb`, and `spinner`/`status`. All additive — v0.4.1 sources render identically.
+**v0.50: mobile navigation primitives.** The release adds the shapes mobile mockups need constantly: `spacer` + `row justify=` (anchor items on opposite ends of a row without stacking rows), `navbar` with `leading:`/`trailing:` slots (the top chrome band for list/detail flows), `tabbar`/`tabitem` (bottom primary navigation), `backbutton` (path-drawn chevron + parent label), `header large:` (the iOS-style large-title band), `sheet` (modal and bottom-sheet overlays with `position=bottom|center`), `segmented`/`segment` (rounded-pill content filter), and a `chevron` flag on `slot`/`item` for "tap pushes to detail" list rows. All additive: v0.4.5 sources render identically.
+
+v0.4.5 added widgets HTML doesn't have, at wireframe fidelity: `tree`/`node` (collapsible), `checkbox`/`radio`/`toggle`, `menubar`/`menu`/`menuitem`/`separator`, `chip`, `avatar`, `breadcrumb`/`crumb`, and `spinner`/`status`.
 
 ![File explorer wireframe showcasing v0.4.5 primitives](docs/v045-showcase.svg)
 
@@ -99,6 +101,41 @@ annotation "Primary action.\nDisabled until form is valid." target="signin-btn" 
 ![Annotated sign-in wireframe rendered by Wireloom](docs/annotations-example.svg)
 
 The wireframe and its callouts live in one file and render to one SVG — no separate annotation layer, no second tool.
+
+### Mobile navigation (v0.50)
+
+Sketch a phone list/detail pair with real primitives instead of faking chrome:
+
+```wireloom
+window "Notes":
+  header large:
+    text "Notes"
+  list:
+    slot "Ideas" chevron:
+      text "3 items" muted
+    slot "Recipes" chevron:
+      text "12 items" muted
+  tabbar:
+    tabitem "Notes"   icon="policy" selected
+    tabitem "Inbox"   icon="planet" badge="2"
+    tabitem "Profile" icon="leader"
+```
+
+```wireloom
+window:
+  navbar:
+    leading:
+      backbutton "Notes"
+    trailing:
+      button "Share"
+      button "Edit" primary
+  header large:
+    text "Q2 Review"
+  panel:
+    text "Revenue up 18% QoQ."
+```
+
+`spacer` inside a row anchors siblings to opposite ends without stacking rows; `row justify=between|around|end` is the declarative counterpart. `sheet` (bottom or center) draws a modal overlay over the underlying content with scrim + grabber + optional title. `segmented`/`segment` is the rounded-pill control for mutually-exclusive content filters. See [`AGENTS.md`](AGENTS.md) for the full v0.50 walkthrough.
 
 ## Using Wireloom with AI agents
 
@@ -215,17 +252,20 @@ Wireloom is text-first, SVG-output, Markdown-native.
 
 ## Primitive set
 
-29 primitives, grouped:
+Grouped overview (v0.50 additions marked inline):
 
-- **Structural containers**: `window`, `header`, `footer`, `panel`, `section`, `tabs`, `row`, `col`, `list`, `slot`, `grid`, `resourcebar`, `stats`
-- **Interactive leaves**: `button`, `input`, `combo`, `slider`, `tab`, `item`
-- **Content leaves**: `text`, `kv`, `image`, `icon`, `divider`, `cell`, `resource`, `stat`, `progress`, `chart`
+- **Structural containers**: `window`, `header`, `footer`, `panel`, `section`, `tabs`, `row`, `col`, `list`, `slot`, `grid`, `resourcebar`, `stats`, `navbar` (v0.50), `tabbar` (v0.50), `sheet` (v0.50), `segmented` (v0.50)
+- **Interactive leaves**: `button`, `input`, `combo`, `slider`, `tab`, `item`, `tabitem` (v0.50), `backbutton` (v0.50), `segment` (v0.50)
+- **Content leaves**: `text`, `kv`, `image`, `icon`, `divider`, `cell`, `resource`, `stat`, `progress`, `chart`, `spacer` (v0.50)
+- **Form + widget primitives (v0.4.5)**: `checkbox`, `radio`, `toggle`, `tree`/`node`, `menubar`/`menu`/`menuitem`/`separator`, `breadcrumb`/`crumb`, `chip`, `avatar`, `spinner`, `status`
 
 Styling attributes on `text` and `kv` value: `bold` / `italic` / `muted` flags, `weight=light|regular|semibold|bold`, `size=small|regular|large`. `badge="…"` on tabs, sections, and buttons. `align=left|center|right` on rows. `fill` on columns.
 
 v0.4 additions: unified `state=` enum (locked/available/active/purchased/maxed/growing/ripe/withering/cashed) on slots and cells, semantic `accent=` colors (research/military/industry/wealth/approval/warning/danger/success) on slot/section/cell/button/icon, optional `footer:` child on slot, and a named icon library (credits, research, military, industry, lock, check, star, gear, plus more — unknown names fall back to a boxed-letter placeholder).
 
 v0.4.1 additions: **universal `id="…"`** attribute on every primitive, and the **`annotation`** top-level node — a user-manual-style label in the canvas margin with a leader line to an `id`-tagged element. Body text supports `\n` line breaks; required `target="<id>" position=left|right|top|bottom`. Annotations are siblings of `window`, not children.
+
+v0.50 additions: **`row justify=start|between|around|end`** distributes children along the main axis; **`spacer`** leaf fills slack inside a row and wins over `justify` when both are set. **`header large`** turns the header into a tall bold large-title band. **`chevron`** bare flag on `slot` and `item` draws a trailing right-chevron to signal "tap for detail". **`navbar`** (with `leading:`/`trailing:` sub-blocks) and **`tabbar`**/`tabitem` are window-level chrome bands mutually exclusive with `header` and `footer` respectively. **`sheet`** with `position=bottom|center` and optional `title="…"` draws a modal overlay with scrim and grabber (at most one per window). **`segmented`**/`segment` is a rounded-pill content filter with exactly one `selected` allowed.
 
 Full grammar at [`design/grammar.md`](design/grammar.md). Integrating into your own Markdown viewer or docs pipeline? See [`INTEGRATION.md`](INTEGRATION.md).
 
@@ -236,7 +276,9 @@ Full grammar at [`design/grammar.md`](design/grammar.md). Integrating into your 
 - ✅ **v0.3** — Published to npm. Flexible 2- or 4-space indentation, "did you mean?" suggestions, targeted `kv` hint.
 - ✅ **v0.4** — Game-UI primitives: `grid`/`cell`, `progress`, `chart` placeholder, `resourcebar`, `stats`/`stat`, slot `footer`, unified `state=`/`accent=`, real named icon library.
 - ✅ **v0.4.1** — Annotations (callouts): universal `id="…"` attribute, top-level `annotation` node with leader lines to `id`-tagged elements. A single source now renders both a wireframe and its callouts in one SVG.
-- **v0.5** — Documentation site with live editor. Visual regression via headless Chromium.
+- ✅ **v0.4.5** — Widgets HTML doesn't have: `tree`/`node`, `checkbox`/`radio`/`toggle`, `menubar`/`menu`/`menuitem`/`separator`, `breadcrumb`/`crumb`, `chip`, `avatar`, `spinner`/`status`.
+- ✅ **v0.50** — Mobile navigation primitives: `spacer` + `row justify=`, `navbar` with `leading:`/`trailing:` slots, `tabbar`/`tabitem`, `backbutton`, `header large`, `chevron` flag on `slot`/`item`, `sheet` overlay (`position=bottom|center`), `segmented`/`segment` content filter.
+- **v0.6** — Documentation site with live editor. Visual regression via headless Chromium.
 - **v1.0** — Stable public API, ecosystem adapters (`remark-wireloom`, `markdown-it-wireloom`), VS Code extension.
 
 ## Contributing
