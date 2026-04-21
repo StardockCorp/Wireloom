@@ -1,0 +1,19 @@
+# `backbutton` renders as a path-drawn chevron + parent label; it's legal
+# anywhere a button is. `header large:` turns the header band into a
+# prominent large-title header (the big bold title row used in Notes, Mail,
+# Settings on iOS; the oversized toolbar title on Android).
+
+window:
+  header large:
+    text "Q2 Review"
+
+  row:
+    backbutton "Notes"
+    backbutton "Reports" disabled
+
+  panel:
+    text "Tap a parent to navigate back." muted
+
+  footer:
+    button "Share"
+    button "Done" primary

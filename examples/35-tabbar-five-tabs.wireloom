@@ -1,0 +1,14 @@
+# 5-tab bar exercise — proves label spacing holds up under crowding and
+# that unknown icon names (`zzz-not-real`) fall back to the boxed first
+# letter glyph instead of dropping the tab silently.
+
+window:
+  panel:
+    text "Wide tab bar stress test" weight=bold
+
+  tabbar:
+    tabitem "Home" icon="planet"
+    tabitem "Search" icon="research"
+    tabitem "Post" icon="zzz-not-real"
+    tabitem "Alerts" icon="warning" badge="12"
+    tabitem "Me" icon="leader" selected

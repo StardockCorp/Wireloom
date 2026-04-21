@@ -104,6 +104,24 @@ export interface NavbarSlotNode extends NodeBase {
   children: ContainerChild[];
 }
 
+/**
+ * Bottom-of-window mobile navigation bar. Mutually exclusive with `footer`
+ * in the same window (pick one chrome band). Accepts only `tabitem` children.
+ */
+export interface TabBarNode extends NodeBase {
+  kind: 'tabbar';
+  children: TabItemNode[];
+}
+
+/**
+ * Single icon+label tab inside a `tabbar`. Renders as icon stacked above
+ * label, with optional selected/disabled state and a badge pill on the icon.
+ */
+export interface TabItemNode extends NodeBase {
+  kind: 'tabitem';
+  label: string;
+}
+
 export interface PanelNode extends NodeBase {
   kind: 'panel';
   children: ContainerChild[];
@@ -202,6 +220,11 @@ export interface TextNode extends NodeBase {
 
 export interface ButtonNode extends NodeBase {
   kind: 'button';
+  label: string;
+}
+
+export interface BackButtonNode extends NodeBase {
+  kind: 'backbutton';
   label: string;
 }
 
@@ -407,6 +430,7 @@ export interface AnnotationNode extends NodeBase {
 export type LeafNode =
   | TextNode
   | ButtonNode
+  | BackButtonNode
   | InputNode
   | ComboNode
   | SliderNode
@@ -446,6 +470,7 @@ export type WindowChild =
   | HeaderNode
   | FooterNode
   | NavbarNode
+  | TabBarNode
   | PanelNode
   | SectionNode
   | TabsNode
@@ -468,6 +493,8 @@ export type AnyNode =
   | FooterNode
   | NavbarNode
   | NavbarSlotNode
+  | TabBarNode
+  | TabItemNode
   | SlotFooterNode
   | PanelNode
   | SectionNode

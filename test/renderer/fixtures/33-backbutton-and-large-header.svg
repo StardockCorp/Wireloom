@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="272" height="232" viewBox="0 0 272 232" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="272" height="232" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="271" height="231" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="64" x2="272" y2="64" stroke="#b0b0b0" stroke-width="1" />
+<text x="16" y="34" font-size="18" font-weight="700" fill="#2d2d2d">Q2 Review</text>
+<g opacity="1">
+<path d="M 40 90 L 32 96 L 40 102" fill="none" stroke="#2d2d2d" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+<text x="46" y="100.66666666666667" fill="#2d2d2d">Notes</text>
+</g>
+<g opacity="0.55">
+<path d="M 130 90 L 122 96 L 130 102" fill="none" stroke="#b8b8b8" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+<text x="136" y="100.66666666666667" fill="#b8b8b8">Reports</text>
+</g>
+<rect x="16.5" y="120.5" width="239" height="43" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="147" fill="#7a7f87">Tap a parent to navigate back.</text>
+<line x1="0" y1="180" x2="272" y2="180" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<rect x="119.69999999999999" y="190.5" width="67" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="153.2" y="210.66666666666666" text-anchor="middle" font-weight="500" fill="#2d2d2d">Share</text>
+</g>
+<g opacity="1">
+<rect x="195.7" y="190.5" width="59.8" height="31" fill="#3a3a3a" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="225.6" y="210.66666666666666" text-anchor="middle" font-weight="500" fill="#ffffff">Done</text>
+</g>
+</svg>

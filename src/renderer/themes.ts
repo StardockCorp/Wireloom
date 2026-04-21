@@ -96,6 +96,7 @@ export interface Theme {
   titleBarHeight: number;
   panelPadding: number;
   headerPaddingY: number;
+  largeHeaderHeight: number;
   footerPaddingY: number;
   sectionTitleHeight: number;
   sectionTitlePaddingBottom: number;
@@ -109,6 +110,9 @@ export interface Theme {
   // Controls
   buttonHeight: number;
   buttonPaddingX: number;
+  backButtonChevronWidth: number;
+  backButtonChevronGap: number;
+  backButtonChevronColor: string;
   inputHeight: number;
   inputPaddingX: number;
   inputMinWidth: number;
@@ -125,6 +129,12 @@ export interface Theme {
   tabHeight: number;
   tabPaddingX: number;
   tabGap: number;
+  tabbarHeight: number;
+  tabbarIconSize: number;
+  tabbarLabelFontSize: number;
+  tabbarIconLabelGap: number;
+  tabbarSelectedColor: string;
+  tabbarInactiveColor: string;
   bulletWidth: number;
   badgeHeight: number;
   badgePaddingX: number;
@@ -285,6 +295,7 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   titleBarHeight: 36,
   panelPadding: 12,
   headerPaddingY: 10,
+  largeHeaderHeight: 64,
   footerPaddingY: 10,
   sectionTitleHeight: 22,
   sectionTitlePaddingBottom: 8,
@@ -297,6 +308,9 @@ export const DEFAULT_THEME: Theme = Object.freeze({
 
   buttonHeight: 32,
   buttonPaddingX: 16,
+  backButtonChevronWidth: 8,
+  backButtonChevronGap: 6,
+  backButtonChevronColor: '#2d2d2d',
   inputHeight: 32,
   inputPaddingX: 12,
   inputMinWidth: 220,
@@ -313,6 +327,12 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   tabHeight: 36,
   tabPaddingX: 14,
   tabGap: 2,
+  tabbarHeight: 56,
+  tabbarIconSize: 22,
+  tabbarLabelFontSize: 11,
+  tabbarIconLabelGap: 3,
+  tabbarSelectedColor: '#2d2d2d',
+  tabbarInactiveColor: '#8a8f97',
   bulletWidth: 16,
   badgeHeight: 18,
   badgePaddingX: 8,
@@ -489,6 +509,9 @@ export const DARK_THEME: Theme = Object.freeze({
   buttonBorderColor: '#b0b0b0',
   buttonFill: '#2a2a2a',
   buttonText: '#e0e0e0',
+  backButtonChevronColor: '#e0e0e0',
+  tabbarSelectedColor: '#f0f0f0',
+  tabbarInactiveColor: '#707780',
   primaryButtonFill: '#d4d4d4',
   primaryButtonText: '#1e1e1e',
   disabledColor: '#5a5a5a',
