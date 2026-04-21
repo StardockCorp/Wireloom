@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="312" height="236" viewBox="0 0 312 236" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="312" height="236" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="311" height="235" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="312" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="156" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Calendar</text>
+<rect x="16.5" y="52.5" width="279" height="79" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="79" fill="#7a7f87">Scope</text>
+<rect x="28.5" y="92.5" width="255" height="27" rx="6" ry="6" fill="#eef0f3" stroke="#c4c8ce" stroke-width="1" />
+<rect x="92" y="92.5" width="64" height="27" fill="#3a3a3a" />
+<line x1="220" y1="96" x2="220" y2="116" stroke="#b5b8bd" stroke-width="1" />
+<text x="60" y="110.66666666666667" text-anchor="middle" font-size="12" font-weight="500" opacity="1" fill="#3a3e44">Day</text>
+<text x="124" y="110.66666666666667" text-anchor="middle" font-size="12" font-weight="600" opacity="1" fill="#ffffff">Week</text>
+<text x="188" y="110.66666666666667" text-anchor="middle" font-size="12" font-weight="500" opacity="1" fill="#3a3e44">Month</text>
+<text x="252" y="110.66666666666667" text-anchor="middle" font-size="12" font-weight="500" opacity="1" fill="#3a3e44">Year</text>
+<rect x="16.5" y="140.5" width="279" height="79" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="167" fill="#7a7f87">Filter</text>
+<rect x="28.5" y="180.5" width="234.20000000000002" height="27" rx="6" ry="6" fill="#eef0f3" stroke="#c4c8ce" stroke-width="1" />
+<rect x="106.4" y="180.5" width="78.4" height="27" fill="#3a3a3a" />
+<text x="67.2" y="198.66666666666666" text-anchor="middle" font-size="12" font-weight="500" opacity="1" fill="#3a3e44">All</text>
+<text x="145.60000000000002" y="198.66666666666666" text-anchor="middle" font-size="12" font-weight="600" opacity="1" fill="#ffffff">Unread</text>
+<text x="224" y="198.66666666666666" text-anchor="middle" font-size="12" font-weight="500" opacity="0.45" fill="#3a3e44">Flagged</text>
+</svg>

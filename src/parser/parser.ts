@@ -51,6 +51,8 @@ import type {
   ResourceNode,
   RowNode,
   SectionNode,
+  SegmentedNode,
+  SegmentNode,
   SeparatorNode,
   SheetNode,
   SheetPlacement,
@@ -177,13 +179,13 @@ const ATTR_RULES: Record<string, AttrRules> = {
   spacer: { attrs: {}, flags: [] },
   col: { attrs: {}, flags: [] },
   list: { attrs: {}, flags: [] },
-  item: { attrs: {}, flags: [] },
+  item: { attrs: {}, flags: ['chevron'] },
   slot: {
     attrs: {
       state: { kind: 'enum', values: STATE_VALUES },
       accent: { kind: 'enum', values: ACCENT_VALUES },
     },
-    flags: ['active'],
+    flags: ['active', 'chevron'],
   },
   slotFooter: { attrs: {}, flags: [] },
   grid: {
@@ -355,6 +357,11 @@ const ATTR_RULES: Record<string, AttrRules> = {
     },
     flags: [],
   },
+  segmented: { attrs: {}, flags: [] },
+  segment: {
+    attrs: {},
+    flags: ['selected', 'disabled'],
+  },
 };
 
 const VALID_PRIMITIVES = new Set([
@@ -397,12 +404,13 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
   'avatar',
   'spinner',
   'status',
+  'segmented',
 ]);
 
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, navbar, leading, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, navbar, leading, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -703,6 +711,13 @@ class Parser {
         head.column,
       );
     }
+    if (name === 'segment') {
+      throw new WireloomError(
+        '"segment" may only appear inside "segmented"',
+        head.line,
+        head.column,
+      );
+    }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
     if (name === 'navbar') return this.parseNavbar();
@@ -983,6 +998,8 @@ class Parser {
         return this.parseSpinner();
       case 'status':
         return this.parseStatus();
+      case 'segmented':
+        return this.parseSegmented();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -1761,6 +1778,86 @@ class Parser {
     return { kind: 'crumb', label, attributes, position };
   }
 
+  // --- Segmented / segment -------------------------------------------------
+
+  private parseSegmented(): SegmentedNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('segmented');
+    const hasChildren = this.parseTerminator('segmented', head);
+    const children = hasChildren ? this.parseSegmentedChildren(head) : [];
+
+    // Exactly one segment may carry `selected`. Multiple is a parse error —
+    // the semantic of a segmented control is "pick one of N".
+    let selectedCount = 0;
+    let firstExtraSelected: SegmentNode | undefined;
+    for (const seg of children) {
+      if (seg.attributes.some((a) => a.kind === 'flag' && a.flag === 'selected')) {
+        selectedCount++;
+        if (selectedCount > 1 && firstExtraSelected === undefined) {
+          firstExtraSelected = seg;
+        }
+      }
+    }
+    if (firstExtraSelected) {
+      throw new WireloomError(
+        '"segmented" allows at most one "segment" with the "selected" flag; pick exactly one',
+        firstExtraSelected.position.line,
+        firstExtraSelected.position.column,
+      );
+    }
+
+    // Zero or one segment is syntactically legal but renders as a degenerate
+    // control. Warn so authors notice; don't block rendering.
+    if (children.length < 2) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `wireloom: "segmented" with ${children.length} segment${children.length === 1 ? '' : 's'} at ` +
+          `line ${position.line} — at least 2 segments recommended.`,
+      );
+    }
+
+    return { kind: 'segmented', attributes, children, position };
+  }
+
+  private parseSegmentedChildren(containerHead: Token): SegmentNode[] {
+    const children: SegmentNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "segment", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'segment') {
+        throw new WireloomError(
+          `"segmented" accepts only "segment" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseSegment());
+    }
+    this.expectKind('dedent', 'segmented block did not close cleanly');
+    void containerHead;
+    return children;
+  }
+
+  private parseSegment(): SegmentNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"segment" requires a label string (e.g., segment "Day")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('segment');
+    this.parseLeafTerminator('segment', head);
+    return { kind: 'segment', label, attributes, position };
+  }
+
   // --- Form controls -------------------------------------------------------
 
   private parseCheckbox(): CheckboxNode {
@@ -2150,6 +2247,8 @@ function placementErrorFor(name: string): string {
       return '"sheet" may only appear directly inside "window"';
     case 'spacer':
       return '"spacer" may only appear inside "row"';
+    case 'segment':
+      return '"segment" may only appear inside "segmented"';
     case 'window':
       return '"window" cannot be nested';
     case 'cell':

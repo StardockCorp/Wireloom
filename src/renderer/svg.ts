@@ -33,6 +33,7 @@ import type {
   RadioNode,
   ResourceNode,
   SectionNode,
+  SegmentNode,
   SheetNode,
   SliderNode,
   SlotNode,
@@ -279,6 +280,13 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
     case 'sheet':
       emitSheet(laid, theme, out);
       break;
+    case 'segmented':
+      emitSegmented(laid, theme, out);
+      break;
+    case 'segment':
+      // Segments paint themselves via emitSegmented so dividers and the
+      // selected fill align with the outer pill border.
+      break;
   }
 }
 
@@ -489,6 +497,99 @@ function emitBreadcrumb(laid: LaidOutNode, theme: Theme, out: string[]): void {
         `<text x="${chevX}" y="${midY}" fill="${theme.breadcrumbSeparatorColor}">›</text>`,
       );
     }
+  }
+}
+
+function emitSegmented(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const segs = laid.children;
+  const n = segs.length;
+  const radius = theme.segmentedCornerRadius;
+
+  // Outer rounded-pill container.
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" ` +
+      `rx="${radius}" ry="${radius}" fill="${theme.segmentedBg}" stroke="${theme.segmentedBorder}" stroke-width="1" />`,
+  );
+
+  if (n === 0) return;
+
+  // Selected fill — painted before dividers so divider lines still read on top.
+  // The pill corner radius only applies to the outermost segments; inner
+  // ones get square corners so the fill meets the divider cleanly.
+  for (let i = 0; i < n; i++) {
+    const seg = segs[i]!;
+    const node = seg.node as SegmentNode;
+    const selected = hasFlag(node.attributes, 'selected');
+    if (!selected) continue;
+    const isFirst = i === 0;
+    const isLast = i === n - 1;
+    if (isFirst && isLast) {
+      out.push(
+        `<rect x="${seg.x + 0.5}" y="${seg.y + 0.5}" width="${seg.width - 1}" height="${seg.height - 1}" ` +
+          `rx="${radius}" ry="${radius}" fill="${theme.segmentedSelectedBg}" />`,
+      );
+    } else if (isFirst) {
+      // Left pill end: rounded on the left, square on the right where it meets the divider.
+      out.push(
+        `<path d="M ${seg.x + radius} ${seg.y + 0.5} ` +
+          `L ${seg.x + seg.width} ${seg.y + 0.5} ` +
+          `L ${seg.x + seg.width} ${seg.y + seg.height - 0.5} ` +
+          `L ${seg.x + radius} ${seg.y + seg.height - 0.5} ` +
+          `A ${radius} ${radius} 0 0 1 ${seg.x + 0.5} ${seg.y + seg.height - 0.5 - radius} ` +
+          `L ${seg.x + 0.5} ${seg.y + 0.5 + radius} ` +
+          `A ${radius} ${radius} 0 0 1 ${seg.x + radius} ${seg.y + 0.5} Z" ` +
+          `fill="${theme.segmentedSelectedBg}" />`,
+      );
+    } else if (isLast) {
+      // Right pill end: square on the left, rounded on the right.
+      out.push(
+        `<path d="M ${seg.x} ${seg.y + 0.5} ` +
+          `L ${seg.x + seg.width - radius} ${seg.y + 0.5} ` +
+          `A ${radius} ${radius} 0 0 1 ${seg.x + seg.width - 0.5} ${seg.y + 0.5 + radius} ` +
+          `L ${seg.x + seg.width - 0.5} ${seg.y + seg.height - 0.5 - radius} ` +
+          `A ${radius} ${radius} 0 0 1 ${seg.x + seg.width - radius} ${seg.y + seg.height - 0.5} ` +
+          `L ${seg.x} ${seg.y + seg.height - 0.5} Z" ` +
+          `fill="${theme.segmentedSelectedBg}" />`,
+      );
+    } else {
+      // Middle segment: fully square fill, sits flush against dividers on both sides.
+      out.push(
+        `<rect x="${seg.x}" y="${seg.y + 0.5}" width="${seg.width}" height="${seg.height - 1}" ` +
+          `fill="${theme.segmentedSelectedBg}" />`,
+      );
+    }
+  }
+
+  // Vertical dividers between adjacent segments. Skip the divider when the
+  // segment immediately before OR after is selected, since the selected fill
+  // paints over the divider line anyway and an uncovered line looks wrong.
+  for (let i = 1; i < n; i++) {
+    const prev = segs[i - 1]!;
+    const curr = segs[i]!;
+    const prevSelected = hasFlag((prev.node as SegmentNode).attributes, 'selected');
+    const currSelected = hasFlag((curr.node as SegmentNode).attributes, 'selected');
+    if (prevSelected || currSelected) continue;
+    const dx = curr.x;
+    out.push(
+      `<line x1="${dx}" y1="${laid.y + 4}" x2="${dx}" y2="${laid.y + laid.height - 4}" ` +
+        `stroke="${theme.segmentedDividerColor}" stroke-width="1" />`,
+    );
+  }
+
+  // Labels (centered per segment). Disabled segments dim both label and cell.
+  for (const seg of segs) {
+    const node = seg.node as SegmentNode;
+    const selected = hasFlag(node.attributes, 'selected');
+    const disabled = hasFlag(node.attributes, 'disabled');
+    const fill = selected ? theme.segmentedSelectedText : theme.segmentedText;
+    const weight = selected ? '600' : '500';
+    const opacity = disabled ? '0.45' : '1';
+    const cx = seg.x + seg.width / 2;
+    const midY = seg.y + seg.height / 2 + theme.fontSize / 3;
+    out.push(
+      `<text x="${cx}" y="${midY}" text-anchor="middle" font-size="${theme.smallFontSize}" ` +
+        `font-weight="${weight}" opacity="${opacity}" fill="${fill}">${escapeText(node.label)}</text>`,
+    );
   }
 }
 
@@ -988,6 +1089,14 @@ function emitItem(laid: LaidOutNode, theme: Theme, out: string[]): void {
   out.push(
     `<text x="${textX}" y="${textY}" fill="${theme.textColor}">${escapeText(node.text)}</text>`,
   );
+  if (hasFlag(node.attributes, 'chevron')) {
+    emitDisclosureChevron(
+      laid.x + laid.width - theme.chevronGlyphGutter / 2,
+      laid.y + laid.height / 2,
+      theme,
+      out,
+    );
+  }
 }
 
 function emitSlot(laid: LaidOutNode, theme: Theme, out: string[]): void {
@@ -1033,16 +1142,48 @@ function emitSlot(laid: LaidOutNode, theme: Theme, out: string[]): void {
     `<text x="${titleX}" y="${titleY}" font-weight="600" fill="${textColor}">${escapeText(node.title)}</text>`,
   );
 
+  const hasChevron = hasFlag(node.attributes, 'chevron');
+
   // State badge in the top-right corner (lock/check/star, if the state supplies one).
+  // When a chevron is also present, slide the badge inward so both are visible.
   if (badgeIcon !== undefined) {
     const sz = 14;
-    const bx = laid.x + laid.width - theme.slotPadding - sz;
+    const chevronShift = hasChevron ? theme.chevronGlyphGutter : 0;
+    const bx = laid.x + laid.width - theme.slotPadding - sz - chevronShift;
     const by = laid.y + theme.slotPadding + (theme.slotTitleHeight - sz) / 2;
     const iconMarkup = emitIconByName(badgeIcon, bx, by, sz, stroke);
     if (iconMarkup) out.push(iconMarkup);
   }
 
+  if (hasChevron) {
+    emitDisclosureChevron(
+      laid.x + laid.width - theme.slotPadding - theme.chevronGlyphSize,
+      laid.y + theme.slotPadding + theme.slotTitleHeight / 2,
+      theme,
+      out,
+    );
+  }
+
   for (const c of laid.children) emitNode(c, theme, out);
+}
+
+/**
+ * Trailing right-chevron glyph. Rendered as a path (rather than the unicode
+ * `›` character) so it looks identical across browsers, fonts, and rasterizers.
+ * Centered at (cx, cy); two diagonals meet at the right tip.
+ */
+function emitDisclosureChevron(
+  cx: number,
+  cy: number,
+  theme: Theme,
+  out: string[],
+): void {
+  const s = theme.chevronGlyphSize;
+  out.push(
+    `<path d="M ${cx - s} ${cy - s} L ${cx} ${cy} L ${cx - s} ${cy + s}" ` +
+      `fill="none" stroke="${theme.chevronGlyphColor}" stroke-width="${theme.chevronGlyphStrokeWidth}" ` +
+      `stroke-linecap="round" stroke-linejoin="round" />`,
+  );
 }
 
 // ---------------------------------------------------------------------------

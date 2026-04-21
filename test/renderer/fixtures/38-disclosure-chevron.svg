@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="239.20000000000002" height="510" viewBox="0 0 239.20000000000002 510" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="239.20000000000002" height="510" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="238.20000000000002" height="509" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="239.20000000000002" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="119.60000000000001" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Settings</text>
+<text x="16" y="70" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">ACCOUNT</text>
+<line x1="16" y1="74" x2="223.20000000000002" y2="74" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<circle cx="22" cy="93" r="2" fill="#8a8f97" />
+<text x="32" y="96" fill="#2d2d2d">Profile</text>
+<path d="M 211.20000000000002 87 L 216.20000000000002 92 L 211.20000000000002 97" fill="none" stroke="#8a9099" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="22" cy="119" r="2" fill="#8a8f97" />
+<text x="32" y="122" fill="#2d2d2d">Password</text>
+<circle cx="22" cy="145" r="2" fill="#8a8f97" />
+<text x="32" y="148" fill="#2d2d2d">Privacy</text>
+<path d="M 211.20000000000002 139 L 216.20000000000002 144 L 211.20000000000002 149" fill="none" stroke="#8a9099" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+<text x="16" y="192" font-size="11" font-weight="700" letter-spacing="0.8" fill="#6b7078">SUBSCRIPTIONS</text>
+<line x1="16" y1="196" x2="223.20000000000002" y2="196" stroke="#c4c4c4" stroke-width="1" opacity="0.6" />
+<rect x="16.5" y="204.5" width="206.20000000000002" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="26" y="229.4" font-weight="600" fill="#2d2d2d">Billing</text>
+<path d="M 203.20000000000002 220 L 208.20000000000002 225 L 203.20000000000002 230" fill="none" stroke="#8a9099" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+<text x="26" y="259" fill="#2d2d2d">Visa •••• 4242</text>
+<text x="26" y="287" fill="#7a7f87">Renews Jan 1</text>
+<rect x="16.5" y="308.5" width="206.20000000000002" height="97" fill="#fafbfc" stroke="#b5b8bd" stroke-width="1" rx="4" />
+<text x="26" y="333.4" font-weight="600" fill="#2d2d2d">Plan</text>
+<text x="26" y="363" fill="#2d2d2d">Pro</text>
+<text x="26" y="391" fill="#7a7f87">50 GB included</text>
+<rect x="16.5" y="412.5" width="206.20000000000002" height="69" fill="#fafbfc" stroke="#3a3a3a" stroke-width="1.5" rx="4" />
+<text x="26" y="437.4" font-weight="600" fill="#2d2d2d">Data export</text>
+<path d="M 203.20000000000002 428 L 208.20000000000002 433 L 203.20000000000002 438" fill="none" stroke="#8a9099" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+<text x="26" y="467" fill="#2d2d2d">Download your account data</text>
+</svg>
