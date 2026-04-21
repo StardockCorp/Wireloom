@@ -17,6 +17,7 @@ import type {
   AttributeValue,
   AvatarNode,
   CellNode,
+  TabItemNode,
   CheckboxNode,
   ChipNode,
   ColNode,
@@ -74,6 +75,9 @@ function serializeNode(node: AnyNode, depth: number, out: string[]): void {
       break;
     case 'tab':
       parts.push(quoteString((node as TabNode).label));
+      break;
+    case 'tabitem':
+      parts.push(quoteString((node as TabItemNode).label));
       break;
     case 'item':
       parts.push(quoteString((node as ItemNode).text));

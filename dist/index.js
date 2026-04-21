@@ -325,6 +325,14 @@ var ATTR_RULES = {
     attrs: { badge: { kind: "string" } },
     flags: ["active"]
   },
+  tabbar: { attrs: {}, flags: [] },
+  tabitem: {
+    attrs: {
+      icon: { kind: "string" },
+      badge: { kind: "string" }
+    },
+    flags: ["selected", "disabled"]
+  },
   row: {
     attrs: { align: { kind: "enum", values: ALIGN_VALUES } },
     flags: []
@@ -550,7 +558,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "status"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, tabbar, tabitem, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -656,6 +664,16 @@ var Parser = class {
     const attributes = this.parseAttributes("window");
     const hasChildren = this.parseTerminator("window", head);
     const children = hasChildren ? this.parseWindowChildren() : [];
+    const tabbar = children.find((c) => c.kind === "tabbar");
+    const footer = children.find((c) => c.kind === "footer");
+    if (tabbar && footer) {
+      const later = tabbar.position.line > footer.position.line ? tabbar : footer;
+      throw new WireloomError(
+        '"tabbar" and "footer" are mutually exclusive in the same window \u2014 use one or the other',
+        later.position.line,
+        later.position.column
+      );
+    }
     const node = { kind: "window", attributes, children, position };
     if (title !== void 0) {
       node.title = title;
@@ -753,8 +771,16 @@ var Parser = class {
         head.column
       );
     }
+    if (name === "tabitem") {
+      throw new WireloomError(
+        '"tabitem" may only appear inside "tabbar"',
+        head.line,
+        head.column
+      );
+    }
     if (name === "header") return this.parseHeader();
     if (name === "footer") return this.parseFooter();
+    if (name === "tabbar") return this.parseTabBar();
     return this.parseContainerChildNamed(name);
   }
   // --- Header / Footer ------------------------------------------------------
@@ -773,6 +799,50 @@ var Parser = class {
     const hasChildren = this.parseTerminator("footer", head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     return { kind: "footer", attributes, children, position };
+  }
+  // --- TabBar / TabItem -----------------------------------------------------
+  parseTabBar() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("tabbar");
+    const hasChildren = this.parseTerminator("tabbar", head);
+    const children = hasChildren ? this.parseTabItemChildren() : [];
+    return { kind: "tabbar", attributes, children, position };
+  }
+  parseTabItemChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "tabitem", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "tabitem") {
+        throw new WireloomError(
+          `"tabbar" accepts only "tabitem" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseTabItem());
+    }
+    this.expectKind("dedent", "tabbar block did not close cleanly");
+    return children;
+  }
+  parseTabItem() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"tabitem" requires a label string (e.g., tabitem "Home" icon="planet")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("tabitem");
+    this.parseLeafTerminator("tabitem", head);
+    return { kind: "tabitem", label, attributes, position };
   }
   // --- Container children ---------------------------------------------------
   parseContainerChildren() {
@@ -797,7 +867,7 @@ var Parser = class {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : `"${name}" is not allowed here`;
+      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "tabbar" ? '"tabbar" may only appear as a direct child of "window"' : name === "tabitem" ? '"tabitem" may only appear inside "tabbar"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -1942,6 +2012,9 @@ function serializeNode(node, depth, out) {
     case "tab":
       parts.push(quoteString(node.label));
       break;
+    case "tabitem":
+      parts.push(quoteString(node.label));
+      break;
     case "item":
       parts.push(quoteString(node.text));
       break;
@@ -2929,8 +3002,40 @@ function measureStack(children, theme, direction) {
   const gaps = Math.max(0, children.length - 1) * theme.rowGap;
   return { width: totalChildWidth + gaps, height: maxChildHeight };
 }
+function measureTabBar(node, theme) {
+  if (node.children.length === 0) {
+    return { width: 0, height: theme.tabbarHeight };
+  }
+  const sizes = node.children.map((t) => measureTabItem(t, theme));
+  const total = sizes.reduce((acc, s) => acc + s.width, 0);
+  return { width: total, height: theme.tabbarHeight };
+}
+function measureTabItem(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth * (theme.tabbarLabelFontSize / theme.fontSize);
+  const minItemWidth = Math.max(labelW, theme.tabbarIconSize) + 12;
+  return { width: minItemWidth, height: theme.tabbarHeight };
+}
+function positionTabBar(node, x, y, width, height, theme) {
+  const n = node.children.length;
+  const children = [];
+  if (n > 0) {
+    const itemWidth = width / n;
+    for (let i = 0; i < n; i++) {
+      const item = node.children[i];
+      children.push({
+        node: item,
+        x: x + i * itemWidth,
+        y,
+        width: itemWidth,
+        height,
+        children: []
+      });
+    }
+  }
+  return { node, x, y, width, height, children };
+}
 function measureWindow(node, theme) {
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, footer, tabbar, bodyChildren } = classifyWindowChildren(node);
   const bodyStack = measureStack(bodyChildren, theme, "vertical");
   let bodyWidth = bodyStack.width;
   let bodyHeight = bodyStack.height;
@@ -2946,6 +3051,12 @@ function measureWindow(node, theme) {
     footerHeight = fs.height;
     bodyWidth = Math.max(bodyWidth, fs.width);
   }
+  let tabbarHeight = 0;
+  if (tabbar) {
+    const ts = measureTabBar(tabbar, theme);
+    tabbarHeight = ts.height;
+    bodyWidth = Math.max(bodyWidth, ts.width);
+  }
   const hasTitleBar = node.title !== void 0;
   const padding = theme.windowPadding;
   const bodySize = {
@@ -2953,12 +3064,13 @@ function measureWindow(node, theme) {
     height: bodyHeight + padding * 2
   };
   const outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
-  const outerHeight = (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + bodySize.height + footerHeight;
+  const outerHeight = (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + bodySize.height + footerHeight + tabbarHeight;
   return {
     outer: { width: outerWidth, height: outerHeight },
     body: bodySize,
     headerHeight,
     footerHeight,
+    tabbarHeight,
     hasTitleBar
   };
 }
@@ -2998,13 +3110,15 @@ function footerHorizontal(node, kind) {
 function classifyWindowChildren(node) {
   let header;
   let footer;
+  let tabbar;
   const bodyChildren = [];
   for (const child of node.children) {
     if (child.kind === "header") header = child;
     else if (child.kind === "footer") footer = child;
+    else if (child.kind === "tabbar") tabbar = child;
     else bodyChildren.push(child);
   }
-  return { header, footer, bodyChildren };
+  return { header, footer, tabbar, bodyChildren };
 }
 function titleWidth(title, theme) {
   if (!title) return 0;
@@ -3017,7 +3131,7 @@ function positionWindow(node, m, x, y, theme) {
   if (m.hasTitleBar) {
     cursorY += theme.titleBarHeight;
   }
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, footer, tabbar, bodyChildren } = classifyWindowChildren(node);
   if (header) {
     const laidHeader = positionHeaderOrFooter(
       header,
@@ -3057,6 +3171,11 @@ function positionWindow(node, m, x, y, theme) {
     );
     childrenLaid.push(laidFooter);
     cursorY += m.footerHeight;
+  }
+  if (tabbar) {
+    const laidTabBar = positionTabBar(tabbar, x, cursorY, outerWidth, m.tabbarHeight);
+    childrenLaid.push(laidTabBar);
+    cursorY += m.tabbarHeight;
   }
   return {
     node,
@@ -3938,6 +4057,12 @@ function emitNode(laid, theme, out) {
     case "tab":
       emitTab(laid, theme, out);
       break;
+    case "tabbar":
+      emitTabBar(laid, theme, out);
+      break;
+    case "tabitem":
+      emitTabItem(laid, theme, out);
+      break;
     case "row":
     case "col":
       for (const c of laid.children) emitNode(c, theme, out);
@@ -4488,6 +4613,51 @@ function emitTab(laid, theme, out) {
     const underlineY = laid.y + laid.height - 2;
     out.push(
       `<line x1="${laid.x + 4}" y1="${underlineY}" x2="${laid.x + laid.width - 4}" y2="${underlineY}" stroke="${theme.tabUnderlineColor}" stroke-width="2" />`
+    );
+  }
+}
+function emitTabBar(laid, theme, out) {
+  out.push(
+    `<line x1="${laid.x}" y1="${laid.y}" x2="${laid.x + laid.width}" y2="${laid.y}" stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`
+  );
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitTabItem(laid, theme, out) {
+  const node = laid.node;
+  const isSelected = hasFlag(node.attributes, "selected");
+  const isDisabled = hasFlag(node.attributes, "disabled");
+  const iconName = getAttrString2(node.attributes, "icon");
+  const badge = getAttrString2(node.attributes, "badge");
+  const color = isDisabled ? theme.disabledColor : isSelected ? theme.tabbarSelectedColor : theme.tabbarInactiveColor;
+  const opacity = isDisabled ? "0.55" : "1";
+  const stackHeight = theme.tabbarIconSize + theme.tabbarIconLabelGap + theme.tabbarLabelFontSize;
+  const stackTop = laid.y + (laid.height - stackHeight) / 2;
+  const iconX = laid.x + (laid.width - theme.tabbarIconSize) / 2;
+  const iconY = stackTop;
+  out.push(`<g opacity="${opacity}">`);
+  if (iconName && hasIcon(iconName)) {
+    const markup = emitIconByName(iconName, iconX, iconY, theme.tabbarIconSize, color);
+    if (markup) out.push(markup);
+  } else {
+    const letter = (iconName ?? node.label.charAt(0) ?? "?").charAt(0).toUpperCase();
+    out.push(
+      `<rect x="${iconX + 0.5}" y="${iconY + 0.5}" width="${theme.tabbarIconSize - 1}" height="${theme.tabbarIconSize - 1}" fill="none" stroke="${color}" stroke-width="1" rx="2" />`,
+      `<text x="${iconX + theme.tabbarIconSize / 2}" y="${iconY + theme.tabbarIconSize / 2 + theme.smallFontSize / 3}" text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${color}">${escapeText(letter)}</text>`
+    );
+  }
+  const labelY = iconY + theme.tabbarIconSize + theme.tabbarIconLabelGap + theme.tabbarLabelFontSize;
+  out.push(
+    `<text x="${laid.x + laid.width / 2}" y="${labelY}" text-anchor="middle" font-size="${theme.tabbarLabelFontSize}" font-weight="${isSelected ? "600" : "400"}" fill="${color}">${escapeText(node.label)}</text>`
+  );
+  out.push(`</g>`);
+  if (badge !== void 0) {
+    const badgeW = badgeRenderWidth(badge, theme);
+    renderBadgePill(
+      iconX + theme.tabbarIconSize - badgeW / 2,
+      iconY - theme.badgeHeight / 3,
+      badge,
+      theme,
+      out
     );
   }
 }

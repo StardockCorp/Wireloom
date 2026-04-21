@@ -17,6 +17,8 @@ import type {
   BreadcrumbNode,
   ButtonNode,
   CellNode,
+  TabBarNode,
+  TabItemNode,
   ChartNode,
   CheckboxNode,
   ChipNode,
@@ -139,6 +141,14 @@ const ATTR_RULES: Record<string, AttrRules> = {
   tab: {
     attrs: { badge: { kind: 'string' } },
     flags: ['active'],
+  },
+  tabbar: { attrs: {}, flags: [] },
+  tabitem: {
+    attrs: {
+      icon: { kind: 'string' },
+      badge: { kind: 'string' },
+    },
+    flags: ['selected', 'disabled'],
   },
   row: {
     attrs: { align: { kind: 'enum', values: ALIGN_VALUES } },
@@ -371,7 +381,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, panel, section, tabs, tab, tabbar, tabitem, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -500,6 +510,21 @@ class Parser {
     const hasChildren = this.parseTerminator('window', head);
     const children: WindowChild[] = hasChildren ? this.parseWindowChildren() : [];
 
+    // Mobile chrome bands are mutually exclusive — a window should pick either
+    // a docked tab bar or a footer, not both. Reporting the error on the
+    // second-declared one gives a more useful source location than reporting
+    // on `window` itself.
+    const tabbar = children.find((c) => c.kind === 'tabbar');
+    const footer = children.find((c) => c.kind === 'footer');
+    if (tabbar && footer) {
+      const later = tabbar.position.line > footer.position.line ? tabbar : footer;
+      throw new WireloomError(
+        '"tabbar" and "footer" are mutually exclusive in the same window — use one or the other',
+        later.position.line,
+        later.position.column,
+      );
+    }
+
     const node: WindowNode = { kind: 'window', attributes, children, position };
     if (title !== undefined) {
       node.title = title;
@@ -599,8 +624,16 @@ class Parser {
         head.column,
       );
     }
+    if (name === 'tabitem') {
+      throw new WireloomError(
+        '"tabitem" may only appear inside "tabbar"',
+        head.line,
+        head.column,
+      );
+    }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
+    if (name === 'tabbar') return this.parseTabBar();
     return this.parseContainerChildNamed(name);
   }
 
@@ -622,6 +655,54 @@ class Parser {
     const hasChildren = this.parseTerminator('footer', head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     return { kind: 'footer', attributes, children, position };
+  }
+
+  // --- TabBar / TabItem -----------------------------------------------------
+
+  private parseTabBar(): TabBarNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('tabbar');
+    const hasChildren = this.parseTerminator('tabbar', head);
+    const children = hasChildren ? this.parseTabItemChildren() : [];
+    return { kind: 'tabbar', attributes, children, position };
+  }
+
+  private parseTabItemChildren(): TabItemNode[] {
+    const children: TabItemNode[] = [];
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      if (head.kind !== 'ident') {
+        throw new WireloomError(
+          `expected "tabitem", got ${describeToken(head)}`,
+          head.line,
+          head.column,
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== 'tabitem') {
+        throw new WireloomError(
+          `"tabbar" accepts only "tabitem" children (got "${name}")`,
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseTabItem());
+    }
+    this.expectKind('dedent', 'tabbar block did not close cleanly');
+    return children;
+  }
+
+  private parseTabItem(): TabItemNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      'string',
+      '"tabitem" requires a label string (e.g., tabitem "Home" icon="planet")',
+    ).stringValue ?? '';
+    const attributes = this.parseAttributes('tabitem');
+    this.parseLeafTerminator('tabitem', head);
+    return { kind: 'tabitem', label, attributes, position };
   }
 
   // --- Container children ---------------------------------------------------
@@ -658,23 +739,27 @@ class Parser {
               ? '"header" may only appear directly inside "window"'
               : name === 'footer'
                 ? '"footer" may only appear directly inside "window" or "slot"'
-                : name === 'window'
-                  ? '"window" cannot be nested'
-                  : name === 'cell'
-                    ? '"cell" may only appear inside "grid"'
-                    : name === 'resource'
-                      ? '"resource" may only appear inside "resourcebar"'
-                      : name === 'stat'
-                        ? '"stat" may only appear inside "stats"'
-                        : name === 'node'
-                          ? '"node" may only appear inside "tree"'
-                          : name === 'menuitem'
-                            ? '"menuitem" may only appear inside "menu"'
-                            : name === 'separator'
-                              ? '"separator" may only appear inside "menu"'
-                              : name === 'crumb'
-                                ? '"crumb" may only appear inside "breadcrumb"'
-                                : `"${name}" is not allowed here`;
+                : name === 'tabbar'
+                  ? '"tabbar" may only appear as a direct child of "window"'
+                  : name === 'tabitem'
+                    ? '"tabitem" may only appear inside "tabbar"'
+                    : name === 'window'
+                      ? '"window" cannot be nested'
+                      : name === 'cell'
+                        ? '"cell" may only appear inside "grid"'
+                        : name === 'resource'
+                          ? '"resource" may only appear inside "resourcebar"'
+                          : name === 'stat'
+                            ? '"stat" may only appear inside "stats"'
+                            : name === 'node'
+                              ? '"node" may only appear inside "tree"'
+                              : name === 'menuitem'
+                                ? '"menuitem" may only appear inside "menu"'
+                                : name === 'separator'
+                                  ? '"separator" may only appear inside "menu"'
+                                  : name === 'crumb'
+                                    ? '"crumb" may only appear inside "breadcrumb"'
+                                    : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);

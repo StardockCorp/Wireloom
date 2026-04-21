@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { parse } from '../../src/parser/parser.js';
 import { serialize } from '../../src/parser/serializer.js';
 import { WireloomError } from '../../src/parser/errors.js';
-import type { BackButtonNode, HeaderNode } from '../../src/parser/ast.js';
+import type {
+  BackButtonNode,
+  HeaderNode,
+  TabBarNode,
+  TabItemNode,
+} from '../../src/parser/ast.js';
 
 function expectParseError(source: string): WireloomError {
   try {
@@ -84,5 +89,89 @@ describe('v0.50 — header large flag', () => {
 
   it('roundtrips large header through serializer', () => {
     roundtripEquals(['window:', '  header large:', '    text "Q2 Review"', ''].join('\n'));
+  });
+});
+
+describe('v0.50 — tabbar / tabitem', () => {
+  it('parses tabbar with tabitems', () => {
+    const doc = parse(
+      [
+        'window:',
+        '  tabbar:',
+        '    tabitem "Home" icon="planet" selected',
+        '    tabitem "Inbox" badge="3"',
+        '    tabitem "Settings"',
+        '',
+      ].join('\n'),
+    );
+    const bar = doc.root?.children[0] as TabBarNode;
+    expect(bar.kind).toBe('tabbar');
+    expect(bar.children.length).toBe(3);
+    const first = bar.children[0] as TabItemNode;
+    expect(first.label).toBe('Home');
+    expect(first.attributes.some((a) => a.kind === 'flag' && a.flag === 'selected')).toBe(true);
+  });
+
+  it('accepts icon and badge attrs on tabitem', () => {
+    const doc = parse(
+      ['window:', '  tabbar:', '    tabitem "Alerts" icon="warning" badge="12"', ''].join('\n'),
+    );
+    const bar = doc.root?.children[0] as TabBarNode;
+    const item = bar.children[0] as TabItemNode;
+    expect(item.attributes.some((a) => a.kind === 'pair' && a.key === 'icon')).toBe(true);
+    expect(item.attributes.some((a) => a.kind === 'pair' && a.key === 'badge')).toBe(true);
+  });
+
+  it('rejects non-tabitem children inside tabbar', () => {
+    const err = expectParseError(
+      ['window:', '  tabbar:', '    button "Nope"', ''].join('\n'),
+    );
+    expect(err.message).toMatch(/tabbar.*only.*tabitem/i);
+  });
+
+  it('rejects tabbar + footer in the same window', () => {
+    const err = expectParseError(
+      [
+        'window:',
+        '  tabbar:',
+        '    tabitem "Home"',
+        '  footer:',
+        '    button "Save"',
+        '',
+      ].join('\n'),
+    );
+    expect(err.message).toMatch(/tabbar.*footer.*mutually exclusive/i);
+  });
+
+  it('rejects tabbar as a deep container child (window-only)', () => {
+    const err = expectParseError(
+      ['window:', '  panel:', '    tabbar:', '      tabitem "X"', ''].join('\n'),
+    );
+    expect(err.message).toMatch(/tabbar.*only.*direct child.*window/i);
+  });
+
+  it('rejects tabitem outside of tabbar', () => {
+    const err = expectParseError('window:\n  tabitem "Home"\n');
+    expect(err.message).toMatch(/tabitem.*only appear inside.*tabbar/i);
+  });
+
+  it('rejects unknown flag on tabitem', () => {
+    const err = expectParseError(
+      ['window:', '  tabbar:', '    tabitem "Home" primary', ''].join('\n'),
+    );
+    expect(err.message).toMatch(/unknown flag "primary"/);
+  });
+
+  it('roundtrips tabbar through serializer', () => {
+    roundtripEquals(
+      [
+        'window:',
+        '  tabbar:',
+        '    tabitem "Home" icon="planet" selected',
+        '    tabitem "Inbox" badge="3"',
+        '    tabitem "Settings" disabled',
+        '',
+      ].join('\n'),
+    );
   });
 });

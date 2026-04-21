@@ -1,0 +1,214 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Wide tab bar stress test",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "weight",
+                "value": {
+                  "kind": "identifier",
+                  "value": "bold",
+                  "position": {
+                    "line": 7,
+                    "column": 44
+                  }
+                },
+                "position": {
+                  "line": 7,
+                  "column": 37
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 6,
+          "column": 3
+        }
+      },
+      {
+        "kind": "tabbar",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "tabitem",
+            "label": "Home",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "planet",
+                  "position": {
+                    "line": 10,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 10,
+                  "column": 20
+                }
+              }
+            ],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tabitem",
+            "label": "Search",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "research",
+                  "position": {
+                    "line": 11,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 11,
+                  "column": 22
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tabitem",
+            "label": "Post",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "zzz-not-real",
+                  "position": {
+                    "line": 12,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 12,
+                  "column": 20
+                }
+              }
+            ],
+            "position": {
+              "line": 12,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tabitem",
+            "label": "Alerts",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "warning",
+                  "position": {
+                    "line": 13,
+                    "column": 27
+                  }
+                },
+                "position": {
+                  "line": 13,
+                  "column": 22
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "badge",
+                "value": {
+                  "kind": "string",
+                  "value": "12",
+                  "position": {
+                    "line": 13,
+                    "column": 43
+                  }
+                },
+                "position": {
+                  "line": 13,
+                  "column": 37
+                }
+              }
+            ],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tabitem",
+            "label": "Me",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "leader",
+                  "position": {
+                    "line": 14,
+                    "column": 23
+                  }
+                },
+                "position": {
+                  "line": 14,
+                  "column": 18
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "selected",
+                "position": {
+                  "line": 14,
+                  "column": 32
+                }
+              }
+            ],
+            "position": {
+              "line": 14,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 9,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 5,
+      "column": 1
+    }
+  },
+  "sourceLines": 15
+}

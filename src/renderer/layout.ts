@@ -21,6 +21,8 @@ import type {
   BreadcrumbNode,
   ButtonNode,
   CellNode,
+  TabBarNode,
+  TabItemNode,
   ChartNode,
   CheckboxNode,
   ChipNode,
@@ -709,6 +711,55 @@ function measureStack(
 }
 
 // ---------------------------------------------------------------------------
+// TabBar (bottom mobile-chrome band)
+// ---------------------------------------------------------------------------
+
+function measureTabBar(node: TabBarNode, theme: Theme): Size {
+  // Width is the intrinsic sum of tabitem widths; the window grows to fit.
+  // At position time the band is stretched to the outer window width and
+  // items are re-distributed evenly.
+  if (node.children.length === 0) {
+    return { width: 0, height: theme.tabbarHeight };
+  }
+  const sizes = node.children.map((t) => measureTabItem(t, theme));
+  const total = sizes.reduce((acc, s) => acc + s.width, 0);
+  return { width: total, height: theme.tabbarHeight };
+}
+
+function measureTabItem(node: TabItemNode, theme: Theme): Size {
+  const labelW = node.label.length * theme.averageCharWidth * (theme.tabbarLabelFontSize / theme.fontSize);
+  const minItemWidth = Math.max(labelW, theme.tabbarIconSize) + 12;
+  return { width: minItemWidth, height: theme.tabbarHeight };
+}
+
+function positionTabBar(
+  node: TabBarNode,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  theme: Theme,
+): LaidOutNode {
+  const n = node.children.length;
+  const children: LaidOutNode[] = [];
+  if (n > 0) {
+    const itemWidth = width / n;
+    for (let i = 0; i < n; i++) {
+      const item = node.children[i]!;
+      children.push({
+        node: item,
+        x: x + i * itemWidth,
+        y,
+        width: itemWidth,
+        height,
+        children: [],
+      });
+    }
+  }
+  return { node, x, y, width, height, children };
+}
+
+// ---------------------------------------------------------------------------
 // Window measurement (separate from generic because of title bar + header/footer)
 // ---------------------------------------------------------------------------
 
@@ -717,11 +768,12 @@ interface WindowMeasurement {
   body: Size;
   headerHeight: number;
   footerHeight: number;
+  tabbarHeight: number;
   hasTitleBar: boolean;
 }
 
 function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, footer, tabbar, bodyChildren } = classifyWindowChildren(node);
 
   const bodyStack = measureStack(bodyChildren, theme, 'vertical');
   let bodyWidth = bodyStack.width;
@@ -739,6 +791,12 @@ function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
     footerHeight = fs.height;
     bodyWidth = Math.max(bodyWidth, fs.width);
   }
+  let tabbarHeight = 0;
+  if (tabbar) {
+    const ts = measureTabBar(tabbar, theme);
+    tabbarHeight = ts.height;
+    bodyWidth = Math.max(bodyWidth, ts.width);
+  }
 
   const hasTitleBar = node.title !== undefined;
   const padding = theme.windowPadding;
@@ -748,13 +806,14 @@ function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
   };
   const outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
   const outerHeight =
-    (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + bodySize.height + footerHeight;
+    (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + bodySize.height + footerHeight + tabbarHeight;
 
   return {
     outer: { width: outerWidth, height: outerHeight },
     body: bodySize,
     headerHeight,
     footerHeight,
+    tabbarHeight,
     hasTitleBar,
   };
 }
@@ -803,17 +862,20 @@ function footerHorizontal(node: HeaderNode | FooterNode, kind: 'header' | 'foote
 function classifyWindowChildren(node: WindowNode): {
   header: HeaderNode | undefined;
   footer: FooterNode | undefined;
+  tabbar: TabBarNode | undefined;
   bodyChildren: ContainerChild[];
 } {
   let header: HeaderNode | undefined;
   let footer: FooterNode | undefined;
+  let tabbar: TabBarNode | undefined;
   const bodyChildren: ContainerChild[] = [];
   for (const child of node.children) {
     if (child.kind === 'header') header = child;
     else if (child.kind === 'footer') footer = child;
-    else bodyChildren.push(child);
+    else if (child.kind === 'tabbar') tabbar = child;
+    else bodyChildren.push(child as ContainerChild);
   }
-  return { header, footer, bodyChildren };
+  return { header, footer, tabbar, bodyChildren };
 }
 
 function titleWidth(title: string | undefined, theme: Theme): number {
@@ -843,7 +905,7 @@ function positionWindow(
     cursorY += theme.titleBarHeight;
   }
 
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, footer, tabbar, bodyChildren } = classifyWindowChildren(node);
 
   if (header) {
     const laidHeader = positionHeaderOrFooter(
@@ -888,6 +950,12 @@ function positionWindow(
     );
     childrenLaid.push(laidFooter);
     cursorY += m.footerHeight;
+  }
+
+  if (tabbar) {
+    const laidTabBar = positionTabBar(tabbar, x, cursorY, outerWidth, m.tabbarHeight, theme);
+    childrenLaid.push(laidTabBar);
+    cursorY += m.tabbarHeight;
   }
 
   return {

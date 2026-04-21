@@ -1,0 +1,21 @@
+# Mobile `tabbar` — the docked bottom chrome band with primary navigation
+# tabs. Each `tabitem` is an icon + label column; one is usually `selected`
+# (current screen) and another may carry a `badge` (unread count, alerts).
+# `tabbar` is mutually exclusive with `footer` in the same `window`.
+
+window "Explorer":
+  header:
+    text "Inbox" weight=bold size=large
+
+  panel:
+    text "3 new messages since last login." muted
+
+  list:
+    item "Welcome"
+    item "Quarterly report"
+    item "Budget approval"
+
+  tabbar:
+    tabitem "Home" icon="planet" selected
+    tabitem "Inbox" icon="policy" badge="3"
+    tabitem "Settings" icon="gear"

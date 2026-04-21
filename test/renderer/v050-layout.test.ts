@@ -61,3 +61,117 @@ describe('v0.50 — header large flag', () => {
     expect(height(largeSvg)).toBeGreaterThan(height(plainSvg));
   });
 });
+
+describe('v0.50 — tabbar rendering', () => {
+  it('renders 3-tab bar with each label visible and badge overlay', () => {
+    const src = [
+      'window:',
+      '  tabbar:',
+      '    tabitem "Home" icon="planet" selected',
+      '    tabitem "Inbox" icon="policy" badge="3"',
+      '    tabitem "Settings" icon="gear"',
+      '',
+    ].join('\n');
+    const svg = renderWireframe(src);
+    expect(svg).toContain('Home');
+    expect(svg).toContain('Inbox');
+    expect(svg).toContain('Settings');
+    // Badge "3" drawn as a pill overlay
+    expect(svg).toContain('>3<');
+  });
+
+  it('distributes tabitems evenly across the window width', () => {
+    const src = [
+      'window:',
+      '  tabbar:',
+      '    tabitem "A"',
+      '    tabitem "B"',
+      '    tabitem "C"',
+      '',
+    ].join('\n');
+    const svg = renderWireframe(src);
+    // Each label is centered on its column; with 3 equal columns, label x
+    // anchors must be evenly spaced. Extract the three text-anchor="middle"
+    // x-coordinates.
+    // Label font-size is distinct from the icon-fallback glyph font-size, so
+    // we can isolate the three label text nodes by that attribute.
+    const xs = [...svg.matchAll(/<text x="([\d.]+)"[^>]*font-size="11"[^>]*>[ABC]<\/text>/g)]
+      .map((m) => Number(m[1]));
+    expect(xs).toHaveLength(3);
+    const d1 = xs[1]! - xs[0]!;
+    const d2 = xs[2]! - xs[1]!;
+    expect(Math.abs(d1 - d2)).toBeLessThan(0.5);
+  });
+
+  it('falls back to a boxed first letter for unknown icon names', () => {
+    const src = [
+      'window:',
+      '  tabbar:',
+      '    tabitem "Fake" icon="zzz-not-real"',
+      '',
+    ].join('\n');
+    const svg = renderWireframe(src);
+    // Uppercase first char of the icon name (not the label) lands in the
+    // fallback placeholder — matches v0.3 behavior.
+    expect(svg).toContain('>Z<');
+    expect(svg).toContain('Fake');
+  });
+
+  it('5-tab bar keeps every label visible', () => {
+    const src = [
+      'window:',
+      '  tabbar:',
+      '    tabitem "Home"',
+      '    tabitem "Search"',
+      '    tabitem "Post"',
+      '    tabitem "Likes"',
+      '    tabitem "Me"',
+      '',
+    ].join('\n');
+    const svg = renderWireframe(src);
+    for (const label of ['Home', 'Search', 'Post', 'Likes', 'Me']) {
+      expect(svg).toContain(label);
+    }
+  });
+
+  it('dims disabled tabitems', () => {
+    const src = [
+      'window:',
+      '  tabbar:',
+      '    tabitem "Gone" disabled',
+      '',
+    ].join('\n');
+    const svg = renderWireframe(src);
+    expect(svg).toContain('opacity="0.55"');
+  });
+
+  it('renders tabbar cleanly in dark theme', () => {
+    const src = [
+      'window:',
+      '  tabbar:',
+      '    tabitem "Home" selected',
+      '    tabitem "Inbox"',
+      '',
+    ].join('\n');
+    const svg = renderWireframe(src, { theme: 'dark' });
+    expect(svg).toContain('#1e1e1e'); // dark bg
+    expect(svg).toContain('#f0f0f0'); // dark tabbarSelectedColor
+  });
+
+  it('is mutually exclusive with footer (enforced at parse time)', () => {
+    // Ensure that enforcement message reaches the renderer boundary — if
+    // the validation moved or softened, this fails loudly.
+    expect(() =>
+      renderWireframe(
+        [
+          'window:',
+          '  tabbar:',
+          '    tabitem "Home"',
+          '  footer:',
+          '    button "Save"',
+          '',
+        ].join('\n'),
+      ),
+    ).toThrowError(/tabbar.*footer.*mutually exclusive/i);
+  });
+});

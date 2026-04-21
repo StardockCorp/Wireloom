@@ -79,6 +79,24 @@ export interface FooterNode extends NodeBase {
   children: ContainerChild[];
 }
 
+/**
+ * Bottom-of-window mobile navigation bar. Mutually exclusive with `footer`
+ * in the same window (pick one chrome band). Accepts only `tabitem` children.
+ */
+export interface TabBarNode extends NodeBase {
+  kind: 'tabbar';
+  children: TabItemNode[];
+}
+
+/**
+ * Single icon+label tab inside a `tabbar`. Renders as icon stacked above
+ * label, with optional selected/disabled state and a badge pill on the icon.
+ */
+export interface TabItemNode extends NodeBase {
+  kind: 'tabitem';
+  label: string;
+}
+
 export interface PanelNode extends NodeBase {
   kind: 'panel';
   children: ContainerChild[];
@@ -416,6 +434,7 @@ export type ContainerChild =
 export type WindowChild =
   | HeaderNode
   | FooterNode
+  | TabBarNode
   | PanelNode
   | SectionNode
   | TabsNode
@@ -436,6 +455,8 @@ export type AnyNode =
   | WindowNode
   | HeaderNode
   | FooterNode
+  | TabBarNode
+  | TabItemNode
   | SlotFooterNode
   | PanelNode
   | SectionNode

@@ -1,0 +1,244 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Inbox",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "weight",
+                "value": {
+                  "kind": "identifier",
+                  "value": "bold",
+                  "position": {
+                    "line": 8,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 18
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "large",
+                  "position": {
+                    "line": 8,
+                    "column": 35
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 30
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 7,
+          "column": 3
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "3 new messages since last login.",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "muted",
+                "position": {
+                  "line": 11,
+                  "column": 45
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 10,
+          "column": 3
+        }
+      },
+      {
+        "kind": "list",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "item",
+            "text": "Welcome",
+            "attributes": [],
+            "position": {
+              "line": 14,
+              "column": 5
+            }
+          },
+          {
+            "kind": "item",
+            "text": "Quarterly report",
+            "attributes": [],
+            "position": {
+              "line": 15,
+              "column": 5
+            }
+          },
+          {
+            "kind": "item",
+            "text": "Budget approval",
+            "attributes": [],
+            "position": {
+              "line": 16,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 13,
+          "column": 3
+        }
+      },
+      {
+        "kind": "tabbar",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "tabitem",
+            "label": "Home",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "planet",
+                  "position": {
+                    "line": 19,
+                    "column": 25
+                  }
+                },
+                "position": {
+                  "line": 19,
+                  "column": 20
+                }
+              },
+              {
+                "kind": "flag",
+                "flag": "selected",
+                "position": {
+                  "line": 19,
+                  "column": 34
+                }
+              }
+            ],
+            "position": {
+              "line": 19,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tabitem",
+            "label": "Inbox",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "policy",
+                  "position": {
+                    "line": 20,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 20,
+                  "column": 21
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "badge",
+                "value": {
+                  "kind": "string",
+                  "value": "3",
+                  "position": {
+                    "line": 20,
+                    "column": 41
+                  }
+                },
+                "position": {
+                  "line": 20,
+                  "column": 35
+                }
+              }
+            ],
+            "position": {
+              "line": 20,
+              "column": 5
+            }
+          },
+          {
+            "kind": "tabitem",
+            "label": "Settings",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "gear",
+                  "position": {
+                    "line": 21,
+                    "column": 29
+                  }
+                },
+                "position": {
+                  "line": 21,
+                  "column": 24
+                }
+              }
+            ],
+            "position": {
+              "line": 21,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 18,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 6,
+      "column": 1
+    },
+    "title": "Explorer"
+  },
+  "sourceLines": 22
+}

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="286.4" height="293.7142857142857" viewBox="0 0 286.4 293.7142857142857" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="286.4" height="293.7142857142857" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="285.4" height="292.7142857142857" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="286.4" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="143.2" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Explorer</text>
+<line x1="0" y1="81.71428571428572" x2="286.4" y2="81.71428571428572" stroke="#b0b0b0" stroke-width="1" />
+<text x="120.05714285714285" y="65.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">Inbox</text>
+<rect x="16.5" y="98.21428571428572" width="253.39999999999998" height="43" fill="none" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="124.71428571428572" fill="#7a7f87">3 new messages since last login.</text>
+<circle cx="22" cy="160.71428571428572" r="2" fill="#8a8f97" />
+<text x="32" y="163.71428571428572" fill="#2d2d2d">Welcome</text>
+<circle cx="22" cy="186.71428571428572" r="2" fill="#8a8f97" />
+<text x="32" y="189.71428571428572" fill="#2d2d2d">Quarterly report</text>
+<circle cx="22" cy="212.71428571428572" r="2" fill="#8a8f97" />
+<text x="32" y="215.71428571428572" fill="#2d2d2d">Budget approval</text>
+<line x1="0" y1="237.71428571428572" x2="286.4" y2="237.71428571428572" stroke="#b0b0b0" stroke-width="1" />
+<g opacity="1">
+<g transform="translate(36.73333333333333 247.71428571428572) scale(1.375)" color="#2d2d2d">
+<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.4" />
+<ellipse cx="8" cy="8" rx="7" ry="2" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(-20 8 8)" />
+</g>
+<text x="47.73333333333333" y="283.7142857142857" text-anchor="middle" font-size="11" font-weight="600" fill="#2d2d2d">Home</text>
+</g>
+<g opacity="1">
+<g transform="translate(132.2 247.71428571428572) scale(1.375)" color="#8a8f97">
+<path d="M 4 2 L 11 2 L 13 4 L 13 14 L 4 14 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+<line x1="6" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1" />
+<line x1="6" y1="10" x2="11" y2="10" stroke="currentColor" stroke-width="1" />
+</g>
+<text x="143.2" y="283.7142857142857" text-anchor="middle" font-size="11" font-weight="400" fill="#8a8f97">Inbox</text>
+</g>
+<rect x="143.37142857142857" y="241.71428571428572" width="21.65714285714286" height="18" rx="9" fill="#eef0f3" />
+<text x="154.2" y="254.38095238095238" text-anchor="middle" font-size="11" font-weight="600" fill="#505560">3</text>
+<g opacity="1">
+<g transform="translate(227.66666666666663 247.71428571428572) scale(1.375)" color="#8a8f97">
+<path d="M 8 2 L 9 3.5 L 11 3 L 11.5 5 L 13 6 L 12.5 8 L 13 10 L 11.5 11 L 11 13 L 9 12.5 L 8 14 L 7 12.5 L 5 13 L 4.5 11 L 3 10 L 3.5 8 L 3 6 L 4.5 5 L 5 3 L 7 3.5 Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+<circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.2" />
+</g>
+<text x="238.66666666666663" y="283.7142857142857" text-anchor="middle" font-size="11" font-weight="400" fill="#8a8f97">Settings</text>
+</g>
+</svg>

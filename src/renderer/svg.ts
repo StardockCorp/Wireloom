@@ -16,6 +16,8 @@ import type {
   BackButtonNode,
   ButtonNode,
   CellNode,
+  TabBarNode,
+  TabItemNode,
   ChartNode,
   CheckboxNode,
   ChipNode,
@@ -139,6 +141,12 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
       break;
     case 'tab':
       emitTab(laid, theme, out);
+      break;
+    case 'tabbar':
+      emitTabBar(laid, theme, out);
+      break;
+    case 'tabitem':
+      emitTabItem(laid, theme, out);
       break;
     case 'row':
     case 'col':
@@ -785,6 +793,75 @@ function emitTab(laid: LaidOutNode, theme: Theme, out: string[]): void {
     out.push(
       `<line x1="${laid.x + 4}" y1="${underlineY}" x2="${laid.x + laid.width - 4}" y2="${underlineY}" ` +
         `stroke="${theme.tabUnderlineColor}" stroke-width="2" />`,
+    );
+  }
+}
+
+function emitTabBar(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  // Top edge of the band draws the chrome separator, matching footer.
+  out.push(
+    `<line x1="${laid.x}" y1="${laid.y}" x2="${laid.x + laid.width}" y2="${laid.y}" ` +
+      `stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`,
+  );
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+
+function emitTabItem(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  const node = laid.node as TabItemNode;
+  const isSelected = hasFlag(node.attributes, 'selected');
+  const isDisabled = hasFlag(node.attributes, 'disabled');
+  const iconName = getAttrString(node.attributes, 'icon');
+  const badge = getAttrString(node.attributes, 'badge');
+
+  const color = isDisabled
+    ? theme.disabledColor
+    : isSelected
+      ? theme.tabbarSelectedColor
+      : theme.tabbarInactiveColor;
+  const opacity = isDisabled ? '0.55' : '1';
+
+  // Icon + label stack, centered horizontally within the tab's column.
+  const stackHeight =
+    theme.tabbarIconSize + theme.tabbarIconLabelGap + theme.tabbarLabelFontSize;
+  const stackTop = laid.y + (laid.height - stackHeight) / 2;
+  const iconX = laid.x + (laid.width - theme.tabbarIconSize) / 2;
+  const iconY = stackTop;
+
+  out.push(`<g opacity="${opacity}">`);
+
+  if (iconName && hasIcon(iconName)) {
+    const markup = emitIconByName(iconName, iconX, iconY, theme.tabbarIconSize, color);
+    if (markup) out.push(markup);
+  } else {
+    // Fallback: boxed first letter (matches v0.3 icon-unknown behavior).
+    const letter = (iconName ?? node.label.charAt(0) ?? '?').charAt(0).toUpperCase();
+    out.push(
+      `<rect x="${iconX + 0.5}" y="${iconY + 0.5}" width="${theme.tabbarIconSize - 1}" height="${theme.tabbarIconSize - 1}" ` +
+        `fill="none" stroke="${color}" stroke-width="1" rx="2" />`,
+      `<text x="${iconX + theme.tabbarIconSize / 2}" y="${iconY + theme.tabbarIconSize / 2 + theme.smallFontSize / 3}" ` +
+        `text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${color}">${escapeText(letter)}</text>`,
+    );
+  }
+
+  // Label under the icon, centered.
+  const labelY = iconY + theme.tabbarIconSize + theme.tabbarIconLabelGap + theme.tabbarLabelFontSize;
+  out.push(
+    `<text x="${laid.x + laid.width / 2}" y="${labelY}" ` +
+      `text-anchor="middle" font-size="${theme.tabbarLabelFontSize}" font-weight="${isSelected ? '600' : '400'}" ` +
+      `fill="${color}">${escapeText(node.label)}</text>`,
+  );
+
+  out.push(`</g>`);
+
+  // Badge pill clipped to the icon's top-right, consistent with tab badge.
+  if (badge !== undefined) {
+    const badgeW = badgeRenderWidth(badge, theme);
+    renderBadgePill(
+      iconX + theme.tabbarIconSize - badgeW / 2,
+      iconY - theme.badgeHeight / 3,
+      badge,
+      theme,
+      out,
     );
   }
 }
