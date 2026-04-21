@@ -312,14 +312,22 @@ var CHART_KIND_VALUES = ["bar", "line", "pie"];
 var ANNOTATION_SIDE_VALUES = ["left", "right", "top", "bottom"];
 var AVATAR_SIZE_VALUES = ["small", "medium", "large"];
 var STATUS_KIND_VALUES = ["success", "info", "warning", "error"];
+var SHEET_POSITION_VALUES = ["bottom", "center"];
 var UNIVERSAL_ID_SPEC = { kind: "string" };
 var ATTR_RULES = {
   window: { attrs: {}, flags: [] },
-  header: { attrs: {}, flags: [] },
+  header: { attrs: {}, flags: ["large"] },
   footer: { attrs: {}, flags: [] },
   navbar: { attrs: {}, flags: [] },
   leading: { attrs: {}, flags: [] },
   trailing: { attrs: {}, flags: [] },
+  sheet: {
+    attrs: {
+      position: { kind: "enum", values: SHEET_POSITION_VALUES },
+      title: { kind: "string" }
+    },
+    flags: []
+  },
   panel: { attrs: {}, flags: [] },
   section: {
     attrs: {
@@ -333,6 +341,14 @@ var ATTR_RULES = {
     attrs: { badge: { kind: "string" } },
     flags: ["active"]
   },
+  tabbar: { attrs: {}, flags: [] },
+  tabitem: {
+    attrs: {
+      icon: { kind: "string" },
+      badge: { kind: "string" }
+    },
+    flags: ["selected", "disabled"]
+  },
   row: {
     attrs: {
       align: { kind: "enum", values: ALIGN_VALUES },
@@ -343,13 +359,13 @@ var ATTR_RULES = {
   spacer: { attrs: {}, flags: [] },
   col: { attrs: {}, flags: [] },
   list: { attrs: {}, flags: [] },
-  item: { attrs: {}, flags: [] },
+  item: { attrs: {}, flags: ["chevron"] },
   slot: {
     attrs: {
       state: { kind: "enum", values: STATE_VALUES },
       accent: { kind: "enum", values: ACCENT_VALUES }
     },
-    flags: ["active"]
+    flags: ["active", "chevron"]
   },
   slotFooter: { attrs: {}, flags: [] },
   grid: {
@@ -395,6 +411,10 @@ var ATTR_RULES = {
       accent: { kind: "enum", values: ACCENT_VALUES }
     },
     flags: ["primary", "disabled"]
+  },
+  backbutton: {
+    attrs: {},
+    flags: ["disabled"]
   },
   input: {
     attrs: {
@@ -516,6 +536,11 @@ var ATTR_RULES = {
       kind: { kind: "enum", values: STATUS_KIND_VALUES }
     },
     flags: []
+  },
+  segmented: { attrs: {}, flags: [] },
+  segment: {
+    attrs: {},
+    flags: ["selected", "disabled"]
   }
 };
 var VALID_PRIMITIVES = /* @__PURE__ */ new Set([
@@ -535,6 +560,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "stats",
   "text",
   "button",
+  "backbutton",
   "input",
   "combo",
   "slider",
@@ -554,10 +580,11 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "chip",
   "avatar",
   "spinner",
-  "status"
+  "status",
+  "segmented"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, navbar, leading, trailing, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, navbar, leading, trailing, tabbar, tabitem, sheet, panel, section, tabs, tab, row, col, list, item, slot, segmented, segment, grid, cell, resourcebar, resource, stats, stat, text, button, backbutton, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -663,6 +690,16 @@ var Parser = class {
     const attributes = this.parseAttributes("window");
     const hasChildren = this.parseTerminator("window", head);
     const children = hasChildren ? this.parseWindowChildren() : [];
+    const tabbar = children.find((c) => c.kind === "tabbar");
+    const footer = children.find((c) => c.kind === "footer");
+    if (tabbar && footer) {
+      const later = tabbar.position.line > footer.position.line ? tabbar : footer;
+      throw new WireloomError(
+        '"tabbar" and "footer" are mutually exclusive in the same window \u2014 use one or the other',
+        later.position.line,
+        later.position.column
+      );
+    }
     const node = { kind: "window", attributes, children, position };
     if (title !== void 0) {
       node.title = title;
@@ -673,8 +710,17 @@ var Parser = class {
     const children = [];
     let navbarSeen;
     let headerSeen;
+    let sawSheet = false;
     while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
       const head = this.peek();
+      const name = head.kind === "ident" ? head.identValue ?? head.raw : "";
+      if (name === "sheet" && sawSheet) {
+        throw new WireloomError(
+          'only one "sheet" is allowed per "window"',
+          head.line,
+          head.column
+        );
+      }
       const child = this.parseWindowChild();
       if (child.kind === "navbar") {
         if (headerSeen) {
@@ -694,6 +740,8 @@ var Parser = class {
           );
         }
         headerSeen = child;
+      } else if (child.kind === "sheet") {
+        sawSheet = true;
       }
       children.push(child);
     }
@@ -797,9 +845,25 @@ var Parser = class {
         head.column
       );
     }
+    if (name === "tabitem") {
+      throw new WireloomError(
+        '"tabitem" may only appear inside "tabbar"',
+        head.line,
+        head.column
+      );
+    }
+    if (name === "segment") {
+      throw new WireloomError(
+        '"segment" may only appear inside "segmented"',
+        head.line,
+        head.column
+      );
+    }
     if (name === "header") return this.parseHeader();
     if (name === "footer") return this.parseFooter();
     if (name === "navbar") return this.parseNavbar();
+    if (name === "tabbar") return this.parseTabBar();
+    if (name === "sheet") return this.parseSheet();
     return this.parseContainerChildNamed(name);
   }
   // --- Header / Footer ------------------------------------------------------
@@ -894,6 +958,70 @@ var Parser = class {
     const kind = side === "leading" ? "navbarLeading" : "navbarTrailing";
     return { kind, attributes, children, position };
   }
+  // --- TabBar / TabItem -----------------------------------------------------
+  parseTabBar() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("tabbar");
+    const hasChildren = this.parseTerminator("tabbar", head);
+    const children = hasChildren ? this.parseTabItemChildren() : [];
+    return { kind: "tabbar", attributes, children, position };
+  }
+  parseTabItemChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "tabitem", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "tabitem") {
+        throw new WireloomError(
+          `"tabbar" accepts only "tabitem" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseTabItem());
+    }
+    this.expectKind("dedent", "tabbar block did not close cleanly");
+    return children;
+  }
+  parseTabItem() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"tabitem" requires a label string (e.g., tabitem "Home" icon="planet")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("tabitem");
+    this.parseLeafTerminator("tabitem", head);
+    return { kind: "tabitem", label, attributes, position };
+  }
+  // --- Sheet ----------------------------------------------------------------
+  parseSheet() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("sheet");
+    const placementAttr = getAttrIdentValue(attributes, "position");
+    const placement = placementAttr === "center" ? "center" : "bottom";
+    const title = getAttrStringValue(attributes, "title");
+    const hasChildren = this.parseTerminator("sheet", head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const node = {
+      kind: "sheet",
+      placement,
+      attributes,
+      children,
+      position
+    };
+    if (title !== void 0) node.title = title;
+    return node;
+  }
   // --- Container children ---------------------------------------------------
   parseContainerChildren() {
     const children = [];
@@ -917,7 +1045,7 @@ var Parser = class {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "navbar" ? '"navbar" may only appear directly inside "window"' : name === "leading" || name === "trailing" ? `"${name}" may only appear inside "navbar"` : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : name === "spacer" ? '"spacer" may only appear inside "row"' : `"${name}" is not allowed here`;
+      const reason = placementErrorFor(name);
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -942,6 +1070,8 @@ var Parser = class {
         return this.parseText();
       case "button":
         return this.parseButton();
+      case "backbutton":
+        return this.parseBackButton();
       case "input":
         return this.parseInput();
       case "combo":
@@ -988,6 +1118,8 @@ var Parser = class {
         return this.parseSpinner();
       case "status":
         return this.parseStatus();
+      case "segmented":
+        return this.parseSegmented();
       default: {
         const head = this.peek();
         throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
@@ -1241,6 +1373,17 @@ var Parser = class {
     const attributes = this.parseAttributes("button");
     this.parseLeafTerminator("button", head);
     return { kind: "button", label, attributes, position };
+  }
+  parseBackButton() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"backbutton" requires a parent label string (e.g., backbutton "Notes")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("backbutton");
+    this.parseLeafTerminator("backbutton", head);
+    return { kind: "backbutton", label, attributes, position };
   }
   parseInput() {
     const head = this.consume();
@@ -1683,6 +1826,72 @@ var Parser = class {
     this.parseLeafTerminator("crumb", head);
     return { kind: "crumb", label, attributes, position };
   }
+  // --- Segmented / segment -------------------------------------------------
+  parseSegmented() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("segmented");
+    const hasChildren = this.parseTerminator("segmented", head);
+    const children = hasChildren ? this.parseSegmentedChildren(head) : [];
+    let selectedCount = 0;
+    let firstExtraSelected;
+    for (const seg of children) {
+      if (seg.attributes.some((a) => a.kind === "flag" && a.flag === "selected")) {
+        selectedCount++;
+        if (selectedCount > 1 && firstExtraSelected === void 0) {
+          firstExtraSelected = seg;
+        }
+      }
+    }
+    if (firstExtraSelected) {
+      throw new WireloomError(
+        '"segmented" allows at most one "segment" with the "selected" flag; pick exactly one',
+        firstExtraSelected.position.line,
+        firstExtraSelected.position.column
+      );
+    }
+    if (children.length < 2) {
+      console.warn(
+        `wireloom: "segmented" with ${children.length} segment${children.length === 1 ? "" : "s"} at line ${position.line} \u2014 at least 2 segments recommended.`
+      );
+    }
+    return { kind: "segmented", attributes, children, position };
+  }
+  parseSegmentedChildren(containerHead) {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "segment", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name !== "segment") {
+        throw new WireloomError(
+          `"segmented" accepts only "segment" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseSegment());
+    }
+    this.expectKind("dedent", "segmented block did not close cleanly");
+    return children;
+  }
+  parseSegment() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const label = this.expectKind(
+      "string",
+      '"segment" requires a label string (e.g., segment "Day")'
+    ).stringValue ?? "";
+    const attributes = this.parseAttributes("segment");
+    this.parseLeafTerminator("segment", head);
+    return { kind: "segment", label, attributes, position };
+  }
   // --- Form controls -------------------------------------------------------
   parseCheckbox() {
     const head = this.consume();
@@ -2001,6 +2210,51 @@ function coerceAttributeValue(token, spec, key, primitive) {
     }
   }
 }
+function placementErrorFor(name) {
+  switch (name) {
+    case "tab":
+      return '"tab" may only appear inside "tabs"';
+    case "item":
+      return '"item" may only appear inside "list"';
+    case "header":
+      return '"header" may only appear directly inside "window"';
+    case "footer":
+      return '"footer" may only appear directly inside "window" or "slot"';
+    case "navbar":
+      return '"navbar" may only appear directly inside "window"';
+    case "leading":
+    case "trailing":
+      return `"${name}" may only appear inside "navbar"`;
+    case "tabbar":
+      return '"tabbar" may only appear as a direct child of "window"';
+    case "tabitem":
+      return '"tabitem" may only appear inside "tabbar"';
+    case "sheet":
+      return '"sheet" may only appear directly inside "window"';
+    case "spacer":
+      return '"spacer" may only appear inside "row"';
+    case "segment":
+      return '"segment" may only appear inside "segmented"';
+    case "window":
+      return '"window" cannot be nested';
+    case "cell":
+      return '"cell" may only appear inside "grid"';
+    case "resource":
+      return '"resource" may only appear inside "resourcebar"';
+    case "stat":
+      return '"stat" may only appear inside "stats"';
+    case "node":
+      return '"node" may only appear inside "tree"';
+    case "menuitem":
+      return '"menuitem" may only appear inside "menu"';
+    case "separator":
+      return '"separator" may only appear inside "menu"';
+    case "crumb":
+      return '"crumb" may only appear inside "breadcrumb"';
+    default:
+      return `"${name}" is not allowed here`;
+  }
+}
 function unknownPrimitiveMessage(name) {
   const suggestion = suggestMatch(name, [...VALID_PRIMITIVES]);
   const base = `unknown primitive "${name}" (valid: ${PRIMITIVE_LIST_HUMAN})`;
@@ -2074,6 +2328,9 @@ function serializeNode(node, depth, out) {
     case "tab":
       parts.push(quoteString(node.label));
       break;
+    case "tabitem":
+      parts.push(quoteString(node.label));
+      break;
     case "item":
       parts.push(quoteString(node.text));
       break;
@@ -2081,6 +2338,9 @@ function serializeNode(node, depth, out) {
       parts.push(quoteString(node.content));
       break;
     case "button":
+      parts.push(quoteString(node.label));
+      break;
+    case "backbutton":
       parts.push(quoteString(node.label));
       break;
     case "kv":
@@ -2146,6 +2406,9 @@ function serializeNode(node, depth, out) {
       break;
     }
     case "status":
+      parts.push(quoteString(node.label));
+      break;
+    case "segment":
       parts.push(quoteString(node.label));
       break;
   }
@@ -2262,6 +2525,7 @@ var DEFAULT_THEME = Object.freeze({
   titleBarHeight: 36,
   panelPadding: 12,
   headerPaddingY: 10,
+  largeHeaderHeight: 64,
   footerPaddingY: 10,
   sectionTitleHeight: 22,
   sectionTitlePaddingBottom: 8,
@@ -2273,6 +2537,9 @@ var DEFAULT_THEME = Object.freeze({
   dividerHeight: 12,
   buttonHeight: 32,
   buttonPaddingX: 16,
+  backButtonChevronWidth: 8,
+  backButtonChevronGap: 6,
+  backButtonChevronColor: "#2d2d2d",
   inputHeight: 32,
   inputPaddingX: 12,
   inputMinWidth: 220,
@@ -2289,6 +2556,12 @@ var DEFAULT_THEME = Object.freeze({
   tabHeight: 36,
   tabPaddingX: 14,
   tabGap: 2,
+  tabbarHeight: 56,
+  tabbarIconSize: 22,
+  tabbarLabelFontSize: 11,
+  tabbarIconLabelGap: 3,
+  tabbarSelectedColor: "#2d2d2d",
+  tabbarInactiveColor: "#8a8f97",
   bulletWidth: 16,
   badgeHeight: 18,
   badgePaddingX: 8,
@@ -2365,6 +2638,20 @@ var DEFAULT_THEME = Object.freeze({
   breadcrumbGap: 6,
   breadcrumbSeparatorColor: "#8a9099",
   breadcrumbCurrentColor: "#2d2d2d",
+  chevronGlyphSize: 5,
+  chevronGlyphGutter: 14,
+  chevronGlyphStrokeWidth: 1.4,
+  chevronGlyphColor: "#8a9099",
+  segmentedHeight: 28,
+  segmentedPaddingX: 14,
+  segmentedMinSegmentWidth: 64,
+  segmentedCornerRadius: 6,
+  segmentedBg: "#eef0f3",
+  segmentedBorder: "#c4c8ce",
+  segmentedDividerColor: "#b5b8bd",
+  segmentedText: "#3a3e44",
+  segmentedSelectedBg: "#3a3a3a",
+  segmentedSelectedText: "#ffffff",
   spinnerSize: 16,
   spinnerColor: "#6b7078",
   statusHeight: 22,
@@ -2375,6 +2662,22 @@ var DEFAULT_THEME = Object.freeze({
     warning: { bg: "#f7efdc", fg: "#6b4e15", border: "#c79a2e" },
     error: { bg: "#f5e4e2", fg: "#5c2420", border: "#b0413c" }
   }),
+  sheetScrimColor: "#1a1a1a",
+  sheetScrimOpacity: 0.45,
+  sheetBg: "#ffffff",
+  sheetBorder: "#8a8a8a",
+  sheetStrokeWidth: 1,
+  sheetCornerRadius: 14,
+  sheetPadding: 16,
+  sheetTitleHeight: 22,
+  sheetTitleFontSize: 15,
+  sheetGrabberWidth: 40,
+  sheetGrabberHeight: 4,
+  sheetGrabberColor: "#b5b8bd",
+  sheetGrabberGap: 10,
+  sheetCenterMinWidth: 260,
+  sheetCenterMinHeight: 120,
+  sheetCenterMargin: 24,
   accents: Object.freeze({
     research: "#3f7cc2",
     military: "#b55442",
@@ -2452,6 +2755,9 @@ var DARK_THEME = Object.freeze({
   buttonBorderColor: "#b0b0b0",
   buttonFill: "#2a2a2a",
   buttonText: "#e0e0e0",
+  backButtonChevronColor: "#e0e0e0",
+  tabbarSelectedColor: "#f0f0f0",
+  tabbarInactiveColor: "#707780",
   primaryButtonFill: "#d4d4d4",
   primaryButtonText: "#1e1e1e",
   disabledColor: "#5a5a5a",
@@ -2501,6 +2807,13 @@ var DARK_THEME = Object.freeze({
   avatarText: "#d4d4d4",
   breadcrumbSeparatorColor: "#707780",
   breadcrumbCurrentColor: "#f0f0f0",
+  chevronGlyphColor: "#8a9099",
+  segmentedBg: "#353a42",
+  segmentedBorder: "#555a62",
+  segmentedDividerColor: "#555a62",
+  segmentedText: "#b8bcc4",
+  segmentedSelectedBg: "#d4d4d4",
+  segmentedSelectedText: "#1e1e1e",
   spinnerColor: "#8a9099",
   statusColors: Object.freeze({
     success: { bg: "#1f2e24", fg: "#b0e0c2", border: "#6bbd86" },
@@ -2508,6 +2821,11 @@ var DARK_THEME = Object.freeze({
     warning: { bg: "#3a2f1c", fg: "#f0d79a", border: "#e2aa57" },
     error: { bg: "#3a2220", fg: "#edb4ae", border: "#d66863" }
   }),
+  sheetScrimColor: "#000000",
+  sheetScrimOpacity: 0.55,
+  sheetBg: "#2a2a2a",
+  sheetBorder: "#6b6b6b",
+  sheetGrabberColor: "#555a62",
   accents: Object.freeze({
     research: "#6ba4e8",
     military: "#d47967",
@@ -2660,6 +2978,8 @@ function measureChild(node, theme) {
       return measureText(node, theme);
     case "button":
       return measureButton(node, theme);
+    case "backbutton":
+      return measureBackButton(node, theme);
     case "input":
       return measureInput(node, theme);
     case "divider":
@@ -2722,6 +3042,8 @@ function measureChild(node, theme) {
       return measureSpinner(node, theme);
     case "status":
       return measureStatus(node, theme);
+    case "segmented":
+      return measureSegmented(node, theme);
   }
 }
 function measureTree(node, theme) {
@@ -2826,6 +3148,20 @@ function measureStatus(node, theme) {
     height: theme.statusHeight
   };
 }
+function measureSegmented(node, theme) {
+  if (node.children.length === 0) {
+    return { width: theme.segmentedMinSegmentWidth, height: theme.segmentedHeight };
+  }
+  let maxSegW = theme.segmentedMinSegmentWidth;
+  for (const seg of node.children) {
+    const labelW = seg.label.length * theme.averageCharWidth + theme.segmentedPaddingX * 2;
+    if (labelW > maxSegW) maxSegW = labelW;
+  }
+  return {
+    width: maxSegW * node.children.length,
+    height: theme.segmentedHeight
+  };
+}
 function measureText(node, theme) {
   return {
     width: textWidth(node.content, node.attributes, theme),
@@ -2837,6 +3173,13 @@ function measureButton(node, theme) {
   const badgeW = badgeWidthOf(node.attributes, theme);
   return {
     width: labelW + theme.buttonPaddingX * 2 + (badgeW > 0 ? badgeW + theme.rowGap : 0),
+    height: theme.buttonHeight
+  };
+}
+function measureBackButton(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth;
+  return {
+    width: theme.backButtonChevronWidth + theme.backButtonChevronGap + labelW + theme.buttonPaddingX * 2,
     height: theme.buttonHeight
   };
 }
@@ -2909,14 +3252,16 @@ function measureList(node, theme) {
 }
 function measureItem(node, theme) {
   const textW = node.text.length * theme.averageCharWidth;
+  const chevronExtra = hasFlagAttr(node.attributes, "chevron") ? theme.chevronGlyphGutter : 0;
   return {
-    width: theme.bulletWidth + textW,
+    width: theme.bulletWidth + textW + chevronExtra,
     height: theme.lineHeight
   };
 }
 function measureSlot(node, theme) {
   const inner = measureStack(node.children, theme, "vertical");
-  const titleW = node.title.length * theme.averageCharWidth;
+  const chevronExtra = hasFlagAttr(node.attributes, "chevron") ? theme.chevronGlyphGutter : 0;
+  const titleW = node.title.length * theme.averageCharWidth + chevronExtra;
   let footerH = 0;
   let footerW = 0;
   if (node.slotFooter) {
@@ -3048,8 +3393,40 @@ function measureStack(children, theme, direction) {
   const gaps = Math.max(0, children.length - 1) * theme.rowGap;
   return { width: totalChildWidth + gaps, height: maxChildHeight };
 }
+function measureTabBar(node, theme) {
+  if (node.children.length === 0) {
+    return { width: 0, height: theme.tabbarHeight };
+  }
+  const sizes = node.children.map((t) => measureTabItem(t, theme));
+  const total = sizes.reduce((acc, s) => acc + s.width, 0);
+  return { width: total, height: theme.tabbarHeight };
+}
+function measureTabItem(node, theme) {
+  const labelW = node.label.length * theme.averageCharWidth * (theme.tabbarLabelFontSize / theme.fontSize);
+  const minItemWidth = Math.max(labelW, theme.tabbarIconSize) + 12;
+  return { width: minItemWidth, height: theme.tabbarHeight };
+}
+function positionTabBar(node, x, y, width, height, _theme) {
+  const n = node.children.length;
+  const children = [];
+  if (n > 0) {
+    const itemWidth = width / n;
+    for (let i = 0; i < n; i++) {
+      const item = node.children[i];
+      children.push({
+        node: item,
+        x: x + i * itemWidth,
+        y,
+        width: itemWidth,
+        height,
+        children: []
+      });
+    }
+  }
+  return { node, x, y, width, height, children };
+}
 function measureWindow(node, theme) {
-  const { header, navbar, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, tabbar, bodyChildren } = classifyWindowChildren(node);
   const bodyStack = measureStack(bodyChildren, theme, "vertical");
   let bodyWidth = bodyStack.width;
   let bodyHeight = bodyStack.height;
@@ -3071,6 +3448,12 @@ function measureWindow(node, theme) {
     footerHeight = fs.height;
     bodyWidth = Math.max(bodyWidth, fs.width);
   }
+  let tabbarHeight = 0;
+  if (tabbar) {
+    const ts = measureTabBar(tabbar, theme);
+    tabbarHeight = ts.height;
+    bodyWidth = Math.max(bodyWidth, ts.width);
+  }
   const hasTitleBar = node.title !== void 0;
   const padding = theme.windowPadding;
   const bodySize = {
@@ -3078,13 +3461,14 @@ function measureWindow(node, theme) {
     height: bodyHeight + padding * 2
   };
   const outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
-  const outerHeight = (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + navbarHeight + bodySize.height + footerHeight;
+  const outerHeight = (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + navbarHeight + bodySize.height + footerHeight + tabbarHeight;
   return {
     outer: { width: outerWidth, height: outerHeight },
     body: bodySize,
     headerHeight,
     navbarHeight,
     footerHeight,
+    tabbarHeight,
     hasTitleBar
   };
 }
@@ -3099,6 +3483,23 @@ function measureNavbar(node, theme) {
   };
 }
 function measureHeaderOrFooter(node, theme, kind) {
+  if (kind === "header" && hasFlagAttr(node.attributes, "large")) {
+    const scale = theme.largeFontSize / theme.fontSize;
+    let titleWidth2 = 0;
+    for (const c of node.children) {
+      if (c.kind === "text") {
+        const w = c.content.length * theme.averageCharWidth * scale;
+        if (w > titleWidth2) titleWidth2 = w;
+      } else {
+        const w = measureChild(c, theme).width;
+        if (w > titleWidth2) titleWidth2 = w;
+      }
+    }
+    return {
+      width: titleWidth2 + theme.windowPadding * 2,
+      height: theme.largeHeaderHeight
+    };
+  }
   const direction = footerHorizontal(node, kind) ? "horizontal" : "vertical";
   const inner = measureStack(node.children, theme, direction);
   const padY = kind === "header" ? theme.headerPaddingY : theme.footerPaddingY;
@@ -3118,14 +3519,18 @@ function classifyWindowChildren(node) {
   let header;
   let navbar;
   let footer;
+  let tabbar;
+  let sheet;
   const bodyChildren = [];
   for (const child of node.children) {
     if (child.kind === "header") header = child;
     else if (child.kind === "navbar") navbar = child;
     else if (child.kind === "footer") footer = child;
+    else if (child.kind === "tabbar") tabbar = child;
+    else if (child.kind === "sheet") sheet = child;
     else bodyChildren.push(child);
   }
-  return { header, navbar, footer, bodyChildren };
+  return { header, navbar, footer, tabbar, sheet, bodyChildren };
 }
 function titleWidth(title, theme) {
   if (!title) return 0;
@@ -3138,7 +3543,7 @@ function positionWindow(node, m, x, y, theme) {
   if (m.hasTitleBar) {
     cursorY += theme.titleBarHeight;
   }
-  const { header, navbar, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, tabbar, sheet, bodyChildren } = classifyWindowChildren(node);
   if (header) {
     const laidHeader = positionHeaderOrFooter(
       header,
@@ -3184,6 +3589,20 @@ function positionWindow(node, m, x, y, theme) {
     childrenLaid.push(laidFooter);
     cursorY += m.footerHeight;
   }
+  if (tabbar) {
+    const laidTabBar = positionTabBar(tabbar, x, cursorY, outerWidth, m.tabbarHeight);
+    childrenLaid.push(laidTabBar);
+    cursorY += m.tabbarHeight;
+  }
+  if (sheet) {
+    const overlayBounds = {
+      x,
+      y: bodyY,
+      width: outerWidth,
+      height: bodyEndY - bodyY
+    };
+    childrenLaid.push(positionSheet(sheet, overlayBounds, theme));
+  }
   return {
     node,
     x,
@@ -3193,7 +3612,93 @@ function positionWindow(node, m, x, y, theme) {
     children: childrenLaid
   };
 }
+function positionSheet(node, overlay, theme) {
+  const scrim = {
+    node,
+    x: overlay.x,
+    y: overlay.y,
+    width: overlay.width,
+    height: overlay.height,
+    children: []
+  };
+  const inner = measureStack(node.children, theme, "vertical");
+  const hasTitle = node.title !== void 0;
+  const grabberH = node.placement === "bottom" ? theme.sheetGrabberHeight : 0;
+  const grabberGap = node.placement === "bottom" ? theme.sheetGrabberGap : 0;
+  const titleH = hasTitle ? theme.sheetTitleHeight : 0;
+  const topPad = theme.sheetPadding;
+  const bottomPad = theme.sheetPadding;
+  const panelContentHeight = grabberH + grabberGap + titleH + inner.height + topPad + bottomPad;
+  let panelX;
+  let panelY;
+  let panelWidth;
+  let panelHeight;
+  if (node.placement === "center") {
+    panelWidth = Math.max(
+      theme.sheetCenterMinWidth,
+      inner.width + theme.sheetPadding * 2
+    );
+    if (panelWidth > overlay.width - theme.sheetCenterMargin * 2) {
+      panelWidth = Math.max(overlay.width - theme.sheetCenterMargin * 2, 0);
+    }
+    panelHeight = Math.max(theme.sheetCenterMinHeight, panelContentHeight);
+    panelX = overlay.x + (overlay.width - panelWidth) / 2;
+    panelY = overlay.y + (overlay.height - panelHeight) / 2;
+  } else {
+    panelWidth = overlay.width;
+    panelHeight = panelContentHeight;
+    if (panelHeight > overlay.height) panelHeight = overlay.height;
+    panelX = overlay.x;
+    panelY = overlay.y + overlay.height - panelHeight;
+  }
+  const panel = {
+    node,
+    x: panelX,
+    y: panelY,
+    width: panelWidth,
+    height: panelHeight,
+    children: []
+  };
+  let cursorY = panelY + topPad;
+  if (node.placement === "bottom") {
+    cursorY += grabberH + grabberGap;
+  }
+  if (hasTitle) {
+    cursorY += titleH;
+  }
+  const contentX = panelX + theme.sheetPadding;
+  const contentWidth = panelWidth - theme.sheetPadding * 2;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const laidChild = positionContainerChild(child, contentX, cursorY, contentWidth, theme);
+    panel.children.push(laidChild);
+    cursorY += laidChild.height;
+    if (i < node.children.length - 1) cursorY += theme.colGap;
+  }
+  scrim.children.push(panel);
+  return scrim;
+}
 function positionHeaderOrFooter(node, kind, x, y, width, height, theme) {
+  if (kind === "header" && hasFlagAttr(node.attributes, "large")) {
+    const innerX2 = x + theme.windowPadding;
+    const innerWidth2 = width - theme.windowPadding * 2;
+    const scale = theme.largeFontSize / theme.fontSize;
+    const rowHeight = Math.round(theme.lineHeight * scale);
+    const children2 = [];
+    for (const child of node.children) {
+      let childW;
+      if (child.kind === "text") {
+        childW = child.content.length * theme.averageCharWidth * scale;
+      } else {
+        childW = measureChild(child, theme).width;
+      }
+      const childY = y + (height - rowHeight) / 2;
+      children2.push(
+        positionContainerChild(child, innerX2, childY, Math.min(childW, innerWidth2), theme)
+      );
+    }
+    return { node, x, y, width, height, children: children2 };
+  }
   const horizontal = footerHorizontal(node, kind);
   const padY = kind === "header" ? theme.headerPaddingY : theme.footerPaddingY;
   const innerX = x + theme.windowPadding;
@@ -3287,6 +3792,8 @@ function positionContainerChild(child, x, y, width, theme) {
       return positionText(child, x, y, width, theme);
     case "button":
       return positionButton(child, x, y, theme);
+    case "backbutton":
+      return positionLeaf(child, x, y, measureBackButton(child, theme));
     case "input":
       return positionInput(child, x, y, width, theme);
     case "combo":
@@ -3335,6 +3842,8 @@ function positionContainerChild(child, x, y, width, theme) {
       return positionLeaf(child, x, y, measureSpinner(child, theme));
     case "status":
       return positionLeaf(child, x, y, measureStatus(child, theme));
+    case "segmented":
+      return positionSegmented(child, x, y, width, theme);
   }
 }
 function positionLeaf(node, x, y, size) {
@@ -3393,6 +3902,24 @@ function positionMenu(node, x, y, width, theme) {
       children: []
     });
     cursorY += rowH;
+  }
+  return { node, x, y, width: size.width, height: size.height, children };
+}
+function positionSegmented(node, x, y, width, theme) {
+  const size = measureSegmented(node, theme);
+  const n = node.children.length;
+  const segW = n > 0 ? size.width / n : 0;
+  const children = [];
+  for (let i = 0; i < n; i++) {
+    const seg = node.children[i];
+    children.push({
+      node: seg,
+      x: x + i * segW,
+      y,
+      width: segW,
+      height: theme.segmentedHeight,
+      children: []
+    });
   }
   return { node, x, y, width: size.width, height: size.height, children };
 }
@@ -4125,6 +4652,12 @@ function emitNode(laid, theme, out) {
     case "tab":
       emitTab(laid, theme, out);
       break;
+    case "tabbar":
+      emitTabBar(laid, theme, out);
+      break;
+    case "tabitem":
+      emitTabItem(laid, theme, out);
+      break;
     case "row":
     case "col":
       for (const c of laid.children) emitNode(c, theme, out);
@@ -4143,6 +4676,9 @@ function emitNode(laid, theme, out) {
       break;
     case "button":
       emitButton(laid, theme, out);
+      break;
+    case "backbutton":
+      emitBackButton(laid, theme, out);
       break;
     case "input":
       emitInput(laid, theme, out);
@@ -4238,7 +4774,53 @@ function emitNode(laid, theme, out) {
     case "status":
       emitStatus(laid, theme, out);
       break;
+    case "sheet":
+      emitSheet(laid, theme, out);
+      break;
+    case "segmented":
+      emitSegmented(laid, theme, out);
+      break;
   }
+}
+function emitSheet(laid, theme, out) {
+  const node = laid.node;
+  out.push(
+    `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" fill="${theme.sheetScrimColor}" opacity="${theme.sheetScrimOpacity}" />`
+  );
+  const panel = laid.children[0];
+  if (panel === void 0) return;
+  emitSheetPanel(panel, node, theme, out);
+}
+function emitSheetPanel(panel, node, theme, out) {
+  const r = theme.sheetCornerRadius;
+  if (node.placement === "bottom") {
+    const path = roundedTopRectPath(panel.x, panel.y, panel.width, panel.height, r);
+    out.push(
+      `<path d="${path}" fill="${theme.sheetBg}" stroke="${theme.sheetBorder}" stroke-width="${theme.sheetStrokeWidth}" />`
+    );
+    const gw = theme.sheetGrabberWidth;
+    const gh = theme.sheetGrabberHeight;
+    const gx = panel.x + (panel.width - gw) / 2;
+    const gy = panel.y + theme.sheetPadding / 2 + theme.sheetGrabberGap / 2;
+    out.push(
+      `<rect x="${gx}" y="${gy}" width="${gw}" height="${gh}" rx="${gh / 2}" fill="${theme.sheetGrabberColor}" />`
+    );
+  } else {
+    out.push(
+      `<rect x="${panel.x + 0.5}" y="${panel.y + 0.5}" width="${panel.width - 1}" height="${panel.height - 1}" rx="${r}" ry="${r}" fill="${theme.sheetBg}" stroke="${theme.sheetBorder}" stroke-width="${theme.sheetStrokeWidth}" />`
+    );
+  }
+  if (node.title !== void 0) {
+    const titleY = node.placement === "bottom" ? panel.y + theme.sheetPadding + theme.sheetGrabberHeight + theme.sheetGrabberGap + theme.sheetTitleHeight * 0.7 : panel.y + theme.sheetPadding + theme.sheetTitleHeight * 0.7;
+    out.push(
+      `<text x="${panel.x + panel.width / 2}" y="${titleY}" text-anchor="middle" font-size="${theme.sheetTitleFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(node.title)}</text>`
+    );
+  }
+  for (const c of panel.children) emitNode(c, theme, out);
+}
+function roundedTopRectPath(x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height);
+  return `M ${x} ${y + r} Q ${x} ${y} ${x + r} ${y} L ${x + width - r} ${y} Q ${x + width} ${y} ${x + width} ${y + r} L ${x + width} ${y + height} L ${x} ${y + height} Z`;
 }
 function emitTree(laid, theme, out) {
   for (const row of laid.children) {
@@ -4352,6 +4934,64 @@ function emitBreadcrumb(laid, theme, out) {
         `<text x="${chevX}" y="${midY}" fill="${theme.breadcrumbSeparatorColor}">\u203A</text>`
       );
     }
+  }
+}
+function emitSegmented(laid, theme, out) {
+  const segs = laid.children;
+  const n = segs.length;
+  const radius = theme.segmentedCornerRadius;
+  out.push(
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" rx="${radius}" ry="${radius}" fill="${theme.segmentedBg}" stroke="${theme.segmentedBorder}" stroke-width="1" />`
+  );
+  if (n === 0) return;
+  for (let i = 0; i < n; i++) {
+    const seg = segs[i];
+    const node = seg.node;
+    const selected = hasFlag(node.attributes, "selected");
+    if (!selected) continue;
+    const isFirst = i === 0;
+    const isLast = i === n - 1;
+    if (isFirst && isLast) {
+      out.push(
+        `<rect x="${seg.x + 0.5}" y="${seg.y + 0.5}" width="${seg.width - 1}" height="${seg.height - 1}" rx="${radius}" ry="${radius}" fill="${theme.segmentedSelectedBg}" />`
+      );
+    } else if (isFirst) {
+      out.push(
+        `<path d="M ${seg.x + radius} ${seg.y + 0.5} L ${seg.x + seg.width} ${seg.y + 0.5} L ${seg.x + seg.width} ${seg.y + seg.height - 0.5} L ${seg.x + radius} ${seg.y + seg.height - 0.5} A ${radius} ${radius} 0 0 1 ${seg.x + 0.5} ${seg.y + seg.height - 0.5 - radius} L ${seg.x + 0.5} ${seg.y + 0.5 + radius} A ${radius} ${radius} 0 0 1 ${seg.x + radius} ${seg.y + 0.5} Z" fill="${theme.segmentedSelectedBg}" />`
+      );
+    } else if (isLast) {
+      out.push(
+        `<path d="M ${seg.x} ${seg.y + 0.5} L ${seg.x + seg.width - radius} ${seg.y + 0.5} A ${radius} ${radius} 0 0 1 ${seg.x + seg.width - 0.5} ${seg.y + 0.5 + radius} L ${seg.x + seg.width - 0.5} ${seg.y + seg.height - 0.5 - radius} A ${radius} ${radius} 0 0 1 ${seg.x + seg.width - radius} ${seg.y + seg.height - 0.5} L ${seg.x} ${seg.y + seg.height - 0.5} Z" fill="${theme.segmentedSelectedBg}" />`
+      );
+    } else {
+      out.push(
+        `<rect x="${seg.x}" y="${seg.y + 0.5}" width="${seg.width}" height="${seg.height - 1}" fill="${theme.segmentedSelectedBg}" />`
+      );
+    }
+  }
+  for (let i = 1; i < n; i++) {
+    const prev = segs[i - 1];
+    const curr = segs[i];
+    const prevSelected = hasFlag(prev.node.attributes, "selected");
+    const currSelected = hasFlag(curr.node.attributes, "selected");
+    if (prevSelected || currSelected) continue;
+    const dx = curr.x;
+    out.push(
+      `<line x1="${dx}" y1="${laid.y + 4}" x2="${dx}" y2="${laid.y + laid.height - 4}" stroke="${theme.segmentedDividerColor}" stroke-width="1" />`
+    );
+  }
+  for (const seg of segs) {
+    const node = seg.node;
+    const selected = hasFlag(node.attributes, "selected");
+    const disabled = hasFlag(node.attributes, "disabled");
+    const fill = selected ? theme.segmentedSelectedText : theme.segmentedText;
+    const weight = selected ? "600" : "500";
+    const opacity = disabled ? "0.45" : "1";
+    const cx = seg.x + seg.width / 2;
+    const midY = seg.y + seg.height / 2 + theme.fontSize / 3;
+    out.push(
+      `<text x="${cx}" y="${midY}" text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="${weight}" opacity="${opacity}" fill="${fill}">${escapeText(node.label)}</text>`
+    );
   }
 }
 function emitCheckbox(laid, theme, out) {
@@ -4593,7 +5233,22 @@ function emitChromeBand(laid, kind, theme, out) {
       `<line x1="${laid.x}" y1="${laid.y}" x2="${laid.x + laid.width}" y2="${laid.y}" stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`
     );
   }
-  for (const c of laid.children) emitNode(c, theme, out);
+  const headerNode = laid.node;
+  const isLarge = kind === "header" && hasFlag(headerNode.attributes, "large");
+  for (const c of laid.children) {
+    if (isLarge && c.node.kind === "text") {
+      emitLargeHeaderTitle(c, theme, out);
+    } else {
+      emitNode(c, theme, out);
+    }
+  }
+}
+function emitLargeHeaderTitle(laid, theme, out) {
+  const node = laid.node;
+  const baseline = laid.y + laid.height * 0.75;
+  out.push(
+    `<text x="${laid.x}" y="${baseline}" font-size="${theme.largeFontSize}" font-weight="700" fill="${theme.textColor}">${escapeText(node.content)}</text>`
+  );
 }
 function emitNavbar(laid, theme, out) {
   out.push(
@@ -4668,6 +5323,51 @@ function emitTab(laid, theme, out) {
     );
   }
 }
+function emitTabBar(laid, theme, out) {
+  out.push(
+    `<line x1="${laid.x}" y1="${laid.y}" x2="${laid.x + laid.width}" y2="${laid.y}" stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`
+  );
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitTabItem(laid, theme, out) {
+  const node = laid.node;
+  const isSelected = hasFlag(node.attributes, "selected");
+  const isDisabled = hasFlag(node.attributes, "disabled");
+  const iconName = getAttrString2(node.attributes, "icon");
+  const badge = getAttrString2(node.attributes, "badge");
+  const color = isDisabled ? theme.disabledColor : isSelected ? theme.tabbarSelectedColor : theme.tabbarInactiveColor;
+  const opacity = isDisabled ? "0.55" : "1";
+  const stackHeight = theme.tabbarIconSize + theme.tabbarIconLabelGap + theme.tabbarLabelFontSize;
+  const stackTop = laid.y + (laid.height - stackHeight) / 2;
+  const iconX = laid.x + (laid.width - theme.tabbarIconSize) / 2;
+  const iconY = stackTop;
+  out.push(`<g opacity="${opacity}">`);
+  if (iconName && hasIcon(iconName)) {
+    const markup = emitIconByName(iconName, iconX, iconY, theme.tabbarIconSize, color);
+    if (markup) out.push(markup);
+  } else {
+    const letter = (iconName ?? node.label.charAt(0) ?? "?").charAt(0).toUpperCase();
+    out.push(
+      `<rect x="${iconX + 0.5}" y="${iconY + 0.5}" width="${theme.tabbarIconSize - 1}" height="${theme.tabbarIconSize - 1}" fill="none" stroke="${color}" stroke-width="1" rx="2" />`,
+      `<text x="${iconX + theme.tabbarIconSize / 2}" y="${iconY + theme.tabbarIconSize / 2 + theme.smallFontSize / 3}" text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${color}">${escapeText(letter)}</text>`
+    );
+  }
+  const labelY = iconY + theme.tabbarIconSize + theme.tabbarIconLabelGap + theme.tabbarLabelFontSize;
+  out.push(
+    `<text x="${laid.x + laid.width / 2}" y="${labelY}" text-anchor="middle" font-size="${theme.tabbarLabelFontSize}" font-weight="${isSelected ? "600" : "400"}" fill="${color}">${escapeText(node.label)}</text>`
+  );
+  out.push(`</g>`);
+  if (badge !== void 0) {
+    const badgeW = badgeRenderWidth(badge, theme);
+    renderBadgePill(
+      iconX + theme.tabbarIconSize - badgeW / 2,
+      iconY - theme.badgeHeight / 3,
+      badge,
+      theme,
+      out
+    );
+  }
+}
 function emitList(laid, theme, out) {
   for (const c of laid.children) emitNode(c, theme, out);
 }
@@ -4683,6 +5383,14 @@ function emitItem(laid, theme, out) {
   out.push(
     `<text x="${textX}" y="${textY}" fill="${theme.textColor}">${escapeText(node.text)}</text>`
   );
+  if (hasFlag(node.attributes, "chevron")) {
+    emitDisclosureChevron(
+      laid.x + laid.width - theme.chevronGlyphGutter / 2,
+      laid.y + laid.height / 2,
+      theme,
+      out
+    );
+  }
 }
 function emitSlot(laid, theme, out) {
   const node = laid.node;
@@ -4720,14 +5428,30 @@ function emitSlot(laid, theme, out) {
   out.push(
     `<text x="${titleX}" y="${titleY}" font-weight="600" fill="${textColor}">${escapeText(node.title)}</text>`
   );
+  const hasChevron = hasFlag(node.attributes, "chevron");
   if (badgeIcon !== void 0) {
     const sz = 14;
-    const bx = laid.x + laid.width - theme.slotPadding - sz;
+    const chevronShift = hasChevron ? theme.chevronGlyphGutter : 0;
+    const bx = laid.x + laid.width - theme.slotPadding - sz - chevronShift;
     const by = laid.y + theme.slotPadding + (theme.slotTitleHeight - sz) / 2;
     const iconMarkup = emitIconByName(badgeIcon, bx, by, sz, stroke);
     if (iconMarkup) out.push(iconMarkup);
   }
+  if (hasChevron) {
+    emitDisclosureChevron(
+      laid.x + laid.width - theme.slotPadding - theme.chevronGlyphSize,
+      laid.y + theme.slotPadding + theme.slotTitleHeight / 2,
+      theme,
+      out
+    );
+  }
   for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitDisclosureChevron(cx, cy, theme, out) {
+  const s = theme.chevronGlyphSize;
+  out.push(
+    `<path d="M ${cx - s} ${cy - s} L ${cx} ${cy} L ${cx - s} ${cy + s}" fill="none" stroke="${theme.chevronGlyphColor}" stroke-width="${theme.chevronGlyphStrokeWidth}" stroke-linecap="round" stroke-linejoin="round" />`
+  );
 }
 function emitText(laid, theme, out) {
   const node = laid.node;
@@ -4772,6 +5496,25 @@ function emitButton(laid, theme, out) {
       out
     );
   }
+}
+function emitBackButton(laid, theme, out) {
+  const node = laid.node;
+  const isDisabled = hasFlag(node.attributes, "disabled");
+  const color = isDisabled ? theme.disabledColor : theme.backButtonChevronColor;
+  const opacity = isDisabled ? "0.55" : "1";
+  const chevronGlyphHeight = 12;
+  const chevronX = laid.x + theme.buttonPaddingX;
+  const chevronCenterY = laid.y + laid.height / 2;
+  const top = chevronCenterY - chevronGlyphHeight / 2;
+  const bottom = chevronCenterY + chevronGlyphHeight / 2;
+  const tip = chevronX;
+  const right = chevronX + theme.backButtonChevronWidth;
+  out.push(
+    `<g opacity="${opacity}">`,
+    `<path d="M ${right} ${top} L ${tip} ${chevronCenterY} L ${right} ${bottom}" fill="none" stroke="${color}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />`,
+    `<text x="${right + theme.backButtonChevronGap}" y="${chevronCenterY + theme.fontSize / 3}" fill="${color}">${escapeText(node.label)}</text>`,
+    `</g>`
+  );
 }
 function emitInput(laid, theme, out) {
   const node = laid.node;

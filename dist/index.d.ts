@@ -79,6 +79,19 @@ interface WindowNode extends NodeBase {
     title?: string;
     children: WindowChild[];
 }
+type SheetPlacement = 'bottom' | 'center';
+/**
+ * Modal overlay drawn on top of the window body with a semi-transparent scrim.
+ * Direct child of `window`. At most one per window (enforced at parse time).
+ * Author-facing attribute is `position=bottom|center`; stored as `placement`
+ * in the AST to avoid clashing with the source `position` field on NodeBase.
+ */
+interface SheetNode extends NodeBase {
+    kind: 'sheet';
+    placement: SheetPlacement;
+    title?: string;
+    children: ContainerChild[];
+}
 interface HeaderNode extends NodeBase {
     kind: 'header';
     children: ContainerChild[];
@@ -109,6 +122,22 @@ interface NavbarNode extends NodeBase {
 interface NavbarSlotNode extends NodeBase {
     kind: 'navbarLeading' | 'navbarTrailing';
     children: ContainerChild[];
+}
+/**
+ * Bottom-of-window mobile navigation bar. Mutually exclusive with `footer`
+ * in the same window (pick one chrome band). Accepts only `tabitem` children.
+ */
+interface TabBarNode extends NodeBase {
+    kind: 'tabbar';
+    children: TabItemNode[];
+}
+/**
+ * Single icon+label tab inside a `tabbar`. Renders as icon stacked above
+ * label, with optional selected/disabled state and a badge pill on the icon.
+ */
+interface TabItemNode extends NodeBase {
+    kind: 'tabitem';
+    label: string;
 }
 interface PanelNode extends NodeBase {
     kind: 'panel';
@@ -189,6 +218,10 @@ interface TextNode extends NodeBase {
 }
 interface ButtonNode extends NodeBase {
     kind: 'button';
+    label: string;
+}
+interface BackButtonNode extends NodeBase {
+    kind: 'backbutton';
     label: string;
 }
 interface InputNode extends NodeBase {
@@ -307,6 +340,23 @@ interface StatusNode extends NodeBase {
     kind: 'status';
     label: string;
 }
+/**
+ * Pill-shaped, mutually-exclusive selector with 2+ equal-width segments.
+ * Unlike `tabs` (which switches views), a `segmented` filters content
+ * within the current view.
+ */
+interface SegmentedNode extends NodeBase {
+    kind: 'segmented';
+    children: SegmentNode[];
+}
+/**
+ * Leaf child of `segmented`. Takes a required label string and may carry
+ * `selected` (at most one per control) or `disabled` flags.
+ */
+interface SegmentNode extends NodeBase {
+    kind: 'segment';
+    label: string;
+}
 type AnnotationSide = 'left' | 'right' | 'top' | 'bottom';
 /**
  * A user-manual-style label that identifies part of the `window` mockup.
@@ -327,10 +377,10 @@ interface AnnotationNode extends NodeBase {
  * Leaf nodes that can appear in any container (panel/section/row/col/slot).
  * Excludes `tab` (must be inside `tabs`) and `item` (must be inside `list`).
  */
-type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | SpacerNode | ProgressNode | ChartNode | CheckboxNode | RadioNode | ToggleNode | ChipNode | AvatarNode | SpinnerNode | StatusNode;
-type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
-type WindowChild = HeaderNode | FooterNode | NavbarNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
-type AnyNode = WindowNode | HeaderNode | FooterNode | NavbarNode | NavbarSlotNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | TreeNode_ | TreeItemNode | MenubarNode | MenuNode | MenuItemNode | SeparatorNode | BreadcrumbNode | CrumbNode | AnnotationNode | LeafNode;
+type LeafNode = TextNode | ButtonNode | BackButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | SpacerNode | ProgressNode | ChartNode | CheckboxNode | RadioNode | ToggleNode | ChipNode | AvatarNode | SpinnerNode | StatusNode;
+type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | SegmentedNode | LeafNode;
+type WindowChild = HeaderNode | FooterNode | NavbarNode | TabBarNode | SheetNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | SegmentedNode | LeafNode;
+type AnyNode = WindowNode | HeaderNode | FooterNode | NavbarNode | NavbarSlotNode | TabBarNode | TabItemNode | SheetNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | TreeNode_ | TreeItemNode | MenubarNode | MenuNode | MenuItemNode | SeparatorNode | BreadcrumbNode | CrumbNode | SegmentedNode | SegmentNode | AnnotationNode | LeafNode;
 interface Document {
     kind: 'document';
     /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
@@ -424,6 +474,7 @@ interface Theme {
     titleBarHeight: number;
     panelPadding: number;
     headerPaddingY: number;
+    largeHeaderHeight: number;
     footerPaddingY: number;
     sectionTitleHeight: number;
     sectionTitlePaddingBottom: number;
@@ -435,6 +486,9 @@ interface Theme {
     dividerHeight: number;
     buttonHeight: number;
     buttonPaddingX: number;
+    backButtonChevronWidth: number;
+    backButtonChevronGap: number;
+    backButtonChevronColor: string;
     inputHeight: number;
     inputPaddingX: number;
     inputMinWidth: number;
@@ -451,6 +505,12 @@ interface Theme {
     tabHeight: number;
     tabPaddingX: number;
     tabGap: number;
+    tabbarHeight: number;
+    tabbarIconSize: number;
+    tabbarLabelFontSize: number;
+    tabbarIconLabelGap: number;
+    tabbarSelectedColor: string;
+    tabbarInactiveColor: string;
     bulletWidth: number;
     badgeHeight: number;
     badgePaddingX: number;
@@ -514,6 +574,20 @@ interface Theme {
     breadcrumbGap: number;
     breadcrumbSeparatorColor: string;
     breadcrumbCurrentColor: string;
+    chevronGlyphSize: number;
+    chevronGlyphGutter: number;
+    chevronGlyphStrokeWidth: number;
+    chevronGlyphColor: string;
+    segmentedHeight: number;
+    segmentedPaddingX: number;
+    segmentedMinSegmentWidth: number;
+    segmentedCornerRadius: number;
+    segmentedBg: string;
+    segmentedBorder: string;
+    segmentedDividerColor: string;
+    segmentedText: string;
+    segmentedSelectedBg: string;
+    segmentedSelectedText: string;
     spinnerSize: number;
     spinnerColor: string;
     statusHeight: number;
@@ -524,6 +598,22 @@ interface Theme {
         fg: string;
         border: string;
     }>>;
+    sheetScrimColor: string;
+    sheetScrimOpacity: number;
+    sheetBg: string;
+    sheetBorder: string;
+    sheetStrokeWidth: number;
+    sheetCornerRadius: number;
+    sheetPadding: number;
+    sheetTitleHeight: number;
+    sheetTitleFontSize: number;
+    sheetGrabberWidth: number;
+    sheetGrabberHeight: number;
+    sheetGrabberColor: string;
+    sheetGrabberGap: number;
+    sheetCenterMinWidth: number;
+    sheetCenterMinHeight: number;
+    sheetCenterMargin: number;
     annotationBg: string;
     annotationBorder: string;
     annotationText: string;
@@ -595,4 +685,4 @@ declare const wireloom: {
     render: typeof render;
 };
 
-export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type NavbarNode, type NavbarSlotNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SeparatorNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpacerNode, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
+export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BackButtonNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type NavbarNode, type NavbarSlotNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SegmentNode, type SegmentedNode, type SeparatorNode, type SheetNode, type SheetPlacement, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpacerNode, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabBarNode, type TabItemNode, type TabNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
