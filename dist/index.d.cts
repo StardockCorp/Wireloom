@@ -79,6 +79,19 @@ interface WindowNode extends NodeBase {
     title?: string;
     children: WindowChild[];
 }
+type SheetPlacement = 'bottom' | 'center';
+/**
+ * Modal overlay drawn on top of the window body with a semi-transparent scrim.
+ * Direct child of `window`. At most one per window (enforced at parse time).
+ * Author-facing attribute is `position=bottom|center`; stored as `placement`
+ * in the AST to avoid clashing with the source `position` field on NodeBase.
+ */
+interface SheetNode extends NodeBase {
+    kind: 'sheet';
+    placement: SheetPlacement;
+    title?: string;
+    children: ContainerChild[];
+}
 interface HeaderNode extends NodeBase {
     kind: 'header';
     children: ContainerChild[];
@@ -298,8 +311,8 @@ interface AnnotationNode extends NodeBase {
  */
 type LeafNode = TextNode | ButtonNode | InputNode | ComboNode | SliderNode | KvNode | ImageNode | IconNode | DividerNode | ProgressNode | ChartNode | CheckboxNode | RadioNode | ToggleNode | ChipNode | AvatarNode | SpinnerNode | StatusNode;
 type ContainerChild = PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
-type WindowChild = HeaderNode | FooterNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
-type AnyNode = WindowNode | HeaderNode | FooterNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | TreeNode_ | TreeItemNode | MenubarNode | MenuNode | MenuItemNode | SeparatorNode | BreadcrumbNode | CrumbNode | AnnotationNode | LeafNode;
+type WindowChild = HeaderNode | FooterNode | SheetNode | PanelNode | SectionNode | TabsNode | RowNode | ColNode | ListNode | SlotNode | GridNode | ResourceBarNode | StatsNode | TreeNode_ | MenubarNode | MenuNode | BreadcrumbNode | LeafNode;
+type AnyNode = WindowNode | HeaderNode | FooterNode | SheetNode | SlotFooterNode | PanelNode | SectionNode | TabsNode | TabNode | RowNode | ColNode | ListNode | ItemNode | SlotNode | GridNode | CellNode | ResourceBarNode | ResourceNode | StatsNode | StatNode | TreeNode_ | TreeItemNode | MenubarNode | MenuNode | MenuItemNode | SeparatorNode | BreadcrumbNode | CrumbNode | AnnotationNode | LeafNode;
 interface Document {
     kind: 'document';
     /** Required-by-grammar `window` root. Absent on stub or fully-failed parses. */
@@ -493,6 +506,22 @@ interface Theme {
         fg: string;
         border: string;
     }>>;
+    sheetScrimColor: string;
+    sheetScrimOpacity: number;
+    sheetBg: string;
+    sheetBorder: string;
+    sheetStrokeWidth: number;
+    sheetCornerRadius: number;
+    sheetPadding: number;
+    sheetTitleHeight: number;
+    sheetTitleFontSize: number;
+    sheetGrabberWidth: number;
+    sheetGrabberHeight: number;
+    sheetGrabberColor: string;
+    sheetGrabberGap: number;
+    sheetCenterMinWidth: number;
+    sheetCenterMinHeight: number;
+    sheetCenterMargin: number;
     annotationBg: string;
     annotationBorder: string;
     annotationText: string;
@@ -564,4 +593,4 @@ declare const wireloom: {
     render: typeof render;
 };
 
-export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SeparatorNode, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };
+export { type AnnotationNode, type AnnotationSide, type AnyNode, type Attribute, type AttributeFlag, type AttributePair, type AttributeValue, type AvatarNode, type BreadcrumbNode, type ButtonNode, type CellNode, type ChartNode, type CheckboxNode, type ChipNode, type ColNode, type ColWidth, type ComboNode, type ContainerChild, type CrumbNode, DARK_THEME, DEFAULT_THEME, type DividerNode, type Document, type FooterNode, type GridNode, type HeaderNode, type IconNode, type ImageNode, type InputNode, type ItemNode, type KvNode, type LeafNode, type LengthUnit, type LengthValue, type ListNode, type MenuChild, type MenuItemNode, type MenuNode, type MenubarNode, type PanelNode, type ProgressNode, type RadioNode, type RenderOptions, type RenderResult, type ResourceBarNode, type ResourceNode, type RowNode, type SectionNode, type SeparatorNode, type SheetNode, type SheetPlacement, type SliderNode, type SlotFooterNode, type SlotNode, type SourcePosition, type SpinnerNode, type StatNode, type StatsNode, type StatusKind, type StatusNode, type TabNode, type TabsNode, type TextNode, type Theme, type ToggleNode, type TreeItemNode, type TreeNode_, type WindowChild, type WindowNode, type WireloomConfig, WireloomError, type WireloomSecurityLevel, type WireloomTheme, wireloom as default, initialize, parse, render, serialize };

@@ -47,6 +47,8 @@ import type {
   RowNode,
   SectionNode,
   SeparatorNode,
+  SheetNode,
+  SheetPlacement,
   SliderNode,
   SlotFooterNode,
   SlotNode,
@@ -118,6 +120,7 @@ const CHART_KIND_VALUES = ['bar', 'line', 'pie'] as const;
 const ANNOTATION_SIDE_VALUES = ['left', 'right', 'top', 'bottom'] as const;
 const AVATAR_SIZE_VALUES = ['small', 'medium', 'large'] as const;
 const STATUS_KIND_VALUES = ['success', 'info', 'warning', 'error'] as const;
+const SHEET_POSITION_VALUES = ['bottom', 'center'] as const;
 
 /** Spec for the universal `id="…"` attribute, accepted on every primitive. */
 const UNIVERSAL_ID_SPEC: AttrSpec = { kind: 'string' };
@@ -126,6 +129,13 @@ const ATTR_RULES: Record<string, AttrRules> = {
   window: { attrs: {}, flags: [] },
   header: { attrs: {}, flags: [] },
   footer: { attrs: {}, flags: [] },
+  sheet: {
+    attrs: {
+      position: { kind: 'enum', values: SHEET_POSITION_VALUES },
+      title: { kind: 'string' },
+    },
+    flags: [],
+  },
   panel: { attrs: {}, flags: [] },
   section: {
     attrs: {
@@ -365,7 +375,7 @@ const CONTAINER_CHILD_PRIMITIVES = new Set([
 const LIST_CHILD_PRIMITIVES = new Set(['item', 'slot']);
 
 const PRIMITIVE_LIST_HUMAN =
-  'window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
+  'window, header, footer, sheet, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status';
 
 // ---------------------------------------------------------------------------
 // Public entry point
@@ -503,8 +513,20 @@ class Parser {
 
   private parseWindowChildren(): WindowChild[] {
     const children: WindowChild[] = [];
+    let sawSheet = false;
     while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
-      children.push(this.parseWindowChild());
+      const head = this.peek();
+      const name = head.kind === 'ident' ? head.identValue ?? head.raw : '';
+      if (name === 'sheet' && sawSheet) {
+        throw new WireloomError(
+          'only one "sheet" is allowed per "window"',
+          head.line,
+          head.column,
+        );
+      }
+      const child = this.parseWindowChild();
+      if (child.kind === 'sheet') sawSheet = true;
+      children.push(child);
     }
     this.expectKind('dedent', 'children block did not close cleanly');
     return children;
@@ -595,6 +617,7 @@ class Parser {
     }
     if (name === 'header') return this.parseHeader();
     if (name === 'footer') return this.parseFooter();
+    if (name === 'sheet') return this.parseSheet();
     return this.parseContainerChildNamed(name);
   }
 
@@ -616,6 +639,29 @@ class Parser {
     const hasChildren = this.parseTerminator('footer', head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     return { kind: 'footer', attributes, children, position };
+  }
+
+  // --- Sheet ----------------------------------------------------------------
+
+  private parseSheet(): SheetNode {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('sheet');
+    const placementAttr = getAttrIdentValue(attributes, 'position');
+    const placement: SheetPlacement =
+      placementAttr === 'center' ? 'center' : 'bottom';
+    const title = getAttrStringValue(attributes, 'title');
+    const hasChildren = this.parseTerminator('sheet', head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const node: SheetNode = {
+      kind: 'sheet',
+      placement,
+      attributes,
+      children,
+      position,
+    };
+    if (title !== undefined) node.title = title;
+    return node;
   }
 
   // --- Container children ---------------------------------------------------
@@ -643,32 +689,7 @@ class Parser {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason =
-        name === 'tab'
-          ? '"tab" may only appear inside "tabs"'
-          : name === 'item'
-            ? '"item" may only appear inside "list"'
-            : name === 'header'
-              ? '"header" may only appear directly inside "window"'
-              : name === 'footer'
-                ? '"footer" may only appear directly inside "window" or "slot"'
-                : name === 'window'
-                  ? '"window" cannot be nested'
-                  : name === 'cell'
-                    ? '"cell" may only appear inside "grid"'
-                    : name === 'resource'
-                      ? '"resource" may only appear inside "resourcebar"'
-                      : name === 'stat'
-                        ? '"stat" may only appear inside "stats"'
-                        : name === 'node'
-                          ? '"node" may only appear inside "tree"'
-                          : name === 'menuitem'
-                            ? '"menuitem" may only appear inside "menu"'
-                            : name === 'separator'
-                              ? '"separator" may only appear inside "menu"'
-                              : name === 'crumb'
-                                ? '"crumb" may only appear inside "breadcrumb"'
-                                : `"${name}" is not allowed here`;
+      const reason = placementErrorFor(name);
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -1842,6 +1863,39 @@ function coerceAttributeValue(
       }
       return { kind: 'identifier', value, position };
     }
+  }
+}
+
+function placementErrorFor(name: string): string {
+  switch (name) {
+    case 'tab':
+      return '"tab" may only appear inside "tabs"';
+    case 'item':
+      return '"item" may only appear inside "list"';
+    case 'header':
+      return '"header" may only appear directly inside "window"';
+    case 'footer':
+      return '"footer" may only appear directly inside "window" or "slot"';
+    case 'sheet':
+      return '"sheet" may only appear directly inside "window"';
+    case 'window':
+      return '"window" cannot be nested';
+    case 'cell':
+      return '"cell" may only appear inside "grid"';
+    case 'resource':
+      return '"resource" may only appear inside "resourcebar"';
+    case 'stat':
+      return '"stat" may only appear inside "stats"';
+    case 'node':
+      return '"node" may only appear inside "tree"';
+    case 'menuitem':
+      return '"menuitem" may only appear inside "menu"';
+    case 'separator':
+      return '"separator" may only appear inside "menu"';
+    case 'crumb':
+      return '"crumb" may only appear inside "breadcrumb"';
+    default:
+      return `"${name}" is not allowed here`;
   }
 }
 

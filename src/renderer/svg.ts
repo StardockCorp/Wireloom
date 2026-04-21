@@ -31,6 +31,7 @@ import type {
   RadioNode,
   ResourceNode,
   SectionNode,
+  SheetNode,
   SliderNode,
   SlotNode,
   SpinnerNode,
@@ -252,7 +253,88 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
     case 'status':
       emitStatus(laid, theme, out);
       break;
+    case 'sheet':
+      emitSheet(laid, theme, out);
+      break;
   }
+}
+
+function emitSheet(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  // Outer sheet LaidOutNode is the scrim; its single child is the panel
+  // (also kinded 'sheet'). See positionSheet in layout.ts for the structure.
+  const node = laid.node as SheetNode;
+  out.push(
+    `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" ` +
+      `fill="${theme.sheetScrimColor}" opacity="${theme.sheetScrimOpacity}" />`,
+  );
+  const panel = laid.children[0];
+  if (panel === undefined) return;
+  emitSheetPanel(panel, node, theme, out);
+}
+
+function emitSheetPanel(
+  panel: LaidOutNode,
+  node: SheetNode,
+  theme: Theme,
+  out: string[],
+): void {
+  const r = theme.sheetCornerRadius;
+  if (node.placement === 'bottom') {
+    // Rounded top corners only — bottom edge flush with window bottom.
+    const path = roundedTopRectPath(panel.x, panel.y, panel.width, panel.height, r);
+    out.push(
+      `<path d="${path}" fill="${theme.sheetBg}" stroke="${theme.sheetBorder}" stroke-width="${theme.sheetStrokeWidth}" />`,
+    );
+    // Grabber pill centered near the top.
+    const gw = theme.sheetGrabberWidth;
+    const gh = theme.sheetGrabberHeight;
+    const gx = panel.x + (panel.width - gw) / 2;
+    const gy = panel.y + theme.sheetPadding / 2 + theme.sheetGrabberGap / 2;
+    out.push(
+      `<rect x="${gx}" y="${gy}" width="${gw}" height="${gh}" rx="${gh / 2}" fill="${theme.sheetGrabberColor}" />`,
+    );
+  } else {
+    // Center sheet — fully rounded floating rect.
+    out.push(
+      `<rect x="${panel.x + 0.5}" y="${panel.y + 0.5}" width="${panel.width - 1}" height="${panel.height - 1}" ` +
+        `rx="${r}" ry="${r}" fill="${theme.sheetBg}" stroke="${theme.sheetBorder}" stroke-width="${theme.sheetStrokeWidth}" />`,
+    );
+  }
+
+  if (node.title !== undefined) {
+    const titleY =
+      node.placement === 'bottom'
+        ? panel.y + theme.sheetPadding + theme.sheetGrabberHeight + theme.sheetGrabberGap + theme.sheetTitleHeight * 0.7
+        : panel.y + theme.sheetPadding + theme.sheetTitleHeight * 0.7;
+    out.push(
+      `<text x="${panel.x + panel.width / 2}" y="${titleY}" text-anchor="middle" ` +
+        `font-size="${theme.sheetTitleFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(node.title)}</text>`,
+    );
+  }
+
+  for (const c of panel.children) emitNode(c, theme, out);
+}
+
+/**
+ * SVG path for a rectangle with rounded TOP corners only. Used for bottom
+ * sheets, where the bottom edge should meet the window edge cleanly.
+ */
+function roundedTopRectPath(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+): string {
+  const r = Math.min(radius, width / 2, height);
+  return (
+    `M ${x} ${y + r} ` +
+    `Q ${x} ${y} ${x + r} ${y} ` +
+    `L ${x + width - r} ${y} ` +
+    `Q ${x + width} ${y} ${x + width} ${y + r} ` +
+    `L ${x + width} ${y + height} ` +
+    `L ${x} ${y + height} Z`
+  );
 }
 
 // ---------------------------------------------------------------------------

@@ -47,6 +47,7 @@ import type {
   ResourceNode,
   RowNode,
   SectionNode,
+  SheetNode,
   SliderNode,
   SlotFooterNode,
   SlotNode,
@@ -773,17 +774,20 @@ function footerHorizontal(node: HeaderNode | FooterNode, kind: 'header' | 'foote
 function classifyWindowChildren(node: WindowNode): {
   header: HeaderNode | undefined;
   footer: FooterNode | undefined;
+  sheet: SheetNode | undefined;
   bodyChildren: ContainerChild[];
 } {
   let header: HeaderNode | undefined;
   let footer: FooterNode | undefined;
+  let sheet: SheetNode | undefined;
   const bodyChildren: ContainerChild[] = [];
   for (const child of node.children) {
     if (child.kind === 'header') header = child;
     else if (child.kind === 'footer') footer = child;
+    else if (child.kind === 'sheet') sheet = child;
     else bodyChildren.push(child);
   }
-  return { header, footer, bodyChildren };
+  return { header, footer, sheet, bodyChildren };
 }
 
 function titleWidth(title: string | undefined, theme: Theme): number {
@@ -813,7 +817,7 @@ function positionWindow(
     cursorY += theme.titleBarHeight;
   }
 
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, footer, sheet, bodyChildren } = classifyWindowChildren(node);
 
   if (header) {
     const laidHeader = positionHeaderOrFooter(
@@ -860,6 +864,20 @@ function positionWindow(
     cursorY += m.footerHeight;
   }
 
+  if (sheet) {
+    // Overlay the sheet on top of the window body area (excludes the title
+    // bar and header/footer chrome so the scrim reads as "dims the content,
+    // not the whole frame"). Kept last in children so the SVG emitter paints
+    // it after everything else — this is the renderer's z-order signal.
+    const overlayBounds: Rect = {
+      x,
+      y: bodyY,
+      width: outerWidth,
+      height: bodyEndY - bodyY,
+    };
+    childrenLaid.push(positionSheet(sheet, overlayBounds, theme));
+  }
+
   return {
     node,
     x,
@@ -868,6 +886,92 @@ function positionWindow(
     height: m.outer.height,
     children: childrenLaid,
   };
+}
+
+function positionSheet(
+  node: SheetNode,
+  overlay: Rect,
+  theme: Theme,
+): LaidOutNode {
+  // The sheet's top-level rect IS the scrim — it covers the full overlay area.
+  // The sheet panel itself is the (only) child, positioned inside the scrim.
+  const scrim: LaidOutNode = {
+    node,
+    x: overlay.x,
+    y: overlay.y,
+    width: overlay.width,
+    height: overlay.height,
+    children: [],
+  };
+
+  // Intrinsic content size for the sheet body.
+  const inner = measureStack(node.children, theme, 'vertical');
+  const hasTitle = node.title !== undefined;
+  const grabberH = node.placement === 'bottom' ? theme.sheetGrabberHeight : 0;
+  const grabberGap = node.placement === 'bottom' ? theme.sheetGrabberGap : 0;
+  const titleH = hasTitle ? theme.sheetTitleHeight : 0;
+  const topPad = theme.sheetPadding;
+  const bottomPad = theme.sheetPadding;
+
+  const panelContentHeight =
+    grabberH + grabberGap + titleH + inner.height + topPad + bottomPad;
+
+  let panelX: number;
+  let panelY: number;
+  let panelWidth: number;
+  let panelHeight: number;
+
+  if (node.placement === 'center') {
+    panelWidth = Math.max(
+      theme.sheetCenterMinWidth,
+      inner.width + theme.sheetPadding * 2,
+    );
+    // Center sheets don't stretch beyond the overlay width.
+    if (panelWidth > overlay.width - theme.sheetCenterMargin * 2) {
+      panelWidth = Math.max(overlay.width - theme.sheetCenterMargin * 2, 0);
+    }
+    panelHeight = Math.max(theme.sheetCenterMinHeight, panelContentHeight);
+    panelX = overlay.x + (overlay.width - panelWidth) / 2;
+    panelY = overlay.y + (overlay.height - panelHeight) / 2;
+  } else {
+    // Bottom sheet — fills overlay width, anchored to its bottom edge.
+    panelWidth = overlay.width;
+    panelHeight = panelContentHeight;
+    // Clamp so the sheet never exceeds the overlay height; trims content pad.
+    if (panelHeight > overlay.height) panelHeight = overlay.height;
+    panelX = overlay.x;
+    panelY = overlay.y + overlay.height - panelHeight;
+  }
+
+  const panel: LaidOutNode = {
+    node,
+    x: panelX,
+    y: panelY,
+    width: panelWidth,
+    height: panelHeight,
+    children: [],
+  };
+
+  let cursorY = panelY + topPad;
+  if (node.placement === 'bottom') {
+    cursorY += grabberH + grabberGap;
+  }
+  if (hasTitle) {
+    cursorY += titleH;
+  }
+
+  const contentX = panelX + theme.sheetPadding;
+  const contentWidth = panelWidth - theme.sheetPadding * 2;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i]!;
+    const laidChild = positionContainerChild(child, contentX, cursorY, contentWidth, theme);
+    panel.children.push(laidChild);
+    cursorY += laidChild.height;
+    if (i < node.children.length - 1) cursorY += theme.colGap;
+  }
+
+  scrim.children.push(panel);
+  return scrim;
 }
 
 function positionHeaderOrFooter(

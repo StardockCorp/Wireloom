@@ -69,6 +69,21 @@ export interface WindowNode extends NodeBase {
   children: WindowChild[];
 }
 
+export type SheetPlacement = 'bottom' | 'center';
+
+/**
+ * Modal overlay drawn on top of the window body with a semi-transparent scrim.
+ * Direct child of `window`. At most one per window (enforced at parse time).
+ * Author-facing attribute is `position=bottom|center`; stored as `placement`
+ * in the AST to avoid clashing with the source `position` field on NodeBase.
+ */
+export interface SheetNode extends NodeBase {
+  kind: 'sheet';
+  placement: SheetPlacement;
+  title?: string;
+  children: ContainerChild[];
+}
+
 export interface HeaderNode extends NodeBase {
   kind: 'header';
   children: ContainerChild[];
@@ -410,6 +425,7 @@ export type ContainerChild =
 export type WindowChild =
   | HeaderNode
   | FooterNode
+  | SheetNode
   | PanelNode
   | SectionNode
   | TabsNode
@@ -430,6 +446,7 @@ export type AnyNode =
   | WindowNode
   | HeaderNode
   | FooterNode
+  | SheetNode
   | SlotFooterNode
   | PanelNode
   | SectionNode

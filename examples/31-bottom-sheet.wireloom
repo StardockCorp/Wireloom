@@ -1,0 +1,15 @@
+window "Photos":
+  header:
+    row:
+      text "Vacation 2026" weight=bold size=large
+  row:
+    image label="beach"
+    image label="mountain"
+  sheet title="Share":
+    list:
+      item "Messages"
+      item "Mail"
+      item "AirDrop"
+      item "Copy link"
+    row align=right:
+      button "Cancel"

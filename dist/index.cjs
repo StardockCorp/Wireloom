@@ -311,11 +311,19 @@ var CHART_KIND_VALUES = ["bar", "line", "pie"];
 var ANNOTATION_SIDE_VALUES = ["left", "right", "top", "bottom"];
 var AVATAR_SIZE_VALUES = ["small", "medium", "large"];
 var STATUS_KIND_VALUES = ["success", "info", "warning", "error"];
+var SHEET_POSITION_VALUES = ["bottom", "center"];
 var UNIVERSAL_ID_SPEC = { kind: "string" };
 var ATTR_RULES = {
   window: { attrs: {}, flags: [] },
   header: { attrs: {}, flags: [] },
   footer: { attrs: {}, flags: [] },
+  sheet: {
+    attrs: {
+      position: { kind: "enum", values: SHEET_POSITION_VALUES },
+      title: { kind: "string" }
+    },
+    flags: []
+  },
   panel: { attrs: {}, flags: [] },
   section: {
     attrs: {
@@ -549,7 +557,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "status"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, sheet, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -663,8 +671,20 @@ var Parser = class {
   }
   parseWindowChildren() {
     const children = [];
+    let sawSheet = false;
     while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
-      children.push(this.parseWindowChild());
+      const head = this.peek();
+      const name = head.kind === "ident" ? head.identValue ?? head.raw : "";
+      if (name === "sheet" && sawSheet) {
+        throw new WireloomError(
+          'only one "sheet" is allowed per "window"',
+          head.line,
+          head.column
+        );
+      }
+      const child = this.parseWindowChild();
+      if (child.kind === "sheet") sawSheet = true;
+      children.push(child);
     }
     this.expectKind("dedent", "children block did not close cleanly");
     return children;
@@ -754,6 +774,7 @@ var Parser = class {
     }
     if (name === "header") return this.parseHeader();
     if (name === "footer") return this.parseFooter();
+    if (name === "sheet") return this.parseSheet();
     return this.parseContainerChildNamed(name);
   }
   // --- Header / Footer ------------------------------------------------------
@@ -772,6 +793,26 @@ var Parser = class {
     const hasChildren = this.parseTerminator("footer", head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     return { kind: "footer", attributes, children, position };
+  }
+  // --- Sheet ----------------------------------------------------------------
+  parseSheet() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("sheet");
+    const placementAttr = getAttrIdentValue(attributes, "position");
+    const placement = placementAttr === "center" ? "center" : "bottom";
+    const title = getAttrStringValue(attributes, "title");
+    const hasChildren = this.parseTerminator("sheet", head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const node = {
+      kind: "sheet",
+      placement,
+      attributes,
+      children,
+      position
+    };
+    if (title !== void 0) node.title = title;
+    return node;
   }
   // --- Container children ---------------------------------------------------
   parseContainerChildren() {
@@ -796,7 +837,7 @@ var Parser = class {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : `"${name}" is not allowed here`;
+      const reason = placementErrorFor(name);
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -1855,6 +1896,38 @@ function coerceAttributeValue(token, spec, key, primitive) {
     }
   }
 }
+function placementErrorFor(name) {
+  switch (name) {
+    case "tab":
+      return '"tab" may only appear inside "tabs"';
+    case "item":
+      return '"item" may only appear inside "list"';
+    case "header":
+      return '"header" may only appear directly inside "window"';
+    case "footer":
+      return '"footer" may only appear directly inside "window" or "slot"';
+    case "sheet":
+      return '"sheet" may only appear directly inside "window"';
+    case "window":
+      return '"window" cannot be nested';
+    case "cell":
+      return '"cell" may only appear inside "grid"';
+    case "resource":
+      return '"resource" may only appear inside "resourcebar"';
+    case "stat":
+      return '"stat" may only appear inside "stats"';
+    case "node":
+      return '"node" may only appear inside "tree"';
+    case "menuitem":
+      return '"menuitem" may only appear inside "menu"';
+    case "separator":
+      return '"separator" may only appear inside "menu"';
+    case "crumb":
+      return '"crumb" may only appear inside "breadcrumb"';
+    default:
+      return `"${name}" is not allowed here`;
+  }
+}
 function unknownPrimitiveMessage(name) {
   const suggestion = suggestMatch(name, [...VALID_PRIMITIVES]);
   const base = `unknown primitive "${name}" (valid: ${PRIMITIVE_LIST_HUMAN})`;
@@ -2222,6 +2295,22 @@ var DEFAULT_THEME = Object.freeze({
     warning: { bg: "#f7efdc", fg: "#6b4e15", border: "#c79a2e" },
     error: { bg: "#f5e4e2", fg: "#5c2420", border: "#b0413c" }
   }),
+  sheetScrimColor: "#1a1a1a",
+  sheetScrimOpacity: 0.45,
+  sheetBg: "#ffffff",
+  sheetBorder: "#8a8a8a",
+  sheetStrokeWidth: 1,
+  sheetCornerRadius: 14,
+  sheetPadding: 16,
+  sheetTitleHeight: 22,
+  sheetTitleFontSize: 15,
+  sheetGrabberWidth: 40,
+  sheetGrabberHeight: 4,
+  sheetGrabberColor: "#b5b8bd",
+  sheetGrabberGap: 10,
+  sheetCenterMinWidth: 260,
+  sheetCenterMinHeight: 120,
+  sheetCenterMargin: 24,
   accents: Object.freeze({
     research: "#3f7cc2",
     military: "#b55442",
@@ -2355,6 +2444,11 @@ var DARK_THEME = Object.freeze({
     warning: { bg: "#3a2f1c", fg: "#f0d79a", border: "#e2aa57" },
     error: { bg: "#3a2220", fg: "#edb4ae", border: "#d66863" }
   }),
+  sheetScrimColor: "#000000",
+  sheetScrimOpacity: 0.55,
+  sheetBg: "#2a2a2a",
+  sheetBorder: "#6b6b6b",
+  sheetGrabberColor: "#555a62",
   accents: Object.freeze({
     research: "#6ba4e8",
     military: "#d47967",
@@ -2942,13 +3036,15 @@ function footerHorizontal(node, kind) {
 function classifyWindowChildren(node) {
   let header;
   let footer;
+  let sheet;
   const bodyChildren = [];
   for (const child of node.children) {
     if (child.kind === "header") header = child;
     else if (child.kind === "footer") footer = child;
+    else if (child.kind === "sheet") sheet = child;
     else bodyChildren.push(child);
   }
-  return { header, footer, bodyChildren };
+  return { header, footer, sheet, bodyChildren };
 }
 function titleWidth(title, theme) {
   if (!title) return 0;
@@ -2961,7 +3057,7 @@ function positionWindow(node, m, x, y, theme) {
   if (m.hasTitleBar) {
     cursorY += theme.titleBarHeight;
   }
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, footer, sheet, bodyChildren } = classifyWindowChildren(node);
   if (header) {
     const laidHeader = positionHeaderOrFooter(
       header,
@@ -3002,6 +3098,15 @@ function positionWindow(node, m, x, y, theme) {
     childrenLaid.push(laidFooter);
     cursorY += m.footerHeight;
   }
+  if (sheet) {
+    const overlayBounds = {
+      x,
+      y: bodyY,
+      width: outerWidth,
+      height: bodyEndY - bodyY
+    };
+    childrenLaid.push(positionSheet(sheet, overlayBounds, theme));
+  }
   return {
     node,
     x,
@@ -3010,6 +3115,72 @@ function positionWindow(node, m, x, y, theme) {
     height: m.outer.height,
     children: childrenLaid
   };
+}
+function positionSheet(node, overlay, theme) {
+  const scrim = {
+    node,
+    x: overlay.x,
+    y: overlay.y,
+    width: overlay.width,
+    height: overlay.height,
+    children: []
+  };
+  const inner = measureStack(node.children, theme, "vertical");
+  const hasTitle = node.title !== void 0;
+  const grabberH = node.placement === "bottom" ? theme.sheetGrabberHeight : 0;
+  const grabberGap = node.placement === "bottom" ? theme.sheetGrabberGap : 0;
+  const titleH = hasTitle ? theme.sheetTitleHeight : 0;
+  const topPad = theme.sheetPadding;
+  const bottomPad = theme.sheetPadding;
+  const panelContentHeight = grabberH + grabberGap + titleH + inner.height + topPad + bottomPad;
+  let panelX;
+  let panelY;
+  let panelWidth;
+  let panelHeight;
+  if (node.placement === "center") {
+    panelWidth = Math.max(
+      theme.sheetCenterMinWidth,
+      inner.width + theme.sheetPadding * 2
+    );
+    if (panelWidth > overlay.width - theme.sheetCenterMargin * 2) {
+      panelWidth = Math.max(overlay.width - theme.sheetCenterMargin * 2, 0);
+    }
+    panelHeight = Math.max(theme.sheetCenterMinHeight, panelContentHeight);
+    panelX = overlay.x + (overlay.width - panelWidth) / 2;
+    panelY = overlay.y + (overlay.height - panelHeight) / 2;
+  } else {
+    panelWidth = overlay.width;
+    panelHeight = panelContentHeight;
+    if (panelHeight > overlay.height) panelHeight = overlay.height;
+    panelX = overlay.x;
+    panelY = overlay.y + overlay.height - panelHeight;
+  }
+  const panel = {
+    node,
+    x: panelX,
+    y: panelY,
+    width: panelWidth,
+    height: panelHeight,
+    children: []
+  };
+  let cursorY = panelY + topPad;
+  if (node.placement === "bottom") {
+    cursorY += grabberH + grabberGap;
+  }
+  if (hasTitle) {
+    cursorY += titleH;
+  }
+  const contentX = panelX + theme.sheetPadding;
+  const contentWidth = panelWidth - theme.sheetPadding * 2;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const laidChild = positionContainerChild(child, contentX, cursorY, contentWidth, theme);
+    panel.children.push(laidChild);
+    cursorY += laidChild.height;
+    if (i < node.children.length - 1) cursorY += theme.colGap;
+  }
+  scrim.children.push(panel);
+  return scrim;
 }
 function positionHeaderOrFooter(node, kind, x, y, width, height, theme) {
   const horizontal = footerHorizontal(node, kind);
@@ -3971,7 +4142,50 @@ function emitNode(laid, theme, out) {
     case "status":
       emitStatus(laid, theme, out);
       break;
+    case "sheet":
+      emitSheet(laid, theme, out);
+      break;
   }
+}
+function emitSheet(laid, theme, out) {
+  const node = laid.node;
+  out.push(
+    `<rect x="${laid.x}" y="${laid.y}" width="${laid.width}" height="${laid.height}" fill="${theme.sheetScrimColor}" opacity="${theme.sheetScrimOpacity}" />`
+  );
+  const panel = laid.children[0];
+  if (panel === void 0) return;
+  emitSheetPanel(panel, node, theme, out);
+}
+function emitSheetPanel(panel, node, theme, out) {
+  const r = theme.sheetCornerRadius;
+  if (node.placement === "bottom") {
+    const path = roundedTopRectPath(panel.x, panel.y, panel.width, panel.height, r);
+    out.push(
+      `<path d="${path}" fill="${theme.sheetBg}" stroke="${theme.sheetBorder}" stroke-width="${theme.sheetStrokeWidth}" />`
+    );
+    const gw = theme.sheetGrabberWidth;
+    const gh = theme.sheetGrabberHeight;
+    const gx = panel.x + (panel.width - gw) / 2;
+    const gy = panel.y + theme.sheetPadding / 2 + theme.sheetGrabberGap / 2;
+    out.push(
+      `<rect x="${gx}" y="${gy}" width="${gw}" height="${gh}" rx="${gh / 2}" fill="${theme.sheetGrabberColor}" />`
+    );
+  } else {
+    out.push(
+      `<rect x="${panel.x + 0.5}" y="${panel.y + 0.5}" width="${panel.width - 1}" height="${panel.height - 1}" rx="${r}" ry="${r}" fill="${theme.sheetBg}" stroke="${theme.sheetBorder}" stroke-width="${theme.sheetStrokeWidth}" />`
+    );
+  }
+  if (node.title !== void 0) {
+    const titleY = node.placement === "bottom" ? panel.y + theme.sheetPadding + theme.sheetGrabberHeight + theme.sheetGrabberGap + theme.sheetTitleHeight * 0.7 : panel.y + theme.sheetPadding + theme.sheetTitleHeight * 0.7;
+    out.push(
+      `<text x="${panel.x + panel.width / 2}" y="${titleY}" text-anchor="middle" font-size="${theme.sheetTitleFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(node.title)}</text>`
+    );
+  }
+  for (const c of panel.children) emitNode(c, theme, out);
+}
+function roundedTopRectPath(x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height);
+  return `M ${x} ${y + r} Q ${x} ${y} ${x + r} ${y} L ${x + width - r} ${y} Q ${x + width} ${y} ${x + width} ${y + r} L ${x + width} ${y + height} L ${x} ${y + height} Z`;
 }
 function emitTree(laid, theme, out) {
   for (const row of laid.children) {

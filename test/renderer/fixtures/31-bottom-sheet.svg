@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="193.71428571428572" viewBox="0 0 280 193.71428571428572" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="280" height="193.71428571428572" fill="#ffffff" />
+<rect x="0.5" y="0.5" width="279" height="192.71428571428572" fill="none" stroke="#505050" stroke-width="1.25" />
+<line x1="0" y1="36" x2="280" y2="36" stroke="#b0b0b0" stroke-width="1" />
+<text x="140" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#2d2d2d">Photos</text>
+<line x1="0" y1="81.71428571428572" x2="280" y2="81.71428571428572" stroke="#b0b0b0" stroke-width="1" />
+<text x="79.82857142857142" y="65.28571428571428" font-weight="700" font-size="18" fill="#2d2d2d">Vacation 2026</text>
+<rect x="16.5" y="98.21428571428572" width="119" height="79" fill="#fafbfc" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<line x1="16" y1="97.71428571428572" x2="136" y2="177.71428571428572" stroke="#8a8a8a" stroke-width="0.5" opacity="0.4" />
+<line x1="136" y1="97.71428571428572" x2="16" y2="177.71428571428572" stroke="#8a8a8a" stroke-width="0.5" opacity="0.4" />
+<text x="76" y="142.38095238095238" text-anchor="middle" font-size="12" fill="#7a7f87">beach</text>
+<rect x="144.5" y="98.21428571428572" width="119" height="79" fill="#fafbfc" stroke="#8a8a8a" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<line x1="144" y1="97.71428571428572" x2="264" y2="177.71428571428572" stroke="#8a8a8a" stroke-width="0.5" opacity="0.4" />
+<line x1="264" y1="97.71428571428572" x2="144" y2="177.71428571428572" stroke="#8a8a8a" stroke-width="0.5" opacity="0.4" />
+<text x="204" y="142.38095238095238" text-anchor="middle" font-size="12" fill="#7a7f87">mountain</text>
+<rect x="0" y="81.71428571428572" width="280" height="112" fill="#1a1a1a" opacity="0.45" />
+<path d="M 0 95.71428571428572 Q 0 81.71428571428572 14 81.71428571428572 L 266 81.71428571428572 Q 280 81.71428571428572 280 95.71428571428572 L 280 193.71428571428572 L 0 193.71428571428572 Z" fill="#ffffff" stroke="#8a8a8a" stroke-width="1" />
+<rect x="120" y="94.71428571428572" width="40" height="4" rx="2" fill="#b5b8bd" />
+<text x="140" y="127.11428571428573" text-anchor="middle" font-size="15" font-weight="600" fill="#2d2d2d">Share</text>
+<circle cx="22" cy="144.71428571428572" r="2" fill="#8a8f97" />
+<text x="32" y="147.71428571428572" fill="#2d2d2d">Messages</text>
+<circle cx="22" cy="170.71428571428572" r="2" fill="#8a8f97" />
+<text x="32" y="173.71428571428572" fill="#2d2d2d">Mail</text>
+<circle cx="22" cy="196.71428571428572" r="2" fill="#8a8f97" />
+<text x="32" y="199.71428571428572" fill="#2d2d2d">AirDrop</text>
+<circle cx="22" cy="222.71428571428572" r="2" fill="#8a8f97" />
+<text x="32" y="225.71428571428572" fill="#2d2d2d">Copy link</text>
+<g opacity="1">
+<rect x="189.3" y="240.21428571428572" width="74.2" height="31" fill="#ffffff" stroke="#505050" stroke-width="1.25" rx="3" />
+<text x="226.4" y="260.3809523809524" text-anchor="middle" font-weight="500" fill="#2d2d2d">Cancel</text>
+</g>
+</svg>
