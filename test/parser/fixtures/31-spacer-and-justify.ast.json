@@ -1,0 +1,257 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "section",
+        "title": "Dialog footer — spacer",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "button",
+                "label": "Cancel",
+                "attributes": [],
+                "position": {
+                  "line": 4,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "spacer",
+                "attributes": [],
+                "position": {
+                  "line": 5,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "button",
+                "label": "Done",
+                "attributes": [
+                  {
+                    "kind": "flag",
+                    "flag": "primary",
+                    "position": {
+                      "line": 6,
+                      "column": 21
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 6,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "justify=between",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "justify",
+                "value": {
+                  "kind": "identifier",
+                  "value": "between",
+                  "position": {
+                    "line": 8,
+                    "column": 17
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 9
+                }
+              }
+            ],
+            "children": [
+              {
+                "kind": "text",
+                "content": "A",
+                "attributes": [],
+                "position": {
+                  "line": 9,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "B",
+                "attributes": [],
+                "position": {
+                  "line": 10,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "C",
+                "attributes": [],
+                "position": {
+                  "line": 11,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 7,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "justify=around",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "justify",
+                "value": {
+                  "kind": "identifier",
+                  "value": "around",
+                  "position": {
+                    "line": 13,
+                    "column": 17
+                  }
+                },
+                "position": {
+                  "line": 13,
+                  "column": 9
+                }
+              }
+            ],
+            "children": [
+              {
+                "kind": "text",
+                "content": "A",
+                "attributes": [],
+                "position": {
+                  "line": 14,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "B",
+                "attributes": [],
+                "position": {
+                  "line": 15,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "text",
+                "content": "C",
+                "attributes": [],
+                "position": {
+                  "line": 16,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 13,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 12,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "justify=end",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "row",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "justify",
+                "value": {
+                  "kind": "identifier",
+                  "value": "end",
+                  "position": {
+                    "line": 18,
+                    "column": 17
+                  }
+                },
+                "position": {
+                  "line": 18,
+                  "column": 9
+                }
+              }
+            ],
+            "children": [
+              {
+                "kind": "button",
+                "label": "One",
+                "attributes": [],
+                "position": {
+                  "line": 19,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "button",
+                "label": "Two",
+                "attributes": [],
+                "position": {
+                  "line": 20,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 18,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 17,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Spacer and Justify"
+  },
+  "sourceLines": 21
+}

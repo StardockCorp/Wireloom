@@ -127,6 +127,14 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
     case 'footer':
       emitChromeBand(laid, kind, theme, out);
       break;
+    case 'navbar':
+      emitNavbar(laid, theme, out);
+      break;
+    case 'navbarLeading':
+    case 'navbarTrailing':
+      // Slot wrapper paints nothing of its own; children carry the visuals.
+      for (const c of laid.children) emitNode(c, theme, out);
+      break;
     case 'panel':
       emitPanel(laid, theme, out);
       break;
@@ -178,6 +186,10 @@ function emitNode(laid: LaidOutNode, theme: Theme, out: string[]): void {
       break;
     case 'divider':
       emitDivider(laid, theme, out);
+      break;
+    case 'spacer':
+      // Nothing to paint — spacer's only job is to consume row slack during
+      // layout so its siblings anchor to the correct edges.
       break;
     case 'grid':
       emitGrid(laid, theme, out);
@@ -674,6 +686,19 @@ function emitChromeBand(
         `stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`,
     );
   }
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+
+/**
+ * Navbar shares header's chrome-band styling: a divider line below the band
+ * separating it from the body. Leading/trailing slot wrappers paint nothing
+ * directly — their children (laid out by `positionNavbar`) carry the visuals.
+ */
+function emitNavbar(laid: LaidOutNode, theme: Theme, out: string[]): void {
+  out.push(
+    `<line x1="${laid.x}" y1="${laid.y + laid.height}" x2="${laid.x + laid.width}" y2="${laid.y + laid.height}" ` +
+      `stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`,
+  );
   for (const c of laid.children) emitNode(c, theme, out);
 }
 

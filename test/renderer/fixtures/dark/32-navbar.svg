@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="273.6" height="244" viewBox="0 0 273.6 244" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, Roboto, sans-serif" font-size="14">
+<rect x="0" y="0" width="273.6" height="244" fill="#1e1e1e" />
+<rect x="0.5" y="0.5" width="272.6" height="243" fill="none" stroke="#8a8a8a" stroke-width="1.25" />
+<line x1="0" y1="36" x2="273.6" y2="36" stroke="#555555" stroke-width="1" />
+<text x="136.8" y="23.333333333333332" text-anchor="middle" font-size="16" font-weight="600" fill="#e0e0e0">Mobile Inbox</text>
+<line x1="0" y1="88" x2="273.6" y2="88" stroke="#555555" stroke-width="1" />
+<g opacity="1">
+<rect x="16.5" y="46.5" width="59.8" height="31" fill="#2a2a2a" stroke="#b0b0b0" stroke-width="1.25" rx="3" />
+<text x="46.4" y="66.66666666666667" text-anchor="middle" font-weight="500" fill="#e0e0e0">Back</text>
+</g>
+<g opacity="1">
+<rect x="135.70000000000002" y="46.5" width="59.8" height="31" fill="#2a2a2a" stroke="#b0b0b0" stroke-width="1.25" rx="3" />
+<text x="165.60000000000002" y="66.66666666666667" text-anchor="middle" font-weight="500" fill="#e0e0e0">Edit</text>
+</g>
+<g opacity="1">
+<rect x="204.5" y="46.5" width="52.6" height="31" fill="#d4d4d4" stroke="#b0b0b0" stroke-width="1.25" rx="3" />
+<text x="230.8" y="66.66666666666667" text-anchor="middle" font-weight="500" fill="#1e1e1e">New</text>
+</g>
+<rect x="16.5" y="104.5" width="240.60000000000002" height="123" fill="none" stroke="#6b6b6b" stroke-width="1" stroke-dasharray="4 3" rx="2" />
+<text x="28" y="131" fill="#e0e0e0">Three unread messages.</text>
+<circle cx="34" cy="155" r="2" fill="#707780" />
+<text x="44" y="158" fill="#e0e0e0">Wren — spacer landed</text>
+<circle cx="34" cy="181" r="2" fill="#707780" />
+<text x="44" y="184" fill="#e0e0e0">Tobin — back button on track</text>
+<circle cx="34" cy="207" r="2" fill="#707780" />
+<text x="44" y="210" fill="#e0e0e0">Nyx — annotations refresh</text>
+</svg>

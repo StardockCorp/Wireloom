@@ -76,6 +76,7 @@ describe('svg renderer — dark theme fidelity', () => {
     '02-login-form',
     '15-list-and-slot',
     '11-colonial-charter',
+    '32-navbar',
   ];
 
   for (const file of darkTargets) {

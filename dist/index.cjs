@@ -285,6 +285,7 @@ function tokenizeLineContent(rawLine, startColumn0, lineNo, tokens) {
 var WEIGHT_VALUES = ["light", "regular", "semibold", "bold"];
 var SIZE_VALUES = ["small", "regular", "large"];
 var ALIGN_VALUES = ["left", "center", "right"];
+var JUSTIFY_VALUES = ["start", "between", "around", "end"];
 var INPUT_TYPE_VALUES = ["text", "password", "email"];
 var ACCENT_VALUES = [
   "research",
@@ -316,6 +317,9 @@ var ATTR_RULES = {
   window: { attrs: {}, flags: [] },
   header: { attrs: {}, flags: [] },
   footer: { attrs: {}, flags: [] },
+  navbar: { attrs: {}, flags: [] },
+  leading: { attrs: {}, flags: [] },
+  trailing: { attrs: {}, flags: [] },
   panel: { attrs: {}, flags: [] },
   section: {
     attrs: {
@@ -330,9 +334,13 @@ var ATTR_RULES = {
     flags: ["active"]
   },
   row: {
-    attrs: { align: { kind: "enum", values: ALIGN_VALUES } },
+    attrs: {
+      align: { kind: "enum", values: ALIGN_VALUES },
+      justify: { kind: "enum", values: JUSTIFY_VALUES }
+    },
     flags: []
   },
+  spacer: { attrs: {}, flags: [] },
   col: { attrs: {}, flags: [] },
   list: { attrs: {}, flags: [] },
   item: { attrs: {}, flags: [] },
@@ -549,7 +557,7 @@ var CONTAINER_CHILD_PRIMITIVES = /* @__PURE__ */ new Set([
   "status"
 ]);
 var LIST_CHILD_PRIMITIVES = /* @__PURE__ */ new Set(["item", "slot"]);
-var PRIMITIVE_LIST_HUMAN = "window, header, footer, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
+var PRIMITIVE_LIST_HUMAN = "window, header, footer, navbar, leading, trailing, panel, section, tabs, tab, row, col, list, item, slot, grid, cell, resourcebar, resource, stats, stat, text, button, input, combo, slider, kv, image, icon, divider, spacer, progress, chart, tree, node, menubar, menu, menuitem, separator, chip, avatar, breadcrumb, crumb, spinner, status";
 function parse(source) {
   const tokens = tokenize(source);
   const lines = source.split(/\r\n|\r|\n/).length;
@@ -663,8 +671,31 @@ var Parser = class {
   }
   parseWindowChildren() {
     const children = [];
+    let navbarSeen;
+    let headerSeen;
     while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
-      children.push(this.parseWindowChild());
+      const head = this.peek();
+      const child = this.parseWindowChild();
+      if (child.kind === "navbar") {
+        if (headerSeen) {
+          throw new WireloomError(
+            "navbar and header cannot both appear in a window \u2014 pick one (they share the chrome band)",
+            head.line,
+            head.column
+          );
+        }
+        navbarSeen = child;
+      } else if (child.kind === "header") {
+        if (navbarSeen) {
+          throw new WireloomError(
+            "navbar and header cannot both appear in a window \u2014 pick one (they share the chrome band)",
+            head.line,
+            head.column
+          );
+        }
+        headerSeen = child;
+      }
+      children.push(child);
     }
     this.expectKind("dedent", "children block did not close cleanly");
     return children;
@@ -752,8 +783,23 @@ var Parser = class {
         head.column
       );
     }
+    if (name === "spacer") {
+      throw new WireloomError(
+        '"spacer" may only appear inside "row"',
+        head.line,
+        head.column
+      );
+    }
+    if (name === "leading" || name === "trailing") {
+      throw new WireloomError(
+        `"${name}" may only appear inside "navbar"`,
+        head.line,
+        head.column
+      );
+    }
     if (name === "header") return this.parseHeader();
     if (name === "footer") return this.parseFooter();
+    if (name === "navbar") return this.parseNavbar();
     return this.parseContainerChildNamed(name);
   }
   // --- Header / Footer ------------------------------------------------------
@@ -772,6 +818,81 @@ var Parser = class {
     const hasChildren = this.parseTerminator("footer", head);
     const children = hasChildren ? this.parseContainerChildren() : [];
     return { kind: "footer", attributes, children, position };
+  }
+  // --- Navbar ---------------------------------------------------------------
+  parseNavbar() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("navbar");
+    const hasChildren = this.parseTerminator("navbar", head);
+    if (!hasChildren) {
+      throw new WireloomError(
+        '"navbar" requires "leading:" and/or "trailing:" sub-blocks (e.g., navbar:\n  leading:\n    button "Back")',
+        head.line,
+        head.column
+      );
+    }
+    const { leading, trailing } = this.parseNavbarChildren();
+    const node = { kind: "navbar", attributes, position };
+    if (leading) node.leading = leading;
+    if (trailing) node.trailing = trailing;
+    return node;
+  }
+  /**
+   * Parse a navbar's child block. Only `leading:` and `trailing:` are accepted,
+   * and each may appear at most once. Source order doesn't matter — the
+   * renderer always anchors leading on the left and trailing on the right.
+   */
+  parseNavbarChildren() {
+    let leading;
+    let trailing;
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind !== "ident") {
+        throw new WireloomError(
+          `expected "leading:" or "trailing:" inside "navbar", got ${describeToken(head)}`,
+          head.line,
+          head.column
+        );
+      }
+      const name = head.identValue ?? head.raw;
+      if (name === "leading") {
+        if (leading !== void 0) {
+          throw new WireloomError(
+            '"navbar" may contain at most one "leading:" block',
+            head.line,
+            head.column
+          );
+        }
+        leading = this.parseNavbarSlot("leading");
+      } else if (name === "trailing") {
+        if (trailing !== void 0) {
+          throw new WireloomError(
+            '"navbar" may contain at most one "trailing:" block',
+            head.line,
+            head.column
+          );
+        }
+        trailing = this.parseNavbarSlot("trailing");
+      } else {
+        throw new WireloomError(
+          `"navbar" accepts only "leading:" or "trailing:" children (got "${name}")`,
+          head.line,
+          head.column
+        );
+      }
+    }
+    this.expectKind("dedent", "navbar block did not close cleanly");
+    return { leading, trailing };
+  }
+  parseNavbarSlot(side) {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes(side);
+    const hasChildren = this.parseTerminator(side, head);
+    const children = hasChildren ? this.parseContainerChildren() : [];
+    const kind = side === "leading" ? "navbarLeading" : "navbarTrailing";
+    return { kind, attributes, children, position };
   }
   // --- Container children ---------------------------------------------------
   parseContainerChildren() {
@@ -796,7 +917,7 @@ var Parser = class {
       throw new WireloomError(unknownPrimitiveMessage(name), head.line, head.column);
     }
     if (!CONTAINER_CHILD_PRIMITIVES.has(name)) {
-      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : `"${name}" is not allowed here`;
+      const reason = name === "tab" ? '"tab" may only appear inside "tabs"' : name === "item" ? '"item" may only appear inside "list"' : name === "header" ? '"header" may only appear directly inside "window"' : name === "footer" ? '"footer" may only appear directly inside "window" or "slot"' : name === "navbar" ? '"navbar" may only appear directly inside "window"' : name === "leading" || name === "trailing" ? `"${name}" may only appear inside "navbar"` : name === "window" ? '"window" cannot be nested' : name === "cell" ? '"cell" may only appear inside "grid"' : name === "resource" ? '"resource" may only appear inside "resourcebar"' : name === "stat" ? '"stat" may only appear inside "stats"' : name === "node" ? '"node" may only appear inside "tree"' : name === "menuitem" ? '"menuitem" may only appear inside "menu"' : name === "separator" ? '"separator" may only appear inside "menu"' : name === "crumb" ? '"crumb" may only appear inside "breadcrumb"' : name === "spacer" ? '"spacer" may only appear inside "row"' : `"${name}" is not allowed here`;
       throw new WireloomError(reason, head.line, head.column);
     }
     return this.parseContainerChildNamed(name);
@@ -942,8 +1063,33 @@ var Parser = class {
     const position = positionOf(head);
     const attributes = this.parseAttributes("row");
     const hasChildren = this.parseTerminator("row", head);
-    const children = hasChildren ? this.parseContainerChildren() : [];
+    const children = hasChildren ? this.parseRowChildren() : [];
     return { kind: "row", attributes, children, position };
+  }
+  /**
+   * Row children accept everything a normal container does, plus `spacer`
+   * (flex gap — v0.5). Kept as a separate pass so spacer stays grammar-
+   * restricted to rows without widening the general container union.
+   */
+  parseRowChildren() {
+    const children = [];
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      if (head.kind === "ident" && (head.identValue ?? head.raw) === "spacer") {
+        children.push(this.parseSpacer());
+        continue;
+      }
+      children.push(this.parseContainerChild());
+    }
+    this.expectKind("dedent", "children block did not close cleanly");
+    return children;
+  }
+  parseSpacer() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("spacer");
+    this.parseLeafTerminator("spacer", head);
+    return { kind: "spacer", attributes, position };
   }
   parseCol() {
     const head = this.consume();
@@ -1671,7 +1817,7 @@ var Parser = class {
       this.expectKind("newline", `expected newline after "${primitive}:"`);
       if (this.peek().kind !== "indent") {
         throw new WireloomError(
-          `"${primitive}" ends with ":" but has no indented children`,
+          `"${primitive}" ends with ":" but has no indented children (for a flex gap in a row, use the "spacer" primitive)`,
           headToken.line,
           headToken.column
         );
@@ -1911,7 +2057,7 @@ function serialize(doc) {
 }
 function serializeNode(node, depth, out) {
   const indent = "  ".repeat(depth);
-  const keyword = node.kind === "slotFooter" ? "footer" : node.kind === "treeNode" ? "node" : node.kind;
+  const keyword = node.kind === "slotFooter" ? "footer" : node.kind === "treeNode" ? "node" : node.kind === "navbarLeading" ? "leading" : node.kind === "navbarTrailing" ? "trailing" : node.kind;
   const parts = [keyword];
   switch (node.kind) {
     case "window":
@@ -2021,6 +2167,13 @@ function nodeChildren(node) {
     const slot = node;
     const kids = [...slot.children];
     if (slot.slotFooter) kids.push(slot.slotFooter);
+    return kids;
+  }
+  if (node.kind === "navbar") {
+    const navbar = node;
+    const kids = [];
+    if (navbar.leading) kids.push(navbar.leading);
+    if (navbar.trailing) kids.push(navbar.trailing);
     return kids;
   }
   if (node.kind === "grid") return node.children;
@@ -2511,6 +2664,8 @@ function measureChild(node, theme) {
       return measureInput(node, theme);
     case "divider":
       return measureDivider(theme);
+    case "spacer":
+      return measureSpacer();
     case "panel":
       return measurePanel(node, theme);
     case "section":
@@ -2695,6 +2850,9 @@ function measureInput(node, theme) {
 }
 function measureDivider(theme) {
   return { width: 0, height: theme.dividerHeight };
+}
+function measureSpacer() {
+  return { width: 0, height: 0 };
 }
 function measurePanel(node, theme) {
   const inner = measureStack(node.children, theme, "vertical");
@@ -2891,7 +3049,7 @@ function measureStack(children, theme, direction) {
   return { width: totalChildWidth + gaps, height: maxChildHeight };
 }
 function measureWindow(node, theme) {
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, bodyChildren } = classifyWindowChildren(node);
   const bodyStack = measureStack(bodyChildren, theme, "vertical");
   let bodyWidth = bodyStack.width;
   let bodyHeight = bodyStack.height;
@@ -2900,6 +3058,12 @@ function measureWindow(node, theme) {
     const hs = measureHeaderOrFooter(header, theme, "header");
     headerHeight = hs.height;
     bodyWidth = Math.max(bodyWidth, hs.width);
+  }
+  let navbarHeight = 0;
+  if (navbar) {
+    const ns = measureNavbar(navbar, theme);
+    navbarHeight = ns.height;
+    bodyWidth = Math.max(bodyWidth, ns.width);
   }
   let footerHeight = 0;
   if (footer) {
@@ -2914,13 +3078,24 @@ function measureWindow(node, theme) {
     height: bodyHeight + padding * 2
   };
   const outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
-  const outerHeight = (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + bodySize.height + footerHeight;
+  const outerHeight = (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + navbarHeight + bodySize.height + footerHeight;
   return {
     outer: { width: outerWidth, height: outerHeight },
     body: bodySize,
     headerHeight,
+    navbarHeight,
     footerHeight,
     hasTitleBar
+  };
+}
+function measureNavbar(node, theme) {
+  const leadingSize = node.leading ? measureStack(node.leading.children, theme, "horizontal") : { width: 0, height: 0 };
+  const trailingSize = node.trailing ? measureStack(node.trailing.children, theme, "horizontal") : { width: 0, height: 0 };
+  const innerHeight = Math.max(leadingSize.height, trailingSize.height, theme.buttonHeight);
+  const minGap = leadingSize.width > 0 && trailingSize.width > 0 ? theme.rowGap : 0;
+  return {
+    width: leadingSize.width + trailingSize.width + minGap + theme.windowPadding * 2,
+    height: innerHeight + theme.headerPaddingY * 2
   };
 }
 function measureHeaderOrFooter(node, theme, kind) {
@@ -2941,14 +3116,16 @@ function footerHorizontal(node, kind) {
 }
 function classifyWindowChildren(node) {
   let header;
+  let navbar;
   let footer;
   const bodyChildren = [];
   for (const child of node.children) {
     if (child.kind === "header") header = child;
+    else if (child.kind === "navbar") navbar = child;
     else if (child.kind === "footer") footer = child;
     else bodyChildren.push(child);
   }
-  return { header, footer, bodyChildren };
+  return { header, navbar, footer, bodyChildren };
 }
 function titleWidth(title, theme) {
   if (!title) return 0;
@@ -2961,7 +3138,7 @@ function positionWindow(node, m, x, y, theme) {
   if (m.hasTitleBar) {
     cursorY += theme.titleBarHeight;
   }
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, bodyChildren } = classifyWindowChildren(node);
   if (header) {
     const laidHeader = positionHeaderOrFooter(
       header,
@@ -2974,6 +3151,11 @@ function positionWindow(node, m, x, y, theme) {
     );
     childrenLaid.push(laidHeader);
     cursorY += m.headerHeight;
+  }
+  if (navbar) {
+    const laidNavbar = positionNavbar(navbar, x, cursorY, outerWidth, m.navbarHeight, theme);
+    childrenLaid.push(laidNavbar);
+    cursorY += m.navbarHeight;
   }
   const bodyY = cursorY;
   const bodyInnerX = x + theme.windowPadding;
@@ -3043,6 +3225,48 @@ function positionHeaderOrFooter(node, kind, x, y, width, height, theme) {
   }
   return { node, x, y, width, height, children };
 }
+function positionNavbar(node, x, y, width, height, theme) {
+  const innerX = x + theme.windowPadding;
+  const innerY = y + theme.headerPaddingY;
+  const innerWidth = width - theme.windowPadding * 2;
+  const innerHeight = height - theme.headerPaddingY * 2;
+  const slotChildren = [];
+  if (node.leading) {
+    slotChildren.push(
+      positionNavbarSlot(node.leading, innerX, innerY, innerHeight, theme, "left")
+    );
+  }
+  if (node.trailing) {
+    const trailingRight = innerX + innerWidth;
+    slotChildren.push(
+      positionNavbarSlot(node.trailing, trailingRight, innerY, innerHeight, theme, "right")
+    );
+  }
+  return { node, x, y, width, height, children: slotChildren };
+}
+function positionNavbarSlot(node, anchorX, innerY, innerHeight, theme, anchor) {
+  const sizes = node.children.map((c) => measureChild(c, theme));
+  const totalChildWidth = sizes.reduce((acc, s) => acc + s.width, 0) + Math.max(0, node.children.length - 1) * theme.rowGap;
+  let cursorX = anchor === "left" ? anchorX : anchorX - totalChildWidth;
+  const slotX = cursorX;
+  const childrenLaid = [];
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    const size = sizes[i];
+    const childY = innerY + (innerHeight - size.height) / 2;
+    childrenLaid.push(positionContainerChild(child, cursorX, childY, size.width, theme));
+    cursorX += size.width;
+    if (i < node.children.length - 1) cursorX += theme.rowGap;
+  }
+  return {
+    node,
+    x: slotX,
+    y: innerY,
+    width: totalChildWidth,
+    height: innerHeight,
+    children: childrenLaid
+  };
+}
 function positionContainerChild(child, x, y, width, theme) {
   switch (child.kind) {
     case "panel":
@@ -3077,6 +3301,8 @@ function positionContainerChild(child, x, y, width, theme) {
       return positionIcon(child, x, y, theme);
     case "divider":
       return positionDivider(child, x, y, width, theme);
+    case "spacer":
+      return positionSpacer(child, x, y, width);
     case "grid":
       return positionGrid(child, x, y, width, theme);
     case "resourcebar":
@@ -3250,12 +3476,16 @@ function positionTabs(node, x, y, width, theme) {
 function positionRow(node, x, y, width, theme) {
   const baseWidths = [];
   let fillCount = 0;
+  let spacerCount = 0;
   for (const child of node.children) {
     if (child.kind === "col" && child.width.kind === "fill") {
       baseWidths.push(0);
       fillCount++;
     } else if (child.kind === "col" && child.width.kind === "length" && child.width.unit === "px") {
       baseWidths.push(child.width.value);
+    } else if (child.kind === "spacer") {
+      baseWidths.push(0);
+      spacerCount++;
     } else {
       baseWidths.push(measureChild(child, theme).width);
     }
@@ -3264,17 +3494,37 @@ function positionRow(node, x, y, width, theme) {
   const fixedTotal = baseWidths.reduce((acc, w) => acc + w, 0);
   const available = Math.max(0, width - fixedTotal - gapTotal);
   const fillWidth = fillCount > 0 ? available / fillCount : 0;
+  const spacerWidth = fillCount === 0 && spacerCount > 0 ? available / spacerCount : 0;
   const assignedWidths = node.children.map((child, i) => {
     if (child.kind === "col" && child.width.kind === "fill") {
       return Math.max(fillWidth, theme.colFillMinWidth);
     }
+    if (child.kind === "spacer") {
+      return Math.max(spacerWidth, 0);
+    }
     return baseWidths[i] ?? 0;
   });
   const effectiveWidth = assignedWidths.reduce((acc, w) => acc + w, 0) + gapTotal;
+  const justify = getJustify(node.attributes);
   const align = getAlign(node.attributes);
+  const justifyActive = fillCount === 0 && spacerCount === 0 && justify !== "start";
+  const slack = Math.max(0, width - effectiveWidth);
   let cursorX;
-  if (fillCount > 0) {
+  let extraGapBetween = 0;
+  if (fillCount > 0 || spacerCount > 0) {
     cursorX = x;
+  } else if (justifyActive) {
+    const n = node.children.length;
+    if (justify === "end") {
+      cursorX = x + slack;
+    } else if (justify === "between") {
+      cursorX = x;
+      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
+    } else {
+      const unit = n > 0 ? slack / (2 * n) : 0;
+      cursorX = x + unit;
+      extraGapBetween = 2 * unit;
+    }
   } else if (align === "right") {
     cursorX = x + width - effectiveWidth;
   } else if (align === "center") {
@@ -3291,7 +3541,7 @@ function positionRow(node, x, y, width, theme) {
     children.push(laidChild);
     cursorX += childWidth;
     if (laidChild.height > maxHeight) maxHeight = laidChild.height;
-    if (i < node.children.length - 1) cursorX += theme.rowGap;
+    if (i < node.children.length - 1) cursorX += theme.rowGap + extraGapBetween;
   }
   return {
     node,
@@ -3572,6 +3822,9 @@ function positionIcon(node, x, y, theme) {
 function positionDivider(node, x, y, width, theme) {
   return { node, x, y, width, height: theme.dividerHeight, children: [] };
 }
+function positionSpacer(node, x, y, width) {
+  return { node, x, y, width, height: 0, children: [] };
+}
 function getAttr(attrs, key) {
   for (const a of attrs) {
     const attr = a;
@@ -3602,6 +3855,11 @@ function getAlign(attrs) {
   const v = getAttrIdent(attrs, "align");
   if (v === "center" || v === "right" || v === "left") return v;
   return "left";
+}
+function getJustify(attrs) {
+  const v = getAttrIdent(attrs, "justify");
+  if (v === "between" || v === "around" || v === "end" || v === "start") return v;
+  return "start";
 }
 function textSizeScale(attrs, theme) {
   const size = getAttrIdent(attrs, "size");
@@ -3848,6 +4106,13 @@ function emitNode(laid, theme, out) {
     case "footer":
       emitChromeBand(laid, kind, theme, out);
       break;
+    case "navbar":
+      emitNavbar(laid, theme, out);
+      break;
+    case "navbarLeading":
+    case "navbarTrailing":
+      for (const c of laid.children) emitNode(c, theme, out);
+      break;
     case "panel":
       emitPanel(laid, theme, out);
       break;
@@ -3899,6 +4164,8 @@ function emitNode(laid, theme, out) {
       break;
     case "divider":
       emitDivider(laid, theme, out);
+      break;
+    case "spacer":
       break;
     case "grid":
       emitGrid(laid, theme, out);
@@ -4326,6 +4593,12 @@ function emitChromeBand(laid, kind, theme, out) {
       `<line x1="${laid.x}" y1="${laid.y}" x2="${laid.x + laid.width}" y2="${laid.y}" stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`
     );
   }
+  for (const c of laid.children) emitNode(c, theme, out);
+}
+function emitNavbar(laid, theme, out) {
+  out.push(
+    `<line x1="${laid.x}" y1="${laid.y + laid.height}" x2="${laid.x + laid.width}" y2="${laid.y + laid.height}" stroke="${theme.chromeLineColor}" stroke-width="${theme.chromeStrokeWidth}" />`
+  );
   for (const c of laid.children) emitNode(c, theme, out);
 }
 function emitPanel(laid, theme, out) {

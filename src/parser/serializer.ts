@@ -28,6 +28,7 @@ import type {
   KvNode,
   MenuItemNode,
   MenuNode,
+  NavbarNode,
   RadioNode,
   SectionNode,
   SlotNode,
@@ -56,7 +57,15 @@ export function serialize(doc: Document): string {
 function serializeNode(node: AnyNode, depth: number, out: string[]): void {
   const indent = '  '.repeat(depth);
   const keyword =
-    node.kind === 'slotFooter' ? 'footer' : node.kind === 'treeNode' ? 'node' : node.kind;
+    node.kind === 'slotFooter'
+      ? 'footer'
+      : node.kind === 'treeNode'
+        ? 'node'
+        : node.kind === 'navbarLeading'
+          ? 'leading'
+          : node.kind === 'navbarTrailing'
+            ? 'trailing'
+            : node.kind;
   const parts: string[] = [keyword];
 
   // Positional args by kind.
@@ -177,6 +186,15 @@ function nodeChildren(node: AnyNode): AnyNode[] {
     const slot = node as SlotNode;
     const kids: AnyNode[] = [...slot.children];
     if (slot.slotFooter) kids.push(slot.slotFooter);
+    return kids;
+  }
+  if (node.kind === 'navbar') {
+    // navbar's "children" in source order are leading then trailing — the AST
+    // shape stores them as named optional fields rather than a flat array.
+    const navbar = node as NavbarNode;
+    const kids: AnyNode[] = [];
+    if (navbar.leading) kids.push(navbar.leading);
+    if (navbar.trailing) kids.push(navbar.trailing);
     return kids;
   }
   if (node.kind === 'grid') return (node as GridNode).children;

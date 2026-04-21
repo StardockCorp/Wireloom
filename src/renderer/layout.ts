@@ -40,6 +40,8 @@ import type {
   ListNode,
   MenubarNode,
   MenuNode,
+  NavbarNode,
+  NavbarSlotNode,
   PanelNode,
   ProgressNode,
   RadioNode,
@@ -50,6 +52,7 @@ import type {
   SliderNode,
   SlotFooterNode,
   SlotNode,
+  SpacerNode,
   SpinnerNode,
   StatNode,
   StatsNode,
@@ -232,6 +235,8 @@ function measureChild(node: ContainerChild, theme: Theme): Size {
       return measureInput(node, theme);
     case 'divider':
       return measureDivider(theme);
+    case 'spacer':
+      return measureSpacer();
     case 'panel':
       return measurePanel(node, theme);
     case 'section':
@@ -443,6 +448,13 @@ function measureInput(node: InputNode, theme: Theme): Size {
 
 function measureDivider(theme: Theme): Size {
   return { width: 0, height: theme.dividerHeight };
+}
+
+function measureSpacer(): Size {
+  // Spacer's intrinsic size is zero on both axes. Its rendered width comes
+  // from the row's slack-distribution pass; it contributes no height so it
+  // never forces the row taller than its other children.
+  return { width: 0, height: 0 };
 }
 
 function measurePanel(node: PanelNode, theme: Theme): Size {
@@ -705,12 +717,13 @@ interface WindowMeasurement {
   outer: Size;
   body: Size;
   headerHeight: number;
+  navbarHeight: number;
   footerHeight: number;
   hasTitleBar: boolean;
 }
 
 function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, bodyChildren } = classifyWindowChildren(node);
 
   const bodyStack = measureStack(bodyChildren, theme, 'vertical');
   let bodyWidth = bodyStack.width;
@@ -721,6 +734,12 @@ function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
     const hs = measureHeaderOrFooter(header, theme, 'header');
     headerHeight = hs.height;
     bodyWidth = Math.max(bodyWidth, hs.width);
+  }
+  let navbarHeight = 0;
+  if (navbar) {
+    const ns = measureNavbar(navbar, theme);
+    navbarHeight = ns.height;
+    bodyWidth = Math.max(bodyWidth, ns.width);
   }
   let footerHeight = 0;
   if (footer) {
@@ -737,14 +756,40 @@ function measureWindow(node: WindowNode, theme: Theme): WindowMeasurement {
   };
   const outerWidth = Math.max(bodySize.width, titleWidth(node.title, theme));
   const outerHeight =
-    (hasTitleBar ? theme.titleBarHeight : 0) + headerHeight + bodySize.height + footerHeight;
+    (hasTitleBar ? theme.titleBarHeight : 0) +
+    headerHeight +
+    navbarHeight +
+    bodySize.height +
+    footerHeight;
 
   return {
     outer: { width: outerWidth, height: outerHeight },
     body: bodySize,
     headerHeight,
+    navbarHeight,
     footerHeight,
     hasTitleBar,
+  };
+}
+
+/**
+ * Measure a navbar's intrinsic size. Width is `leading + trailing` plus
+ * window padding (the central spacer's width is variable). Height is the
+ * tallest slot child plus chrome-band vertical padding, with a floor of
+ * the standard button height so an empty-ish navbar still reads as a band.
+ */
+function measureNavbar(node: NavbarNode, theme: Theme): Size {
+  const leadingSize = node.leading
+    ? measureStack(node.leading.children, theme, 'horizontal')
+    : { width: 0, height: 0 };
+  const trailingSize = node.trailing
+    ? measureStack(node.trailing.children, theme, 'horizontal')
+    : { width: 0, height: 0 };
+  const innerHeight = Math.max(leadingSize.height, trailingSize.height, theme.buttonHeight);
+  const minGap = leadingSize.width > 0 && trailingSize.width > 0 ? theme.rowGap : 0;
+  return {
+    width: leadingSize.width + trailingSize.width + minGap + theme.windowPadding * 2,
+    height: innerHeight + theme.headerPaddingY * 2,
   };
 }
 
@@ -772,18 +817,21 @@ function footerHorizontal(node: HeaderNode | FooterNode, kind: 'header' | 'foote
 
 function classifyWindowChildren(node: WindowNode): {
   header: HeaderNode | undefined;
+  navbar: NavbarNode | undefined;
   footer: FooterNode | undefined;
   bodyChildren: ContainerChild[];
 } {
   let header: HeaderNode | undefined;
+  let navbar: NavbarNode | undefined;
   let footer: FooterNode | undefined;
   const bodyChildren: ContainerChild[] = [];
   for (const child of node.children) {
     if (child.kind === 'header') header = child;
+    else if (child.kind === 'navbar') navbar = child;
     else if (child.kind === 'footer') footer = child;
-    else bodyChildren.push(child);
+    else bodyChildren.push(child as ContainerChild);
   }
-  return { header, footer, bodyChildren };
+  return { header, navbar, footer, bodyChildren };
 }
 
 function titleWidth(title: string | undefined, theme: Theme): number {
@@ -813,7 +861,7 @@ function positionWindow(
     cursorY += theme.titleBarHeight;
   }
 
-  const { header, footer, bodyChildren } = classifyWindowChildren(node);
+  const { header, navbar, footer, bodyChildren } = classifyWindowChildren(node);
 
   if (header) {
     const laidHeader = positionHeaderOrFooter(
@@ -827,6 +875,12 @@ function positionWindow(
     );
     childrenLaid.push(laidHeader);
     cursorY += m.headerHeight;
+  }
+
+  if (navbar) {
+    const laidNavbar = positionNavbar(navbar, x, cursorY, outerWidth, m.navbarHeight, theme);
+    childrenLaid.push(laidNavbar);
+    cursorY += m.navbarHeight;
   }
 
   const bodyY = cursorY;
@@ -915,6 +969,73 @@ function positionHeaderOrFooter(
   return { node, x, y, width, height, children };
 }
 
+/**
+ * Lay out a navbar as a chrome band: leading children anchor to the left of
+ * the inner padding, trailing children anchor to the right. Each child is
+ * vertically centered within the band's content area.
+ */
+function positionNavbar(
+  node: NavbarNode,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  theme: Theme,
+): LaidOutNode {
+  const innerX = x + theme.windowPadding;
+  const innerY = y + theme.headerPaddingY;
+  const innerWidth = width - theme.windowPadding * 2;
+  const innerHeight = height - theme.headerPaddingY * 2;
+
+  const slotChildren: LaidOutNode[] = [];
+  if (node.leading) {
+    slotChildren.push(
+      positionNavbarSlot(node.leading, innerX, innerY, innerHeight, theme, 'left'),
+    );
+  }
+  if (node.trailing) {
+    const trailingRight = innerX + innerWidth;
+    slotChildren.push(
+      positionNavbarSlot(node.trailing, trailingRight, innerY, innerHeight, theme, 'right'),
+    );
+  }
+  return { node, x, y, width, height, children: slotChildren };
+}
+
+function positionNavbarSlot(
+  node: NavbarSlotNode,
+  anchorX: number,
+  innerY: number,
+  innerHeight: number,
+  theme: Theme,
+  anchor: 'left' | 'right',
+): LaidOutNode {
+  const sizes = node.children.map((c) => measureChild(c, theme));
+  const totalChildWidth =
+    sizes.reduce((acc, s) => acc + s.width, 0) +
+    Math.max(0, node.children.length - 1) * theme.rowGap;
+
+  let cursorX = anchor === 'left' ? anchorX : anchorX - totalChildWidth;
+  const slotX = cursorX;
+  const childrenLaid: LaidOutNode[] = [];
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i]!;
+    const size = sizes[i]!;
+    const childY = innerY + (innerHeight - size.height) / 2;
+    childrenLaid.push(positionContainerChild(child, cursorX, childY, size.width, theme));
+    cursorX += size.width;
+    if (i < node.children.length - 1) cursorX += theme.rowGap;
+  }
+  return {
+    node,
+    x: slotX,
+    y: innerY,
+    width: totalChildWidth,
+    height: innerHeight,
+    children: childrenLaid,
+  };
+}
+
 function positionContainerChild(
   child: ContainerChild,
   x: number,
@@ -955,6 +1076,8 @@ function positionContainerChild(
       return positionIcon(child, x, y, theme);
     case 'divider':
       return positionDivider(child, x, y, width, theme);
+    case 'spacer':
+      return positionSpacer(child, x, y, width);
     case 'grid':
       return positionGrid(child, x, y, width, theme);
     case 'resourcebar':
@@ -1196,14 +1319,20 @@ function positionRow(
   theme: Theme,
 ): LaidOutNode {
   // Pass 1: classify children and compute their base (measured) widths.
+  // `col fill` and `spacer` both get base width 0 — their real width comes
+  // from distributing slack in pass 2.
   const baseWidths: number[] = [];
   let fillCount = 0;
+  let spacerCount = 0;
   for (const child of node.children) {
     if (child.kind === 'col' && child.width.kind === 'fill') {
       baseWidths.push(0);
       fillCount++;
     } else if (child.kind === 'col' && child.width.kind === 'length' && child.width.unit === 'px') {
       baseWidths.push(child.width.value);
+    } else if (child.kind === 'spacer') {
+      baseWidths.push(0);
+      spacerCount++;
     } else {
       baseWidths.push(measureChild(child, theme).width);
     }
@@ -1213,11 +1342,16 @@ function positionRow(
   const fixedTotal = baseWidths.reduce((acc, w) => acc + w, 0);
   const available = Math.max(0, width - fixedTotal - gapTotal);
   const fillWidth = fillCount > 0 ? available / fillCount : 0;
+  // Spacers only consume slack when there are no fills — fills win precedence.
+  const spacerWidth = fillCount === 0 && spacerCount > 0 ? available / spacerCount : 0;
 
-  // Assigned widths per child after fill distribution.
+  // Assigned widths per child after slack distribution.
   const assignedWidths = node.children.map((child, i) => {
     if (child.kind === 'col' && child.width.kind === 'fill') {
       return Math.max(fillWidth, theme.colFillMinWidth);
+    }
+    if (child.kind === 'spacer') {
+      return Math.max(spacerWidth, 0);
     }
     return baseWidths[i] ?? 0;
   });
@@ -1226,11 +1360,32 @@ function positionRow(
   const effectiveWidth =
     assignedWidths.reduce((acc, w) => acc + w, 0) + gapTotal;
 
-  // Alignment only applies when there are no fill cols (fills consume all slack).
+  // Slack that will be consumed by `justify=…` when it applies. When fills or
+  // explicit spacers are present, they already ate the slack — justify is a
+  // no-op and alignment falls back to start.
+  const justify = getJustify(node.attributes);
   const align = getAlign(node.attributes);
+  const justifyActive =
+    fillCount === 0 && spacerCount === 0 && justify !== 'start';
+  const slack = Math.max(0, width - effectiveWidth);
+
   let cursorX: number;
-  if (fillCount > 0) {
+  let extraGapBetween = 0;
+  if (fillCount > 0 || spacerCount > 0) {
     cursorX = x;
+  } else if (justifyActive) {
+    const n = node.children.length;
+    if (justify === 'end') {
+      cursorX = x + slack;
+    } else if (justify === 'between') {
+      cursorX = x;
+      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
+    } else {
+      // 'around' — equal space on both sides of each child (half-units at edges).
+      const unit = n > 0 ? slack / (2 * n) : 0;
+      cursorX = x + unit;
+      extraGapBetween = 2 * unit;
+    }
   } else if (align === 'right') {
     cursorX = x + width - effectiveWidth;
   } else if (align === 'center') {
@@ -1248,7 +1403,7 @@ function positionRow(
     children.push(laidChild);
     cursorX += childWidth;
     if (laidChild.height > maxHeight) maxHeight = laidChild.height;
-    if (i < node.children.length - 1) cursorX += theme.rowGap;
+    if (i < node.children.length - 1) cursorX += theme.rowGap + extraGapBetween;
   }
 
   return {
@@ -1674,6 +1829,17 @@ function positionDivider(
   return { node, x, y, width, height: theme.dividerHeight, children: [] };
 }
 
+function positionSpacer(
+  node: SpacerNode,
+  x: number,
+  y: number,
+  width: number,
+): LaidOutNode {
+  // Spacer has zero intrinsic height so it never makes the row taller; width
+  // is whatever the row-layout pass assigned from the slack budget.
+  return { node, x, y, width, height: 0, children: [] };
+}
+
 // ---------------------------------------------------------------------------
 // Attribute / typography helpers
 // ---------------------------------------------------------------------------
@@ -1713,6 +1879,14 @@ function getAlign(attrs: readonly unknown[]): 'left' | 'center' | 'right' {
   const v = getAttrIdent(attrs, 'align');
   if (v === 'center' || v === 'right' || v === 'left') return v;
   return 'left';
+}
+
+function getJustify(
+  attrs: readonly unknown[],
+): 'start' | 'between' | 'around' | 'end' {
+  const v = getAttrIdent(attrs, 'justify');
+  if (v === 'between' || v === 'around' || v === 'end' || v === 'start') return v;
+  return 'start';
 }
 
 function textSizeScale(attrs: readonly unknown[], theme: Theme): number {

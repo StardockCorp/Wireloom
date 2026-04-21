@@ -1,0 +1,135 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "navbar",
+        "attributes": [],
+        "position": {
+          "line": 2,
+          "column": 3
+        },
+        "leading": {
+          "kind": "navbarLeading",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "button",
+              "label": "Back",
+              "attributes": [],
+              "position": {
+                "line": 4,
+                "column": 7
+              }
+            }
+          ],
+          "position": {
+            "line": 3,
+            "column": 5
+          }
+        },
+        "trailing": {
+          "kind": "navbarTrailing",
+          "attributes": [],
+          "children": [
+            {
+              "kind": "button",
+              "label": "Edit",
+              "attributes": [],
+              "position": {
+                "line": 6,
+                "column": 7
+              }
+            },
+            {
+              "kind": "button",
+              "label": "New",
+              "attributes": [
+                {
+                  "kind": "flag",
+                  "flag": "primary",
+                  "position": {
+                    "line": 7,
+                    "column": 20
+                  }
+                }
+              ],
+              "position": {
+                "line": 7,
+                "column": 7
+              }
+            }
+          ],
+          "position": {
+            "line": 5,
+            "column": 5
+          }
+        }
+      },
+      {
+        "kind": "panel",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Three unread messages.",
+            "attributes": [],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          },
+          {
+            "kind": "list",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "item",
+                "text": "Wren — spacer landed",
+                "attributes": [],
+                "position": {
+                  "line": 11,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "item",
+                "text": "Tobin — back button on track",
+                "attributes": [],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "item",
+                "text": "Nyx — annotations refresh",
+                "attributes": [],
+                "position": {
+                  "line": 13,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 10,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 8,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Mobile Inbox"
+  },
+  "sourceLines": 14
+}
