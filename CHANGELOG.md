@@ -2,6 +2,40 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-04-20
+
+Mobile-navigation primitives. The release centers on the shapes mobile mockups
+need constantly but Wireloom had no real answer for: anchor items on opposite
+ends of a row, model a back/action top bar, model a bottom tab bar, overlay a
+modal sheet, filter content with a segmented control, and signal "tap pushes
+to detail" on list rows. Every v0.4.5 source still parses and renders
+identically.
+
+### Added
+- **`spacer`**: leaf flex-gap primitive. Legal only directly inside `row`. Consumes horizontal slack so siblings anchor to opposite ends. Replaces the old "stack two rows" workaround for Cancel/Done style footers.
+- **`row justify=start|between|around|end`**: distributes children along the main axis. `start` is the default. If a `spacer` child is present it wins over `justify`; a `fill` col still wins over both. Unknown `justify=` values produce a parse error listing the valid set.
+- **`navbar`** with required `leading:` / `trailing:` sub-blocks (at least one of the two). Direct child of `window` only. Each slot accepts row-legal children (`button`, `backbutton`, `text`, `icon`, `chip`, `image`, etc.). Renders as a chrome band with leading items anchored left, trailing items anchored right.
+- **`tabbar` / `tabitem`**: bottom chrome band for primary mobile navigation. `tabbar` is a direct child of `window` and accepts only `tabitem` children. `tabitem "Label"` accepts `icon="<name>"` and `badge="…"` attributes plus `selected` and `disabled` flags. `tabitem` renders as icon above label, evenly distributed across the window width.
+- **`backbutton "Parent"`**: leaf primitive rendered as a path-drawn chevron plus parent label. Legal anywhere a `button` is (inside `row`, `navbar` slots, `panel`, `section` content, slot `footer:`). Supports the `disabled` flag.
+- **`header large`**: bare flag that turns the header into a tall large-title band (the iOS Notes/Mail/Settings list-root style). With `large`, the header's `text` child is forced bold at large size regardless of typography attrs on it. An empty `header large:` is legal (renders an empty large-title band).
+- **`chevron` flag on `slot` and `item`**: adds a trailing right-chevron glyph to the row to signal "tap for detail". Rendered as an SVG `<path>`, muted color. Unflagged rows render byte-identical to v0.4.5.
+- **`sheet`**: modal overlay. Direct child of `window`, at most one per window. Defaults to a bottom sheet (scrim, rounded top corners, grabber pill, anchored to window bottom). `position=center` renders a centered floating modal instead. Optional `title="…"` renders bold and centered below the grabber. Body accepts any window-legal content.
+- **`segmented` / `segment`**: rounded-pill segmented control for mutually-exclusive content filters. Visually distinct from `tabs` by design (inline pill vs full-width underlined bar). `segmented` accepts only `segment` children. `segment "Label"` supports `selected` and `disabled` flags.
+- Three new example files exercising v0.50 primitives: `31-spacer-and-justify.wireloom`, `32-navbar.wireloom`, and the backbutton/large-header, tabbar, chevron, sheet, and segmented examples across the feature worktrees.
+
+### Changed
+- **`header` + `navbar` are mutually exclusive in the same window.** Using both produces a parse error pointing at whichever appeared second. They share the chrome-band role, so picking one is a deliberate design choice rather than a warning.
+- **`tabbar` + `footer` are mutually exclusive in the same window.** Same reasoning: both occupy the bottom chrome band. Parse error if both present.
+- Empty-container parse error now suggests `spacer` first when the enclosing primitive is a `row`.
+- Chevron glyphs (disclosure on `slot`/`item`, parent glyph on `backbutton`, the right-chevron in `breadcrumb` separators) are drawn as `<path>` elements, not unicode characters, so rendering is consistent across browsers with no font substitution.
+- `segmented` emits a `console.warn` (not a parse error) when authored with zero or one `segment`. Rationale: during authoring an author might type `segmented:` and add segments incrementally, and a hard fail on the partial state would be hostile. The warning includes the line number and a "at least 2 segments recommended" hint.
+- `Theme` interface gained v0.50 tokens for every new primitive (sheet scrim/background/corner/grabber/title, segmented pill/divider/selected-fill, chevron glyph size/gutter/stroke/color, large-header height/padding, navbar/tabbar chrome metrics, spacer precedence). Both default and dark themes ship fully populated.
+
+### Tests
+- Test count passes through all sprint branches. Final aggregate of new tests across the sprint: +74 tests (spacer/justify, navbar, tabbar/tabitem, backbutton + `header large`, chevron flag, sheet, segmented/segment). All prior tests still pass; v0.4.5 golden snapshots render byte-identical where the new features are not used.
+- New parser tests cover: `spacer` legal-location rule, `justify=` enum validation, navbar slot enforcement, navbar+header conflict, leading/trailing scoping, tabbar+footer conflict, tabbar child enforcement, tabitem placement rule, `header large` flag, `chevron` flag on slot and item, sheet `position=` enum and at-most-one-per-window, segmented single-selected and non-segment-child rules, segmented zero/one warning, all corpus roundtrip idempotency.
+- New renderer tests cover: spacer slack distribution, justify precedence vs spacer vs align, navbar anchoring and empty-slot cases, tabitem icon+label stacking with unknown-icon fallback, backbutton path-drawn chevron, `header large` metric differences, chevron gutter reservation with state badge coexistence, sheet scrim and bottom vs center geometry, segmented equal-width fills with divider suppression adjacent to the selected segment, dark-theme parity for every addition.
+
 ## [0.4.5] — 2026-04-20
 
 Widgets HTML doesn't have, at wireframe fidelity. This release adds the primitives
