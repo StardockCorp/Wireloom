@@ -1,6 +1,6 @@
 # Wireloom
 
-> **AI-native wireframes, built for Markdown.** A text DSL that any LLM can author directly, rendered inline as SVG.
+> **A Markdown extension for UI wireframes.** Describe a screen in a few indented lines. Get a clean SVG mockup that renders anywhere Markdown does — chat, docs, PR comments, issues.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![npm version](https://img.shields.io/npm/v/wireloom.svg)](https://www.npmjs.com/package/wireloom)
