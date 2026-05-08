@@ -503,6 +503,14 @@ interface Theme {
     imageDefaultWidth: number;
     imageDefaultHeight: number;
     iconSize: number;
+    /**
+     * Pixel size of the small inline icon glyph painted alongside text content
+     * inside `button`, `kv`, and `stat`. Smaller than the standalone `icon`
+     * primitive's box so the glyph reads as a leading mark, not a control.
+     */
+    inlineIconSize: number;
+    /** Horizontal gap between inline icon and the text it leads. */
+    inlineIconLabelGap: number;
     tabHeight: number;
     tabPaddingX: number;
     tabGap: number;

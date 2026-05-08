@@ -1220,16 +1220,75 @@ function emitButton(laid: LaidOutNode, theme: Theme, out: string[]): void {
   }
   const opacity = isDisabled ? '0.55' : '1';
   const badge = getAttrString(node.attributes, 'badge');
+  const iconName = getAttrString(node.attributes, 'icon');
+  const labelFill = isDisabled ? theme.disabledColor : textFill;
+
+  // Fast path: no icon. Emit the historical markup form (text-anchor=middle
+  // around the button center) so existing renders stay byte-identical.
+  if (iconName === undefined) {
+    out.push(
+      `<g opacity="${opacity}">`,
+      `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" ` +
+        `fill="${fill}" stroke="${stroke}" stroke-width="${theme.buttonStrokeWidth}" rx="3" />`,
+      `<text x="${laid.x + laid.width / 2 - (badge ? badgeRenderWidth(badge, theme) / 2 : 0)}" ` +
+        `y="${laid.y + laid.height / 2 + theme.fontSize / 3}" ` +
+        `text-anchor="middle" font-weight="500" fill="${labelFill}">${escapeText(node.label)}</text>`,
+      `</g>`,
+    );
+
+    if (badge !== undefined) {
+      renderBadgePill(
+        laid.x + laid.width - badgeRenderWidth(badge, theme) - 8,
+        laid.y + (laid.height - theme.badgeHeight) / 2,
+        badge,
+        theme,
+        out,
+      );
+    }
+    return;
+  }
+
+  // Icon present (icon-only or icon+label). Lay icon and label out as a
+  // group, centered horizontally and offset left by half the badge width
+  // so the visual centerline matches the no-badge case.
+  const labelW = node.label.length * theme.averageCharWidth;
+  const iconBlockW =
+    theme.inlineIconSize + (node.label.length > 0 ? theme.inlineIconLabelGap : 0);
+  const groupW = iconBlockW + labelW;
+  const badgeShift = badge !== undefined ? badgeRenderWidth(badge, theme) / 2 : 0;
+  const groupX = laid.x + (laid.width - groupW) / 2 - badgeShift;
+  const iconY = laid.y + (laid.height - theme.inlineIconSize) / 2;
 
   out.push(
     `<g opacity="${opacity}">`,
     `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" ` +
       `fill="${fill}" stroke="${stroke}" stroke-width="${theme.buttonStrokeWidth}" rx="3" />`,
-    `<text x="${laid.x + laid.width / 2 - (badge ? badgeRenderWidth(badge, theme) / 2 : 0)}" ` +
-      `y="${laid.y + laid.height / 2 + theme.fontSize / 3}" ` +
-      `text-anchor="middle" font-weight="500" fill="${isDisabled ? theme.disabledColor : textFill}">${escapeText(node.label)}</text>`,
-    `</g>`,
   );
+
+  const iconMarkup = emitIconByName(iconName, groupX, iconY, theme.inlineIconSize, labelFill);
+  if (iconMarkup) {
+    out.push(iconMarkup);
+  } else {
+    // Unknown icon — boxed first-letter fallback, same convention as the
+    // standalone `icon` primitive.
+    const glyph = (iconName.charAt(0) || '?').toUpperCase();
+    out.push(
+      `<rect x="${groupX + 0.5}" y="${iconY + 0.5}" width="${theme.inlineIconSize - 1}" ` +
+        `height="${theme.inlineIconSize - 1}" fill="none" stroke="${labelFill}" stroke-width="1" rx="2" />`,
+      `<text x="${groupX + theme.inlineIconSize / 2}" y="${iconY + theme.inlineIconSize / 2 + theme.smallFontSize / 3}" ` +
+        `text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${labelFill}">${escapeText(glyph)}</text>`,
+    );
+  }
+
+  if (node.label.length > 0) {
+    const labelX = groupX + iconBlockW;
+    out.push(
+      `<text x="${labelX}" y="${laid.y + laid.height / 2 + theme.fontSize / 3}" ` +
+        `font-weight="500" fill="${labelFill}">${escapeText(node.label)}</text>`,
+    );
+  }
+
+  out.push(`</g>`);
 
   if (badge !== undefined) {
     renderBadgePill(
@@ -1344,9 +1403,37 @@ function emitKv(laid: LaidOutNode, theme: Theme, out: string[]): void {
   const valueStyle = textStyle(node.attributes, theme);
   const baseline = laid.y + laid.height * 0.75;
 
+  // Optional leading icon (v0.5.2). Painted in default text color so the
+  // glyph reads as a label affordance, not a polarity signal — that role
+  // is reserved for accent= on the value side.
+  const iconName = getAttrString(node.attributes, 'icon');
+  let labelX = laid.x;
+  if (iconName !== undefined) {
+    const iconY = laid.y + (laid.height - theme.inlineIconSize) / 2;
+    const markup = emitIconByName(
+      iconName,
+      laid.x,
+      iconY,
+      theme.inlineIconSize,
+      theme.textColor,
+    );
+    if (markup) {
+      out.push(markup);
+    } else {
+      const glyph = (iconName.charAt(0) || '?').toUpperCase();
+      out.push(
+        `<rect x="${laid.x + 0.5}" y="${iconY + 0.5}" width="${theme.inlineIconSize - 1}" ` +
+          `height="${theme.inlineIconSize - 1}" fill="none" stroke="${theme.textColor}" stroke-width="1" rx="2" />`,
+        `<text x="${laid.x + theme.inlineIconSize / 2}" y="${iconY + theme.inlineIconSize / 2 + theme.smallFontSize / 3}" ` +
+          `text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(glyph)}</text>`,
+      );
+    }
+    labelX = laid.x + theme.inlineIconSize + theme.inlineIconLabelGap;
+  }
+
   // Label (always default body text)
   out.push(
-    `<text x="${laid.x}" y="${baseline}" fill="${theme.textColor}">${escapeText(node.label)}</text>`,
+    `<text x="${labelX}" y="${baseline}" fill="${theme.textColor}">${escapeText(node.label)}</text>`,
   );
   // Value — right-aligned at laid.x + laid.width
   out.push(
@@ -1534,19 +1621,43 @@ function emitStat(laid: LaidOutNode, theme: Theme, out: string[]): void {
   const node = laid.node as StatNode;
   const isBold = hasFlag(node.attributes, 'bold');
   const isMuted = hasFlag(node.attributes, 'muted');
-  const labelColor = isMuted ? theme.mutedTextColor : theme.mutedTextColor;
-  const valueColor = isMuted ? theme.mutedTextColor : theme.textColor;
+  const accent = getAccent(node.attributes, theme);
+  const labelColor = theme.mutedTextColor;
+  const valueColor = accent ?? (isMuted ? theme.mutedTextColor : theme.textColor);
   const valueWeight = isBold ? '700' : '500';
   const baseline = laid.y + laid.height * 0.75;
   const labelW =
     node.label.length * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize);
 
+  // Optional leading icon (v0.5.2). Slightly smaller than the inline glyph
+  // used by `button`/`kv` so it sits cleanly next to the small-caps label
+  // without dominating the value beside it.
+  const iconName = getAttrString(node.attributes, 'icon');
+  const statIconSize = theme.smallFontSize + 2;
+  let textX = laid.x;
+  if (iconName !== undefined) {
+    const iconY = laid.y + (laid.height - statIconSize) / 2;
+    const markup = emitIconByName(iconName, laid.x, iconY, statIconSize, labelColor);
+    if (markup) {
+      out.push(markup);
+    } else {
+      const glyph = (iconName.charAt(0) || '?').toUpperCase();
+      out.push(
+        `<rect x="${laid.x + 0.5}" y="${iconY + 0.5}" width="${statIconSize - 1}" ` +
+          `height="${statIconSize - 1}" fill="none" stroke="${labelColor}" stroke-width="1" rx="2" />`,
+        `<text x="${laid.x + statIconSize / 2}" y="${iconY + statIconSize / 2 + theme.smallFontSize / 3}" ` +
+          `text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${labelColor}">${escapeText(glyph)}</text>`,
+      );
+    }
+    textX = laid.x + statIconSize + 4;
+  }
+
   out.push(
-    `<text x="${laid.x}" y="${baseline}" font-size="${theme.smallFontSize}" ` +
+    `<text x="${textX}" y="${baseline}" font-size="${theme.smallFontSize}" ` +
       `letter-spacing="0.5" fill="${labelColor}">${escapeText(node.label.toUpperCase())}</text>`,
   );
   out.push(
-    `<text x="${laid.x + labelW + 6}" y="${baseline}" font-weight="${valueWeight}" fill="${valueColor}">${escapeText(node.value)}</text>`,
+    `<text x="${textX + labelW + 6}" y="${baseline}" font-weight="${valueWeight}" fill="${valueColor}">${escapeText(node.value)}</text>`,
   );
 }
 
@@ -1683,6 +1794,7 @@ function textStyle(attrs: readonly Attribute[], theme: Theme): string {
   const isMuted = hasFlag(attrs, 'muted');
   const weight = getAttrIdent(attrs, 'weight');
   const size = getAttrIdent(attrs, 'size');
+  const accentColor = getAccent(attrs, theme);
 
   const parts: string[] = [];
   let fontWeight: string | null = null;
@@ -1701,7 +1813,10 @@ function textStyle(attrs: readonly Attribute[], theme: Theme): string {
 
   if (isItalic) parts.push(`font-style="italic"`);
 
-  const fill = isMuted ? theme.mutedTextColor : theme.textColor;
+  // accent= overrides the muted/default text fill. Lets authors mark
+  // polarity ("good" / "bad" / "warn") on stat values, kv values, and
+  // standalone text using the existing accent palette.
+  const fill = accentColor ?? (isMuted ? theme.mutedTextColor : theme.textColor);
   parts.push(`fill="${fill}"`);
 
   return ' ' + parts.join(' ');

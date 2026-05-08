@@ -396,19 +396,24 @@ var ATTR_RULES = {
   },
   stats: { attrs: {}, flags: [] },
   stat: {
-    attrs: {},
+    attrs: {
+      icon: { kind: "string" },
+      accent: { kind: "enum", values: ACCENT_VALUES }
+    },
     flags: ["bold", "muted"]
   },
   text: {
     attrs: {
       weight: { kind: "enum", values: WEIGHT_VALUES },
-      size: { kind: "enum", values: SIZE_VALUES }
+      size: { kind: "enum", values: SIZE_VALUES },
+      accent: { kind: "enum", values: ACCENT_VALUES }
     },
     flags: ["bold", "italic", "muted"]
   },
   button: {
     attrs: {
       badge: { kind: "string" },
+      icon: { kind: "string" },
       accent: { kind: "enum", values: ACCENT_VALUES }
     },
     flags: ["primary", "disabled"]
@@ -442,7 +447,9 @@ var ATTR_RULES = {
   kv: {
     attrs: {
       weight: { kind: "enum", values: WEIGHT_VALUES },
-      size: { kind: "enum", values: SIZE_VALUES }
+      size: { kind: "enum", values: SIZE_VALUES },
+      icon: { kind: "string" },
+      accent: { kind: "enum", values: ACCENT_VALUES }
     },
     flags: ["bold", "italic", "muted"]
   },
@@ -2568,6 +2575,8 @@ var DEFAULT_THEME = Object.freeze({
   imageDefaultWidth: 120,
   imageDefaultHeight: 80,
   iconSize: 24,
+  inlineIconSize: 14,
+  inlineIconLabelGap: 6,
   tabHeight: 36,
   tabPaddingX: 14,
   tabGap: 2,
@@ -3186,8 +3195,10 @@ function measureText(node, theme) {
 function measureButton(node, theme) {
   const labelW = node.label.length * theme.averageCharWidth;
   const badgeW = badgeWidthOf(node.attributes, theme);
+  const hasIconAttr = getAttrString(node.attributes, "icon") !== void 0;
+  const iconBlockW = hasIconAttr ? theme.inlineIconSize + (node.label.length > 0 ? theme.inlineIconLabelGap : 0) : 0;
   return {
-    width: labelW + theme.buttonPaddingX * 2 + (badgeW > 0 ? badgeW + theme.rowGap : 0),
+    width: iconBlockW + labelW + theme.buttonPaddingX * 2 + (badgeW > 0 ? badgeW + theme.rowGap : 0),
     height: theme.buttonHeight
   };
 }
@@ -3343,8 +3354,10 @@ function measureStats(node, theme) {
 function measureStat(node, theme) {
   const labelW = node.label.length * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize);
   const valueW = node.value.length * theme.averageCharWidth;
+  const statIconSize = theme.smallFontSize + 2;
+  const iconBlockW = getAttrString(node.attributes, "icon") !== void 0 ? statIconSize + 4 : 0;
   return {
-    width: labelW + 6 + valueW,
+    width: iconBlockW + labelW + 6 + valueW,
     height: theme.lineHeight
   };
 }
@@ -3364,8 +3377,9 @@ function measureChart(node, theme) {
 function measureKv(node, theme) {
   const labelW = node.label.length * theme.averageCharWidth;
   const valueW = node.value.length * textSizeScale(node.attributes, theme) * theme.averageCharWidth;
+  const iconBlockW = getAttrString(node.attributes, "icon") !== void 0 ? theme.inlineIconSize + theme.inlineIconLabelGap : 0;
   return {
-    width: Math.max(theme.kvMinWidth, labelW + valueW + theme.rowGap * 3),
+    width: Math.max(theme.kvMinWidth, iconBlockW + labelW + valueW + theme.rowGap * 3),
     height: textLineHeight(node.attributes, theme)
   };
 }
@@ -5511,12 +5525,53 @@ function emitButton(laid, theme, out) {
   }
   const opacity = isDisabled ? "0.55" : "1";
   const badge = getAttrString2(node.attributes, "badge");
+  const iconName = getAttrString2(node.attributes, "icon");
+  const labelFill = isDisabled ? theme.disabledColor : textFill;
+  if (iconName === void 0) {
+    out.push(
+      `<g opacity="${opacity}">`,
+      `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${fill}" stroke="${stroke}" stroke-width="${theme.buttonStrokeWidth}" rx="3" />`,
+      `<text x="${laid.x + laid.width / 2 - (badge ? badgeRenderWidth(badge, theme) / 2 : 0)}" y="${laid.y + laid.height / 2 + theme.fontSize / 3}" text-anchor="middle" font-weight="500" fill="${labelFill}">${escapeText(node.label)}</text>`,
+      `</g>`
+    );
+    if (badge !== void 0) {
+      renderBadgePill(
+        laid.x + laid.width - badgeRenderWidth(badge, theme) - 8,
+        laid.y + (laid.height - theme.badgeHeight) / 2,
+        badge,
+        theme,
+        out
+      );
+    }
+    return;
+  }
+  const labelW = node.label.length * theme.averageCharWidth;
+  const iconBlockW = theme.inlineIconSize + (node.label.length > 0 ? theme.inlineIconLabelGap : 0);
+  const groupW = iconBlockW + labelW;
+  const badgeShift = badge !== void 0 ? badgeRenderWidth(badge, theme) / 2 : 0;
+  const groupX = laid.x + (laid.width - groupW) / 2 - badgeShift;
+  const iconY = laid.y + (laid.height - theme.inlineIconSize) / 2;
   out.push(
     `<g opacity="${opacity}">`,
-    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${fill}" stroke="${stroke}" stroke-width="${theme.buttonStrokeWidth}" rx="3" />`,
-    `<text x="${laid.x + laid.width / 2 - (badge ? badgeRenderWidth(badge, theme) / 2 : 0)}" y="${laid.y + laid.height / 2 + theme.fontSize / 3}" text-anchor="middle" font-weight="500" fill="${isDisabled ? theme.disabledColor : textFill}">${escapeText(node.label)}</text>`,
-    `</g>`
+    `<rect x="${laid.x + 0.5}" y="${laid.y + 0.5}" width="${laid.width - 1}" height="${laid.height - 1}" fill="${fill}" stroke="${stroke}" stroke-width="${theme.buttonStrokeWidth}" rx="3" />`
   );
+  const iconMarkup = emitIconByName(iconName, groupX, iconY, theme.inlineIconSize, labelFill);
+  if (iconMarkup) {
+    out.push(iconMarkup);
+  } else {
+    const glyph = (iconName.charAt(0) || "?").toUpperCase();
+    out.push(
+      `<rect x="${groupX + 0.5}" y="${iconY + 0.5}" width="${theme.inlineIconSize - 1}" height="${theme.inlineIconSize - 1}" fill="none" stroke="${labelFill}" stroke-width="1" rx="2" />`,
+      `<text x="${groupX + theme.inlineIconSize / 2}" y="${iconY + theme.inlineIconSize / 2 + theme.smallFontSize / 3}" text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${labelFill}">${escapeText(glyph)}</text>`
+    );
+  }
+  if (node.label.length > 0) {
+    const labelX = groupX + iconBlockW;
+    out.push(
+      `<text x="${labelX}" y="${laid.y + laid.height / 2 + theme.fontSize / 3}" font-weight="500" fill="${labelFill}">${escapeText(node.label)}</text>`
+    );
+  }
+  out.push(`</g>`);
   if (badge !== void 0) {
     renderBadgePill(
       laid.x + laid.width - badgeRenderWidth(badge, theme) - 8,
@@ -5604,8 +5659,30 @@ function emitKv(laid, theme, out) {
   const node = laid.node;
   const valueStyle = textStyle(node.attributes, theme);
   const baseline = laid.y + laid.height * 0.75;
+  const iconName = getAttrString2(node.attributes, "icon");
+  let labelX = laid.x;
+  if (iconName !== void 0) {
+    const iconY = laid.y + (laid.height - theme.inlineIconSize) / 2;
+    const markup = emitIconByName(
+      iconName,
+      laid.x,
+      iconY,
+      theme.inlineIconSize,
+      theme.textColor
+    );
+    if (markup) {
+      out.push(markup);
+    } else {
+      const glyph = (iconName.charAt(0) || "?").toUpperCase();
+      out.push(
+        `<rect x="${laid.x + 0.5}" y="${iconY + 0.5}" width="${theme.inlineIconSize - 1}" height="${theme.inlineIconSize - 1}" fill="none" stroke="${theme.textColor}" stroke-width="1" rx="2" />`,
+        `<text x="${laid.x + theme.inlineIconSize / 2}" y="${iconY + theme.inlineIconSize / 2 + theme.smallFontSize / 3}" text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${theme.textColor}">${escapeText(glyph)}</text>`
+      );
+    }
+    labelX = laid.x + theme.inlineIconSize + theme.inlineIconLabelGap;
+  }
   out.push(
-    `<text x="${laid.x}" y="${baseline}" fill="${theme.textColor}">${escapeText(node.label)}</text>`
+    `<text x="${labelX}" y="${baseline}" fill="${theme.textColor}">${escapeText(node.label)}</text>`
   );
   out.push(
     `<text x="${laid.x + laid.width}" y="${baseline}" text-anchor="end"${valueStyle}>${escapeText(node.value)}</text>`
@@ -5748,16 +5825,34 @@ function emitStat(laid, theme, out) {
   const node = laid.node;
   const isBold = hasFlag(node.attributes, "bold");
   const isMuted = hasFlag(node.attributes, "muted");
-  const labelColor = isMuted ? theme.mutedTextColor : theme.mutedTextColor;
-  const valueColor = isMuted ? theme.mutedTextColor : theme.textColor;
+  const accent = getAccent(node.attributes, theme);
+  const labelColor = theme.mutedTextColor;
+  const valueColor = accent ?? (isMuted ? theme.mutedTextColor : theme.textColor);
   const valueWeight = isBold ? "700" : "500";
   const baseline = laid.y + laid.height * 0.75;
   const labelW = node.label.length * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize);
+  const iconName = getAttrString2(node.attributes, "icon");
+  const statIconSize = theme.smallFontSize + 2;
+  let textX = laid.x;
+  if (iconName !== void 0) {
+    const iconY = laid.y + (laid.height - statIconSize) / 2;
+    const markup = emitIconByName(iconName, laid.x, iconY, statIconSize, labelColor);
+    if (markup) {
+      out.push(markup);
+    } else {
+      const glyph = (iconName.charAt(0) || "?").toUpperCase();
+      out.push(
+        `<rect x="${laid.x + 0.5}" y="${iconY + 0.5}" width="${statIconSize - 1}" height="${statIconSize - 1}" fill="none" stroke="${labelColor}" stroke-width="1" rx="2" />`,
+        `<text x="${laid.x + statIconSize / 2}" y="${iconY + statIconSize / 2 + theme.smallFontSize / 3}" text-anchor="middle" font-size="${theme.smallFontSize}" font-weight="600" fill="${labelColor}">${escapeText(glyph)}</text>`
+      );
+    }
+    textX = laid.x + statIconSize + 4;
+  }
   out.push(
-    `<text x="${laid.x}" y="${baseline}" font-size="${theme.smallFontSize}" letter-spacing="0.5" fill="${labelColor}">${escapeText(node.label.toUpperCase())}</text>`
+    `<text x="${textX}" y="${baseline}" font-size="${theme.smallFontSize}" letter-spacing="0.5" fill="${labelColor}">${escapeText(node.label.toUpperCase())}</text>`
   );
   out.push(
-    `<text x="${laid.x + labelW + 6}" y="${baseline}" font-weight="${valueWeight}" fill="${valueColor}">${escapeText(node.value)}</text>`
+    `<text x="${textX + labelW + 6}" y="${baseline}" font-weight="${valueWeight}" fill="${valueColor}">${escapeText(node.value)}</text>`
   );
 }
 function emitProgress(laid, theme, out) {
@@ -5855,6 +5950,7 @@ function textStyle(attrs, theme) {
   const isMuted = hasFlag(attrs, "muted");
   const weight = getAttrIdent2(attrs, "weight");
   const size = getAttrIdent2(attrs, "size");
+  const accentColor = getAccent(attrs, theme);
   const parts = [];
   let fontWeight = null;
   if (weight === "light") fontWeight = "300";
@@ -5868,7 +5964,7 @@ function textStyle(attrs, theme) {
   else if (size === "large") fontSize = theme.largeFontSize;
   if (fontSize !== null) parts.push(`font-size="${fontSize}"`);
   if (isItalic) parts.push(`font-style="italic"`);
-  const fill = isMuted ? theme.mutedTextColor : theme.textColor;
+  const fill = accentColor ?? (isMuted ? theme.mutedTextColor : theme.textColor);
   parts.push(`fill="${fill}"`);
   return " " + parts.join(" ");
 }

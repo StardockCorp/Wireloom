@@ -1,0 +1,670 @@
+{
+  "kind": "document",
+  "root": {
+    "kind": "window",
+    "attributes": [],
+    "children": [
+      {
+        "kind": "header",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "text",
+            "content": "Earth — Class 28",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "bold",
+                "position": {
+                  "line": 3,
+                  "column": 29
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "size",
+                "value": {
+                  "kind": "identifier",
+                  "value": "large",
+                  "position": {
+                    "line": 3,
+                    "column": 39
+                  }
+                },
+                "position": {
+                  "line": 3,
+                  "column": 34
+                }
+              }
+            ],
+            "position": {
+              "line": 3,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 2,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Modifier list",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "kv",
+            "label": "Approval",
+            "value": "+15%",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "approval",
+                  "position": {
+                    "line": 5,
+                    "column": 31
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 26
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "success",
+                  "position": {
+                    "line": 5,
+                    "column": 49
+                  }
+                },
+                "position": {
+                  "line": 5,
+                  "column": 42
+                }
+              }
+            ],
+            "position": {
+              "line": 5,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Industry",
+            "value": "+10%",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "industry",
+                  "position": {
+                    "line": 6,
+                    "column": 32
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 27
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "success",
+                  "position": {
+                    "line": 6,
+                    "column": 50
+                  }
+                },
+                "position": {
+                  "line": 6,
+                  "column": 43
+                }
+              }
+            ],
+            "position": {
+              "line": 6,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Crime",
+            "value": "Low",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "warning",
+                  "position": {
+                    "line": 7,
+                    "column": 32
+                  }
+                },
+                "position": {
+                  "line": 7,
+                  "column": 27
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "success",
+                  "position": {
+                    "line": 7,
+                    "column": 50
+                  }
+                },
+                "position": {
+                  "line": 7,
+                  "column": 43
+                }
+              }
+            ],
+            "position": {
+              "line": 7,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Loyalty",
+            "value": "-10%",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "approval",
+                  "position": {
+                    "line": 8,
+                    "column": 32
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 27
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "danger",
+                  "position": {
+                    "line": 8,
+                    "column": 50
+                  }
+                },
+                "position": {
+                  "line": 8,
+                  "column": 43
+                }
+              }
+            ],
+            "position": {
+              "line": 8,
+              "column": 5
+            }
+          },
+          {
+            "kind": "kv",
+            "label": "Research",
+            "value": "-5%",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "research",
+                  "position": {
+                    "line": 9,
+                    "column": 32
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 27
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "warning",
+                  "position": {
+                    "line": 9,
+                    "column": 50
+                  }
+                },
+                "position": {
+                  "line": 9,
+                  "column": 43
+                }
+              }
+            ],
+            "position": {
+              "line": 9,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 4,
+          "column": 3
+        }
+      },
+      {
+        "kind": "section",
+        "title": "Quick stats",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "stats",
+            "attributes": [],
+            "children": [
+              {
+                "kind": "stat",
+                "label": "GDP",
+                "value": "+12%",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "icon",
+                    "value": {
+                      "kind": "string",
+                      "value": "industry",
+                      "position": {
+                        "line": 12,
+                        "column": 34
+                      }
+                    },
+                    "position": {
+                      "line": 12,
+                      "column": 29
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 12,
+                        "column": 52
+                      }
+                    },
+                    "position": {
+                      "line": 12,
+                      "column": 45
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 12,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "stat",
+                "label": "POP",
+                "value": "1.2B",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "icon",
+                    "value": {
+                      "kind": "string",
+                      "value": "leader",
+                      "position": {
+                        "line": 13,
+                        "column": 34
+                      }
+                    },
+                    "position": {
+                      "line": 13,
+                      "column": 29
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 13,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "stat",
+                "label": "MIL",
+                "value": "Strong",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "icon",
+                    "value": {
+                      "kind": "string",
+                      "value": "military",
+                      "position": {
+                        "line": 14,
+                        "column": 36
+                      }
+                    },
+                    "position": {
+                      "line": 14,
+                      "column": 31
+                    }
+                  },
+                  {
+                    "kind": "pair",
+                    "key": "accent",
+                    "value": {
+                      "kind": "identifier",
+                      "value": "success",
+                      "position": {
+                        "line": 14,
+                        "column": 54
+                      }
+                    },
+                    "position": {
+                      "line": 14,
+                      "column": 47
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 14,
+                  "column": 7
+                }
+              },
+              {
+                "kind": "stat",
+                "label": "TECH",
+                "value": "T7",
+                "attributes": [
+                  {
+                    "kind": "pair",
+                    "key": "icon",
+                    "value": {
+                      "kind": "string",
+                      "value": "tech",
+                      "position": {
+                        "line": 15,
+                        "column": 34
+                      }
+                    },
+                    "position": {
+                      "line": 15,
+                      "column": 29
+                    }
+                  }
+                ],
+                "position": {
+                  "line": 15,
+                  "column": 7
+                }
+              }
+            ],
+            "position": {
+              "line": 11,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 10,
+          "column": 3
+        }
+      },
+      {
+        "kind": "row",
+        "attributes": [],
+        "children": [
+          {
+            "kind": "button",
+            "label": "",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "plus",
+                  "position": {
+                    "line": 17,
+                    "column": 20
+                  }
+                },
+                "position": {
+                  "line": 17,
+                  "column": 15
+                }
+              }
+            ],
+            "position": {
+              "line": 17,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Search",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "search",
+                  "position": {
+                    "line": 18,
+                    "column": 26
+                  }
+                },
+                "position": {
+                  "line": 18,
+                  "column": 21
+                }
+              }
+            ],
+            "position": {
+              "line": 18,
+              "column": 5
+            }
+          },
+          {
+            "kind": "spacer",
+            "attributes": [],
+            "position": {
+              "line": 19,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Recall fleet",
+            "attributes": [
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "ship",
+                  "position": {
+                    "line": 20,
+                    "column": 32
+                  }
+                },
+                "position": {
+                  "line": 20,
+                  "column": 27
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "accent",
+                "value": {
+                  "kind": "identifier",
+                  "value": "danger",
+                  "position": {
+                    "line": 20,
+                    "column": 46
+                  }
+                },
+                "position": {
+                  "line": 20,
+                  "column": 39
+                }
+              }
+            ],
+            "position": {
+              "line": 20,
+              "column": 5
+            }
+          },
+          {
+            "kind": "button",
+            "label": "Govern",
+            "attributes": [
+              {
+                "kind": "flag",
+                "flag": "primary",
+                "position": {
+                  "line": 21,
+                  "column": 21
+                }
+              },
+              {
+                "kind": "pair",
+                "key": "icon",
+                "value": {
+                  "kind": "string",
+                  "value": "authority",
+                  "position": {
+                    "line": 21,
+                    "column": 34
+                  }
+                },
+                "position": {
+                  "line": 21,
+                  "column": 29
+                }
+              }
+            ],
+            "position": {
+              "line": 21,
+              "column": 5
+            }
+          }
+        ],
+        "position": {
+          "line": 16,
+          "column": 3
+        }
+      },
+      {
+        "kind": "text",
+        "content": "Status: Surplus",
+        "attributes": [
+          {
+            "kind": "pair",
+            "key": "accent",
+            "value": {
+              "kind": "identifier",
+              "value": "success",
+              "position": {
+                "line": 22,
+                "column": 35
+              }
+            },
+            "position": {
+              "line": 22,
+              "column": 28
+            }
+          }
+        ],
+        "position": {
+          "line": 22,
+          "column": 3
+        }
+      },
+      {
+        "kind": "text",
+        "content": "Status: Unrest",
+        "attributes": [
+          {
+            "kind": "pair",
+            "key": "accent",
+            "value": {
+              "kind": "identifier",
+              "value": "danger",
+              "position": {
+                "line": 23,
+                "column": 35
+              }
+            },
+            "position": {
+              "line": 23,
+              "column": 28
+            }
+          }
+        ],
+        "position": {
+          "line": 23,
+          "column": 3
+        }
+      },
+      {
+        "kind": "text",
+        "content": "Status: Inspecting",
+        "attributes": [
+          {
+            "kind": "pair",
+            "key": "accent",
+            "value": {
+              "kind": "identifier",
+              "value": "warning",
+              "position": {
+                "line": 24,
+                "column": 36
+              }
+            },
+            "position": {
+              "line": 24,
+              "column": 29
+            }
+          }
+        ],
+        "position": {
+          "line": 24,
+          "column": 3
+        }
+      }
+    ],
+    "position": {
+      "line": 1,
+      "column": 1
+    },
+    "title": "Planet — Earth"
+  },
+  "sourceLines": 25
+}

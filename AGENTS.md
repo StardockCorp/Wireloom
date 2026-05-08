@@ -72,18 +72,18 @@ Every source must start with a single `window` root. In v0.4.1, one or more `ann
 |-------------|----------------------------|---------|
 | `tab`       | required string label      | Tab in a `tabs` bar. Supports `active` flag and `badge="…"`. |
 | `item`      | required string text       | Bulleted list item. |
-| `text`      | required string content    | Static text. Typography attrs. |
-| `button`    | required string label      | Clickable action. `primary`, `disabled`, `badge="…"`, `accent=`. |
+| `text`      | required string content    | Static text. Typography attrs. Optional `accent=` to mark polarity (good/bad/warn). **v0.5.2** |
+| `button`    | required string label      | Clickable action. `primary`, `disabled`, `badge="…"`, `accent=`, `icon="<name>"` (leading inline glyph; empty label = icon-only). **v0.5.2** |
 | `input`     | —                          | Text input. `placeholder=`, `type=`, `disabled`. |
 | `combo`     | optional string label      | Dropdown. `value=`, `options=`, `disabled`. |
 | `slider`    | —                          | Range control. Required `range=N-M` and `value=K`. Optional `label=`. |
-| `kv`        | required label + value strings | Right-aligned label/value row. Typography attrs on value. |
+| `kv`        | required label + value strings | Right-aligned label/value row. Typography attrs on value. Optional `icon="<name>"` (leading glyph) and `accent=` (applied to the value side, e.g. `+15%` → success). **v0.5.2** |
 | `image`     | —                          | Placeholder image. `label=`, `width=`, `height=`. |
 | `icon`      | —                          | Icon glyph. `name=` (named library, see below), optional `accent=`. |
 | `divider`   | —                          | Horizontal rule. |
 | `cell`      | optional string label      | Grid cell (inside `grid`). Supports `row=`, `col=`, `state=`, `accent=`, and arbitrary container children. **v0.4** |
 | `resource`  | —                          | Required `name=` + `value=`. Optional `icon=` override. **v0.4** |
-| `stat`      | required label + value strings | Inline LABEL value pair (inside `stats`). Supports `bold`, `muted`. **v0.4** |
+| `stat`      | required label + value strings | Inline LABEL value pair (inside `stats`). Supports `bold`, `muted`, optional `icon="<name>"` and `accent=` (applied to the value). **v0.4 / v0.5.2** |
 | `progress`  | —                          | Horizontal bar. `value=`, `max=`, optional `label=`, `accent=`. **v0.4** |
 | `chart`     | —                          | Placeholder chart. `kind=bar|line|pie`, optional `label=`, `width=`, `height=`, `accent=`. Renders a stylized shape — no real data. **v0.4** |
 | `spacer`    | —                          | Flex gap inside a `row`. Consumes slack so siblings anchor to opposite ends. Only legal directly inside `row`. **v0.50** |
@@ -124,7 +124,8 @@ Combine freely: `text "Heading" bold size=large`, `kv "Net" "+235 bc" bold`.
 | `active`  | `tab`, `slot`           | Bare flag. |
 | `fill`    | `col` width positional  | Identifier. Distributes row slack. Bare `col:` also defaults to `fill`. |
 | `state=…` | `slot`, `cell` (**v0.4**) | `locked`, `available`, `active`, `purchased`, `maxed`, `growing`, `ripe`, `withering`, `cashed`. Distinct border/fill/text; `locked`/`purchased`/`ripe`/`maxed` paint a corner glyph. |
-| `accent=…` | `slot`, `section`, `cell`, `button`, `icon` (**v0.4**) | `research`, `military`, `industry`, `wealth`, `approval`, `warning`, `danger`, `success`. Themed color applied to borders/fills/text. |
+| `accent=…` | `slot`, `section`, `cell`, `button`, `icon` (**v0.4**); `text`, `kv` value, `stat` value (**v0.5.2**) | `research`, `military`, `industry`, `wealth`, `approval`, `warning`, `danger`, `success`. Themed color applied to borders/fills/text. On `text`/`kv`/`stat` use it for polarity — `success` for "+15%", `danger` for "-10%", `warning` for "Low Crime". |
+| `icon="…"` | `button`, `kv`, `stat` (**v0.5.2**) | Named-library icon glyph painted as a leading mark before the label. On `button`, an empty label string (`button "" icon=search`) renders an icon-only button. Unknown names fall back to a boxed first letter. |
 | `cols=N rows=M` | `grid` (**v0.4**) | Required. Defines the grid shape. |
 | `row=N col=M`   | `cell` (**v0.4**) | 1-indexed explicit placement. Otherwise cells auto-flow L→R, T→B. |
 | `value=N max=M label="…"` | `progress` (**v0.4**) | `value`/`max` required for a filled bar; `label` optional. |

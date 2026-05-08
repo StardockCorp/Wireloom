@@ -216,19 +216,24 @@ const ATTR_RULES: Record<string, AttrRules> = {
   },
   stats: { attrs: {}, flags: [] },
   stat: {
-    attrs: {},
+    attrs: {
+      icon: { kind: 'string' },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
+    },
     flags: ['bold', 'muted'],
   },
   text: {
     attrs: {
       weight: { kind: 'enum', values: WEIGHT_VALUES },
       size: { kind: 'enum', values: SIZE_VALUES },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
     },
     flags: ['bold', 'italic', 'muted'],
   },
   button: {
     attrs: {
       badge: { kind: 'string' },
+      icon: { kind: 'string' },
       accent: { kind: 'enum', values: ACCENT_VALUES },
     },
     flags: ['primary', 'disabled'],
@@ -263,6 +268,8 @@ const ATTR_RULES: Record<string, AttrRules> = {
     attrs: {
       weight: { kind: 'enum', values: WEIGHT_VALUES },
       size: { kind: 'enum', values: SIZE_VALUES },
+      icon: { kind: 'string' },
+      accent: { kind: 'enum', values: ACCENT_VALUES },
     },
     flags: ['bold', 'italic', 'muted'],
   },

@@ -126,6 +126,14 @@ export interface Theme {
   imageDefaultWidth: number;
   imageDefaultHeight: number;
   iconSize: number;
+  /**
+   * Pixel size of the small inline icon glyph painted alongside text content
+   * inside `button`, `kv`, and `stat`. Smaller than the standalone `icon`
+   * primitive's box so the glyph reads as a leading mark, not a control.
+   */
+  inlineIconSize: number;
+  /** Horizontal gap between inline icon and the text it leads. */
+  inlineIconLabelGap: number;
   tabHeight: number;
   tabPaddingX: number;
   tabGap: number;
@@ -360,6 +368,8 @@ export const DEFAULT_THEME: Theme = Object.freeze({
   imageDefaultWidth: 120,
   imageDefaultHeight: 80,
   iconSize: 24,
+  inlineIconSize: 14,
+  inlineIconLabelGap: 6,
   tabHeight: 36,
   tabPaddingX: 14,
   tabGap: 2,

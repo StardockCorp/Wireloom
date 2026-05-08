@@ -1,0 +1,24 @@
+window "Planet — Earth":
+  header:
+    text "Earth — Class 28" bold size=large
+  section "Modifier list":
+    kv "Approval" "+15%" icon="approval" accent=success
+    kv "Industry"  "+10%" icon="industry" accent=success
+    kv "Crime"     "Low"  icon="warning"  accent=success
+    kv "Loyalty"   "-10%" icon="approval" accent=danger
+    kv "Research"  "-5%"  icon="research" accent=warning
+  section "Quick stats":
+    stats:
+      stat "GDP"     "+12%" icon="industry" accent=success
+      stat "POP"     "1.2B" icon="leader"
+      stat "MIL"     "Strong" icon="military" accent=success
+      stat "TECH"    "T7"   icon="tech"
+  row:
+    button "" icon="plus"
+    button "Search" icon="search"
+    spacer
+    button "Recall fleet" icon="ship" accent=danger
+    button "Govern" primary icon="authority"
+  text "Status: Surplus"   accent=success
+  text "Status: Unrest"    accent=danger
+  text "Status: Inspecting" accent=warning

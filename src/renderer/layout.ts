@@ -456,8 +456,13 @@ function measureText(node: TextNode, theme: Theme): Size {
 function measureButton(node: ButtonNode, theme: Theme): Size {
   const labelW = node.label.length * theme.averageCharWidth;
   const badgeW = badgeWidthOf(node.attributes, theme);
+  const hasIconAttr = getAttrString(node.attributes, 'icon') !== undefined;
+  const iconBlockW = hasIconAttr
+    ? theme.inlineIconSize + (node.label.length > 0 ? theme.inlineIconLabelGap : 0)
+    : 0;
   return {
-    width: labelW + theme.buttonPaddingX * 2 + (badgeW > 0 ? badgeW + theme.rowGap : 0),
+    width:
+      iconBlockW + labelW + theme.buttonPaddingX * 2 + (badgeW > 0 ? badgeW + theme.rowGap : 0),
     height: theme.buttonHeight,
   };
 }
@@ -661,11 +666,14 @@ function measureStats(node: StatsNode, theme: Theme): Size {
 }
 
 function measureStat(node: StatNode, theme: Theme): Size {
-  // "LABEL value" — inline compact form.
+  // "LABEL value" — inline compact form, optionally prefixed by a small icon.
   const labelW = node.label.length * theme.averageCharWidth * (theme.smallFontSize / theme.fontSize);
   const valueW = node.value.length * theme.averageCharWidth;
+  const statIconSize = theme.smallFontSize + 2;
+  const iconBlockW =
+    getAttrString(node.attributes, 'icon') !== undefined ? statIconSize + 4 : 0;
   return {
-    width: labelW + 6 + valueW,
+    width: iconBlockW + labelW + 6 + valueW,
     height: theme.lineHeight,
   };
 }
@@ -690,8 +698,12 @@ function measureChart(node: ChartNode, theme: Theme): Size {
 function measureKv(node: KvNode, theme: Theme): Size {
   const labelW = node.label.length * theme.averageCharWidth;
   const valueW = node.value.length * textSizeScale(node.attributes, theme) * theme.averageCharWidth;
+  const iconBlockW =
+    getAttrString(node.attributes, 'icon') !== undefined
+      ? theme.inlineIconSize + theme.inlineIconLabelGap
+      : 0;
   return {
-    width: Math.max(theme.kvMinWidth, labelW + valueW + theme.rowGap * 3),
+    width: Math.max(theme.kvMinWidth, iconBlockW + labelW + valueW + theme.rowGap * 3),
     height: textLineHeight(node.attributes, theme),
   };
 }

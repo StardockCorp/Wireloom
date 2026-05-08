@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-05-07
+
+Quality-of-life additions for data-heavy mockups (strategy-game UIs, dashboards,
+finance views) where the source previously had to fall back to `text` + brackets
+or a manual `row` of `icon` + label to express things the existing primitives
+already meant. Each addition is a new attribute on an existing primitive — no
+new vocabulary, no new structural rules. Existing sources render byte-identical.
+
+### Added
+- **`icon="<name>"` on `button`, `kv`, and `stat`.** Paints a leading inline glyph from the named-icon library before the label. On `button`, an empty label string (`button "" icon=search`) renders as an icon-only button (toolbar / paginator / close-X / dismiss-X shapes); a non-empty label gets icon-then-label, both centered as a unit. Unknown icon names fall back to a boxed first-letter placeholder, same convention as the standalone `icon` primitive.
+- **`accent=` on `text`, `kv` (value side), and `stat` (value side).** Reuses the existing 8-value accent palette (`research`, `military`, `industry`, `wealth`, `approval`, `warning`, `danger`, `success`). Lets sources express polarity structurally rather than reaching for HTML/CSS — `+15%` modifier rows take `accent=success`, `-10%` take `accent=danger`, "Low Crime" or "Surplus" take whichever palette color reads as good in the theme. On `kv`, accent applies only to the value; the label retains the default body color so the row still scans as a key/value pair.
+
+### Theme tokens
+- New `inlineIconSize` (default 14) and `inlineIconLabelGap` (default 6) tokens drive the inline-icon dimensions on `button`/`kv`/`stat`. Standalone `icon` primitives still use the larger `iconSize` (24). Inheritable through `DARK_THEME` and any user theme that spreads from `DEFAULT_THEME`.
+
 ## [0.5.1] — 2026-04-21
 
 Small follow-up to v0.50's mobile-nav release. Authors kept pairing `navbar:` with `header:` to express a centered title alongside leading/trailing actions — the canonical iOS detail-view shape — but the two are mutually exclusive, so the source wouldn't parse. The root cause was that `navbar` had no slot for a centered cluster. This release adds one.
