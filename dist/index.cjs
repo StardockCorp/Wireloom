@@ -358,7 +358,12 @@ var ATTR_RULES = {
     flags: []
   },
   spacer: { attrs: {}, flags: [] },
-  col: { attrs: {}, flags: [] },
+  col: {
+    attrs: {
+      justify: { kind: "enum", values: JUSTIFY_VALUES }
+    },
+    flags: []
+  },
   list: { attrs: {}, flags: [] },
   item: { attrs: {}, flags: ["chevron"] },
   slot: {
@@ -718,6 +723,7 @@ var Parser = class {
     const children = [];
     let navbarSeen;
     let headerSeen;
+    let footerSeen;
     let sawSheet = false;
     while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
       const head = this.peek();
@@ -728,6 +734,22 @@ var Parser = class {
           head.line,
           head.column
         );
+      }
+      if (name === "panel") {
+        const { panel, footer } = this.parseTopLevelPanel();
+        children.push(panel);
+        if (footer) {
+          if (footerSeen) {
+            throw new WireloomError(
+              'a "window" may contain at most one "footer" block',
+              footer.position.line,
+              footer.position.column
+            );
+          }
+          footerSeen = footer;
+          children.push(footer);
+        }
+        continue;
       }
       const child = this.parseWindowChild();
       if (child.kind === "navbar") {
@@ -748,6 +770,15 @@ var Parser = class {
           );
         }
         headerSeen = child;
+      } else if (child.kind === "footer") {
+        if (footerSeen) {
+          throw new WireloomError(
+            'a "window" may contain at most one "footer" block',
+            head.line,
+            head.column
+          );
+        }
+        footerSeen = child;
       } else if (child.kind === "sheet") {
         sawSheet = true;
       }
@@ -841,7 +872,7 @@ var Parser = class {
     }
     if (name === "spacer") {
       throw new WireloomError(
-        '"spacer" may only appear inside "row"',
+        '"spacer" may only appear inside "row", "col", or "footer"',
         head.line,
         head.column
       );
@@ -888,7 +919,7 @@ var Parser = class {
     const position = positionOf(head);
     const attributes = this.parseAttributes("footer");
     const hasChildren = this.parseTerminator("footer", head);
-    const children = hasChildren ? this.parseContainerChildren() : [];
+    const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
     return { kind: "footer", attributes, children, position };
   }
   // --- Navbar ---------------------------------------------------------------
@@ -1155,6 +1186,54 @@ var Parser = class {
     const children = hasChildren ? this.parseContainerChildren() : [];
     return { kind: "panel", attributes, children, position };
   }
+  /**
+   * Parse a `panel` that is a direct child of `window`. In this position only,
+   * a trailing `footer:` block is accepted as authoring sugar and desugared
+   * into a sibling window footer.
+   */
+  parseTopLevelPanel() {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes("panel");
+    const hasChildren = this.parseTerminator("panel", head);
+    const { children, footer } = hasChildren ? this.parseTopLevelPanelChildren() : { children: [], footer: void 0 };
+    const panel = { kind: "panel", attributes, children, position };
+    return footer ? { panel, footer } : { panel };
+  }
+  /**
+   * Parse children of a top-level `panel`. Accepts normal container children
+   * plus an optional trailing `footer:` block, which is normalized to a real
+   * window footer by {@link parseTopLevelPanel}.
+   */
+  parseTopLevelPanelChildren() {
+    const children = [];
+    let footer;
+    while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
+      const head = this.peek();
+      const name = head.kind === "ident" ? head.identValue ?? head.raw : void 0;
+      if (name === "footer") {
+        if (footer !== void 0) {
+          throw new WireloomError(
+            'a top-level "panel" may contain at most one trailing "footer" block',
+            head.line,
+            head.column
+          );
+        }
+        footer = this.parseFooter();
+        continue;
+      }
+      if (footer !== void 0) {
+        throw new WireloomError(
+          '"footer" inside a top-level "panel" must be the last child',
+          head.line,
+          head.column
+        );
+      }
+      children.push(this.parseContainerChild());
+    }
+    this.expectKind("dedent", "children block did not close cleanly");
+    return footer ? { children, footer } : { children };
+  }
   parseSection() {
     const head = this.consume();
     const position = positionOf(head);
@@ -1215,15 +1294,24 @@ var Parser = class {
     const position = positionOf(head);
     const attributes = this.parseAttributes("row");
     const hasChildren = this.parseTerminator("row", head);
-    const children = hasChildren ? this.parseRowChildren() : [];
+    const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
+    const alignAttr = getAttrIdentValue(attributes, "align");
+    if ((alignAttr === "right" || alignAttr === "center") && children.some((c) => c.kind === "spacer")) {
+      throw new WireloomError(
+        `"row" cannot combine align=${alignAttr} with a "spacer" child \u2014 a spacer already spreads children to both ends; remove one`,
+        head.line,
+        head.column
+      );
+    }
     return { kind: "row", attributes, children, position };
   }
   /**
-   * Row children accept everything a normal container does, plus `spacer`
-   * (flex gap — v0.5). Kept as a separate pass so spacer stays grammar-
-   * restricted to rows without widening the general container union.
+   * Parse children for a flex container that accepts `spacer` (flex gap — v0.5).
+   * Used by `row`, `col`, and the `footer` chrome band. Kept as a separate pass
+   * so spacer stays grammar-restricted to these containers without widening the
+   * general container-child union (`parseContainerChild` still rejects spacer).
    */
-  parseRowChildren() {
+  parseChildrenAllowingSpacer() {
     const children = [];
     while (this.peek().kind !== "dedent" && this.peek().kind !== "eof") {
       const head = this.peek();
@@ -1265,7 +1353,7 @@ var Parser = class {
     }
     const attributes = this.parseAttributes("col");
     const hasChildren = this.parseTerminator("col", head);
-    const children = hasChildren ? this.parseContainerChildren() : [];
+    const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
     return { kind: "col", width, attributes, children, position };
   }
   // --- List / Item / Slot ---------------------------------------------------
@@ -3545,11 +3633,13 @@ function measureHeaderOrFooter(node, theme, kind) {
   };
 }
 function footerHorizontal(node, kind) {
-  if (kind !== "footer") return false;
   if (node.children.length === 0) return false;
-  return node.children.every(
-    (c) => c.kind === "button" || c.kind === "text" || c.kind === "row"
+  const allBandable = node.children.every(
+    (c) => c.kind === "button" || c.kind === "text" || c.kind === "row" || c.kind === "spacer"
   );
+  if (!allBandable) return false;
+  if (kind === "footer") return true;
+  return node.children.some((c) => c.kind === "spacer");
 }
 function classifyWindowChildren(node) {
   let header;
@@ -3743,13 +3833,30 @@ function positionHeaderOrFooter(node, kind, x, y, width, height, theme) {
   const children = [];
   if (horizontal) {
     const sizes = node.children.map((c) => measureChild(c, theme));
-    const totalWidth = sizes.reduce((acc, s) => acc + s.width, 0) + Math.max(0, node.children.length - 1) * theme.rowGap;
-    let cursorX = innerX + innerWidth - totalWidth;
-    for (let i = 0; i < node.children.length; i++) {
-      const child = node.children[i];
-      const size = sizes[i];
-      children.push(positionContainerChild(child, cursorX, innerY, size.width, theme));
-      cursorX += size.width + theme.rowGap;
+    const gaps = Math.max(0, node.children.length - 1) * theme.rowGap;
+    const intrinsicTotal = sizes.reduce((acc, s) => acc + s.width, 0) + gaps;
+    let spacerCount = 0;
+    for (const c of node.children) if (c.kind === "spacer") spacerCount++;
+    if (spacerCount > 0) {
+      const slack = Math.max(0, innerWidth - intrinsicTotal);
+      const spacerWidth = slack / spacerCount;
+      let cursorX = innerX;
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
+        const w = child.kind === "spacer" ? spacerWidth : sizes[i].width;
+        children.push(positionContainerChild(child, cursorX, innerY, w, theme));
+        cursorX += w + theme.rowGap;
+      }
+    } else if (node.children.length === 1 && node.children[0].kind === "row" && rowUsesHorizontalSlack(node.children[0])) {
+      children.push(positionContainerChild(node.children[0], innerX, innerY, innerWidth, theme));
+    } else {
+      let cursorX = innerX + innerWidth - intrinsicTotal;
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
+        const size = sizes[i];
+        children.push(positionContainerChild(child, cursorX, innerY, size.width, theme));
+        cursorX += size.width + theme.rowGap;
+      }
     }
   } else {
     let cursorY = innerY;
@@ -4043,6 +4150,12 @@ function positionTabs(node, x, y, width, theme) {
   }
   return { node, x, y, width, height: theme.tabHeight, children };
 }
+function rowUsesHorizontalSlack(node) {
+  if (node.children.some((c) => c.kind === "spacer")) return true;
+  if (node.children.some((c) => c.kind === "col" && c.width.kind === "fill")) return true;
+  if (getAlign(node.attributes) !== "left") return true;
+  return getJustify(node.attributes) !== "start";
+}
 function positionRow(node, x, y, width, theme) {
   const baseWidths = [];
   let fillCount = 0;
@@ -4103,15 +4216,23 @@ function positionRow(node, x, y, width, theme) {
     cursorX = x;
   }
   const children = [];
+  const childXs = [];
   let maxHeight = 0;
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
     const childWidth = assignedWidths[i] ?? 0;
     const laidChild = positionContainerChild(child, cursorX, y, childWidth, theme);
     children.push(laidChild);
+    childXs.push(cursorX);
     cursorX += childWidth;
     if (laidChild.height > maxHeight) maxHeight = laidChild.height;
     if (i < node.children.length - 1) cursorX += theme.rowGap + extraGapBetween;
+  }
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    if (child.kind === "col" && colUsesVerticalSlack(child) && maxHeight > (children[i]?.height ?? 0)) {
+      children[i] = positionCol(child, childXs[i] ?? x, y, assignedWidths[i] ?? 0, theme, maxHeight);
+    }
   }
   return {
     node,
@@ -4122,18 +4243,54 @@ function positionRow(node, x, y, width, theme) {
     children
   };
 }
-function positionCol(node, x, y, width, theme) {
+function colUsesVerticalSlack(node) {
+  if (node.children.some((c) => c.kind === "spacer")) return true;
+  return getJustify(node.attributes) !== "start";
+}
+function positionCol(node, x, y, width, theme, availableHeight) {
   const colWidth = node.width.kind === "length" && node.width.unit === "px" ? node.width.value : width;
-  const children = [];
+  const baseHeights = node.children.map(
+    (c) => c.kind === "spacer" ? 0 : measureChild(c, theme).height
+  );
+  let spacerCount = 0;
+  for (const c of node.children) if (c.kind === "spacer") spacerCount++;
+  const gapTotal = Math.max(0, node.children.length - 1) * theme.colGap;
+  const contentHeight = baseHeights.reduce((acc, h) => acc + h, 0) + gapTotal;
+  const target = Math.max(availableHeight ?? 0, contentHeight);
+  const slack = Math.max(0, target - contentHeight);
+  const justify = getJustify(node.attributes);
+  const spacerHeight = spacerCount > 0 ? slack / spacerCount : 0;
+  const justifyActive = spacerCount === 0 && justify !== "start" && slack > 0;
   let cursorY = y;
+  let extraGapBetween = 0;
+  if (spacerCount > 0) {
+    cursorY = y;
+  } else if (justifyActive) {
+    const n = node.children.length;
+    if (justify === "end") {
+      cursorY = y + slack;
+    } else if (justify === "between") {
+      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
+    } else {
+      const unit = n > 0 ? slack / (2 * n) : 0;
+      cursorY = y + unit;
+      extraGapBetween = 2 * unit;
+    }
+  }
+  const children = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
-    const laidChild = positionContainerChild(child, x, cursorY, colWidth, theme);
-    children.push(laidChild);
-    cursorY += laidChild.height;
-    if (i < node.children.length - 1) cursorY += theme.colGap;
+    if (child.kind === "spacer") {
+      children.push(positionContainerChild(child, x, cursorY, colWidth, theme));
+      cursorY += spacerHeight;
+    } else {
+      const laidChild = positionContainerChild(child, x, cursorY, colWidth, theme);
+      children.push(laidChild);
+      cursorY += laidChild.height;
+    }
+    if (i < node.children.length - 1) cursorY += theme.colGap + extraGapBetween;
   }
-  return { node, x, y, width: colWidth, height: cursorY - y, children };
+  return { node, x, y, width: colWidth, height: Math.max(target, cursorY - y), children };
 }
 function positionList(node, x, y, width, theme) {
   const children = [];
@@ -4346,7 +4503,7 @@ function positionInput(node, x, y, width, theme) {
     node,
     x,
     y,
-    width: Math.max(size.width, Math.min(width, theme.inputMinWidth * 2)),
+    width: Math.min(width, Math.max(size.width, Math.min(width, theme.inputMinWidth * 2))),
     height: theme.inputHeight,
     children: []
   };
@@ -4357,7 +4514,7 @@ function positionCombo(node, x, y, width, theme) {
     node,
     x,
     y,
-    width: Math.max(size.width, Math.min(width, 320)),
+    width: Math.min(width, Math.max(size.width, Math.min(width, 320))),
     height: theme.comboHeight,
     children: []
   };
@@ -4367,7 +4524,7 @@ function positionSlider(node, x, y, width, theme) {
     node,
     x,
     y,
-    width: Math.max(theme.sliderDefaultWidth, Math.min(width, 360)),
+    width: Math.min(width, Math.max(theme.sliderDefaultWidth, Math.min(width, 360))),
     height: theme.sliderHeight,
     children: []
   };

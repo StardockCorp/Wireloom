@@ -178,7 +178,12 @@ const ATTR_RULES: Record<string, AttrRules> = {
     flags: [],
   },
   spacer: { attrs: {}, flags: [] },
-  col: { attrs: {}, flags: [] },
+  col: {
+    attrs: {
+      justify: { kind: 'enum', values: JUSTIFY_VALUES },
+    },
+    flags: [],
+  },
   list: { attrs: {}, flags: [] },
   item: { attrs: {}, flags: ['chevron'] },
   slot: {
@@ -573,6 +578,7 @@ class Parser {
     const children: WindowChild[] = [];
     let navbarSeen: WindowChild | undefined;
     let headerSeen: WindowChild | undefined;
+    let footerSeen: FooterNode | undefined;
     let sawSheet = false;
     while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
       // Capture the source position of the next primitive *before* parsing
@@ -586,6 +592,22 @@ class Parser {
           head.line,
           head.column,
         );
+      }
+      if (name === 'panel') {
+        const { panel, footer } = this.parseTopLevelPanel();
+        children.push(panel);
+        if (footer) {
+          if (footerSeen) {
+            throw new WireloomError(
+              'a "window" may contain at most one "footer" block',
+              footer.position.line,
+              footer.position.column,
+            );
+          }
+          footerSeen = footer;
+          children.push(footer);
+        }
+        continue;
       }
       const child = this.parseWindowChild();
       if (child.kind === 'navbar') {
@@ -606,6 +628,15 @@ class Parser {
           );
         }
         headerSeen = child;
+      } else if (child.kind === 'footer') {
+        if (footerSeen) {
+          throw new WireloomError(
+            'a "window" may contain at most one "footer" block',
+            head.line,
+            head.column,
+          );
+        }
+        footerSeen = child;
       } else if (child.kind === 'sheet') {
         sawSheet = true;
       }
@@ -700,7 +731,7 @@ class Parser {
     }
     if (name === 'spacer') {
       throw new WireloomError(
-        '"spacer" may only appear inside "row"',
+        '"spacer" may only appear inside "row", "col", or "footer"',
         head.line,
         head.column,
       );
@@ -750,7 +781,7 @@ class Parser {
     const position = positionOf(head);
     const attributes = this.parseAttributes('footer');
     const hasChildren = this.parseTerminator('footer', head);
-    const children = hasChildren ? this.parseContainerChildren() : [];
+    const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
     return { kind: 'footer', attributes, children, position };
   }
 
@@ -1044,6 +1075,58 @@ class Parser {
     return { kind: 'panel', attributes, children, position };
   }
 
+  /**
+   * Parse a `panel` that is a direct child of `window`. In this position only,
+   * a trailing `footer:` block is accepted as authoring sugar and desugared
+   * into a sibling window footer.
+   */
+  private parseTopLevelPanel(): { panel: PanelNode; footer?: FooterNode } {
+    const head = this.consume();
+    const position = positionOf(head);
+    const attributes = this.parseAttributes('panel');
+    const hasChildren = this.parseTerminator('panel', head);
+    const { children, footer } = hasChildren
+      ? this.parseTopLevelPanelChildren()
+      : { children: [] as ContainerChild[], footer: undefined };
+    const panel: PanelNode = { kind: 'panel', attributes, children, position };
+    return footer ? { panel, footer } : { panel };
+  }
+
+  /**
+   * Parse children of a top-level `panel`. Accepts normal container children
+   * plus an optional trailing `footer:` block, which is normalized to a real
+   * window footer by {@link parseTopLevelPanel}.
+   */
+  private parseTopLevelPanelChildren(): { children: ContainerChild[]; footer?: FooterNode } {
+    const children: ContainerChild[] = [];
+    let footer: FooterNode | undefined;
+    while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
+      const head = this.peek();
+      const name = head.kind === 'ident' ? head.identValue ?? head.raw : undefined;
+      if (name === 'footer') {
+        if (footer !== undefined) {
+          throw new WireloomError(
+            'a top-level "panel" may contain at most one trailing "footer" block',
+            head.line,
+            head.column,
+          );
+        }
+        footer = this.parseFooter();
+        continue;
+      }
+      if (footer !== undefined) {
+        throw new WireloomError(
+          '"footer" inside a top-level "panel" must be the last child',
+          head.line,
+          head.column,
+        );
+      }
+      children.push(this.parseContainerChild());
+    }
+    this.expectKind('dedent', 'children block did not close cleanly');
+    return footer ? { children, footer } : { children };
+  }
+
   private parseSection(): SectionNode {
     const head = this.consume();
     const position = positionOf(head);
@@ -1108,16 +1191,32 @@ class Parser {
     const position = positionOf(head);
     const attributes = this.parseAttributes('row');
     const hasChildren = this.parseTerminator('row', head);
-    const children = hasChildren ? this.parseRowChildren() : [];
+    const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
+    // `align=right|center` packs all children toward one edge; a `spacer` spreads
+    // them to both edges. Combining them is contradictory intent, so reject it
+    // loudly instead of silently letting the spacer win.
+    const alignAttr = getAttrIdentValue(attributes, 'align');
+    if (
+      (alignAttr === 'right' || alignAttr === 'center') &&
+      children.some((c) => c.kind === 'spacer')
+    ) {
+      throw new WireloomError(
+        `"row" cannot combine align=${alignAttr} with a "spacer" child — ` +
+          'a spacer already spreads children to both ends; remove one',
+        head.line,
+        head.column,
+      );
+    }
     return { kind: 'row', attributes, children, position };
   }
 
   /**
-   * Row children accept everything a normal container does, plus `spacer`
-   * (flex gap — v0.5). Kept as a separate pass so spacer stays grammar-
-   * restricted to rows without widening the general container union.
+   * Parse children for a flex container that accepts `spacer` (flex gap — v0.5).
+   * Used by `row`, `col`, and the `footer` chrome band. Kept as a separate pass
+   * so spacer stays grammar-restricted to these containers without widening the
+   * general container-child union (`parseContainerChild` still rejects spacer).
    */
-  private parseRowChildren(): ContainerChild[] {
+  private parseChildrenAllowingSpacer(): ContainerChild[] {
     const children: ContainerChild[] = [];
     while (this.peek().kind !== 'dedent' && this.peek().kind !== 'eof') {
       const head = this.peek();
@@ -1167,7 +1266,7 @@ class Parser {
 
     const attributes = this.parseAttributes('col');
     const hasChildren = this.parseTerminator('col', head);
-    const children = hasChildren ? this.parseContainerChildren() : [];
+    const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
     return { kind: 'col', width, attributes, children, position };
   }
 

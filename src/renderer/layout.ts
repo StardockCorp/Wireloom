@@ -952,11 +952,16 @@ function measureHeaderOrFooter(
 }
 
 function footerHorizontal(node: HeaderNode | FooterNode, kind: 'header' | 'footer'): boolean {
-  if (kind !== 'footer') return false;
   if (node.children.length === 0) return false;
-  return node.children.every(
-    (c) => c.kind === 'button' || c.kind === 'text' || c.kind === 'row',
+  const allBandable = node.children.every(
+    (c) => c.kind === 'button' || c.kind === 'text' || c.kind === 'row' || c.kind === 'spacer',
   );
+  if (!allBandable) return false;
+  // Footers default to a horizontal action band. Headers stay vertical/centered
+  // (their normal title behavior) unless they explicitly opt in with a `spacer`,
+  // which turns the header into a left/right action band (e.g. title + button).
+  if (kind === 'footer') return true;
+  return node.children.some((c) => c.kind === 'spacer');
 }
 
 function classifyWindowChildren(node: WindowNode): {
@@ -1221,15 +1226,44 @@ function positionHeaderOrFooter(
   const children: LaidOutNode[] = [];
   if (horizontal) {
     const sizes = node.children.map((c) => measureChild(c, theme));
-    const totalWidth =
-      sizes.reduce((acc, s) => acc + s.width, 0) +
-      Math.max(0, node.children.length - 1) * theme.rowGap;
-    let cursorX = innerX + innerWidth - totalWidth;
-    for (let i = 0; i < node.children.length; i++) {
-      const child = node.children[i]!;
-      const size = sizes[i]!;
-      children.push(positionContainerChild(child, cursorX, innerY, size.width, theme));
-      cursorX += size.width + theme.rowGap;
+    const gaps = Math.max(0, node.children.length - 1) * theme.rowGap;
+    const intrinsicTotal = sizes.reduce((acc, s) => acc + s.width, 0) + gaps;
+    let spacerCount = 0;
+    for (const c of node.children) if (c.kind === 'spacer') spacerCount++;
+
+    if (spacerCount > 0) {
+      // A spacer turns the band into a left-anchored flex row: non-spacer
+      // children keep their measured width, spacers split the remaining slack.
+      // This is what lets one cluster sit hard-left and another hard-right.
+      const slack = Math.max(0, innerWidth - intrinsicTotal);
+      const spacerWidth = slack / spacerCount;
+      let cursorX = innerX;
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i]!;
+        const w = child.kind === 'spacer' ? spacerWidth : sizes[i]!.width;
+        children.push(positionContainerChild(child, cursorX, innerY, w, theme));
+        cursorX += w + theme.rowGap;
+      }
+    } else if (
+      node.children.length === 1 &&
+      node.children[0]!.kind === 'row' &&
+      rowUsesHorizontalSlack(node.children[0] as RowNode)
+    ) {
+      // A lone `row` child that anchors content (spacer / align / justify / fill)
+      // is stretched to the full band width so its anchoring resolves against the
+      // real available space instead of its intrinsic width. Plain rows fall
+      // through to the right-packed branch, preserving the classic action bar.
+      children.push(positionContainerChild(node.children[0]!, innerX, innerY, innerWidth, theme));
+    } else {
+      // No spacer: preserve the classic right-packed action bar (Cancel / Apply
+      // sit bottom-right) by anchoring the cluster to the band's right edge.
+      let cursorX = innerX + innerWidth - intrinsicTotal;
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i]!;
+        const size = sizes[i]!;
+        children.push(positionContainerChild(child, cursorX, innerY, size.width, theme));
+        cursorX += size.width + theme.rowGap;
+      }
     }
   } else {
     let cursorY = innerY;
@@ -1632,6 +1666,20 @@ function positionTabs(
   return { node, x, y, width, height: theme.tabHeight, children };
 }
 
+/**
+ * True when a `row` would consume horizontal slack if given more width than its
+ * intrinsic content — i.e. it has a `spacer`, a `fill` col, or an explicit
+ * `align=`/`justify=`. Used to decide whether a lone row inside a chrome band
+ * should be stretched to the full band width (so its anchoring resolves) or left
+ * at intrinsic width (preserving the classic right-packed action bar).
+ */
+function rowUsesHorizontalSlack(node: RowNode): boolean {
+  if (node.children.some((c) => c.kind === 'spacer')) return true;
+  if (node.children.some((c) => c.kind === 'col' && c.width.kind === 'fill')) return true;
+  if (getAlign(node.attributes) !== 'left') return true;
+  return getJustify(node.attributes) !== 'start';
+}
+
 function positionRow(
   node: RowNode,
   x: number,
@@ -1716,15 +1764,32 @@ function positionRow(
   }
 
   const children: LaidOutNode[] = [];
+  const childXs: number[] = [];
   let maxHeight = 0;
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i]!;
     const childWidth = assignedWidths[i] ?? 0;
     const laidChild = positionContainerChild(child, cursorX, y, childWidth, theme);
     children.push(laidChild);
+    childXs.push(cursorX);
     cursorX += childWidth;
     if (laidChild.height > maxHeight) maxHeight = laidChild.height;
     if (i < node.children.length - 1) cursorX += theme.rowGap + extraGapBetween;
+  }
+
+  // Stretch pass: give `col` children that use vertical slack (a `spacer` child
+  // or `justify=`) the row's content height so they can anchor content to the
+  // top/bottom or spread it. Plain cols are left untouched, so their geometry —
+  // and the existing fixtures — stay exactly as before.
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i]!;
+    if (
+      child.kind === 'col' &&
+      colUsesVerticalSlack(child) &&
+      maxHeight > (children[i]?.height ?? 0)
+    ) {
+      children[i] = positionCol(child, childXs[i] ?? x, y, assignedWidths[i] ?? 0, theme, maxHeight);
+    }
   }
 
   return {
@@ -1737,25 +1802,80 @@ function positionRow(
   };
 }
 
+/**
+ * True when a `col` uses vertical slack distribution — i.e. it contains a
+ * `spacer` child or carries `justify=` other than the default `start`. The row
+ * stretch pass only re-lays such cols, so plain content-sized cols keep their
+ * exact prior geometry (and fixtures stay stable).
+ */
+function colUsesVerticalSlack(node: ColNode): boolean {
+  if (node.children.some((c) => c.kind === 'spacer')) return true;
+  return getJustify(node.attributes) !== 'start';
+}
+
 function positionCol(
   node: ColNode,
   x: number,
   y: number,
   width: number,
   theme: Theme,
+  availableHeight?: number,
 ): LaidOutNode {
   const colWidth =
     node.width.kind === 'length' && node.width.unit === 'px' ? node.width.value : width;
-  const children: LaidOutNode[] = [];
+
+  // Base (content) heights. `spacer` contributes 0 — it only consumes vertical
+  // slack in pass 2, mirroring how `spacer` behaves on the horizontal axis.
+  const baseHeights = node.children.map((c) =>
+    c.kind === 'spacer' ? 0 : measureChild(c, theme).height,
+  );
+  let spacerCount = 0;
+  for (const c of node.children) if (c.kind === 'spacer') spacerCount++;
+
+  const gapTotal = Math.max(0, node.children.length - 1) * theme.colGap;
+  const contentHeight = baseHeights.reduce((acc, h) => acc + h, 0) + gapTotal;
+  const target = Math.max(availableHeight ?? 0, contentHeight);
+  const slack = Math.max(0, target - contentHeight);
+
+  // Vertical distribution: spacers win precedence (eat all slack); otherwise
+  // `justify=` shifts/spreads content; default is top-anchored.
+  const justify = getJustify(node.attributes);
+  const spacerHeight = spacerCount > 0 ? slack / spacerCount : 0;
+  const justifyActive = spacerCount === 0 && justify !== 'start' && slack > 0;
+
   let cursorY = y;
+  let extraGapBetween = 0;
+  if (spacerCount > 0) {
+    cursorY = y;
+  } else if (justifyActive) {
+    const n = node.children.length;
+    if (justify === 'end') {
+      cursorY = y + slack;
+    } else if (justify === 'between') {
+      extraGapBetween = n > 1 ? slack / (n - 1) : 0;
+    } else {
+      // 'around' — equal space above and below each child (half-units at edges).
+      const unit = n > 0 ? slack / (2 * n) : 0;
+      cursorY = y + unit;
+      extraGapBetween = 2 * unit;
+    }
+  }
+
+  const children: LaidOutNode[] = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i]!;
-    const laidChild = positionContainerChild(child, x, cursorY, colWidth, theme);
-    children.push(laidChild);
-    cursorY += laidChild.height;
-    if (i < node.children.length - 1) cursorY += theme.colGap;
+    if (child.kind === 'spacer') {
+      // A spacer occupies vertical slack but paints nothing; advance the cursor.
+      children.push(positionContainerChild(child, x, cursorY, colWidth, theme));
+      cursorY += spacerHeight;
+    } else {
+      const laidChild = positionContainerChild(child, x, cursorY, colWidth, theme);
+      children.push(laidChild);
+      cursorY += laidChild.height;
+    }
+    if (i < node.children.length - 1) cursorY += theme.colGap + extraGapBetween;
   }
-  return { node, x, y, width: colWidth, height: cursorY - y, children };
+  return { node, x, y, width: colWidth, height: Math.max(target, cursorY - y), children };
 }
 
 function positionList(
@@ -2073,7 +2193,7 @@ function positionInput(
     node,
     x,
     y,
-    width: Math.max(size.width, Math.min(width, theme.inputMinWidth * 2)),
+    width: Math.min(width, Math.max(size.width, Math.min(width, theme.inputMinWidth * 2))),
     height: theme.inputHeight,
     children: [],
   };
@@ -2091,7 +2211,7 @@ function positionCombo(
     node,
     x,
     y,
-    width: Math.max(size.width, Math.min(width, 320)),
+    width: Math.min(width, Math.max(size.width, Math.min(width, 320))),
     height: theme.comboHeight,
     children: [],
   };
@@ -2108,7 +2228,7 @@ function positionSlider(
     node,
     x,
     y,
-    width: Math.max(theme.sliderDefaultWidth, Math.min(width, 360)),
+    width: Math.min(width, Math.max(theme.sliderDefaultWidth, Math.min(width, 360))),
     height: theme.sliderHeight,
     children: [],
   };

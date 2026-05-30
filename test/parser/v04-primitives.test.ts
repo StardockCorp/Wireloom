@@ -219,12 +219,16 @@ describe('v0.4 — slot footer', () => {
   });
 
   it('still rejects footer as a non-slot, non-window child', () => {
+    // A trailing footer on a *top-level* panel is now accepted as authoring sugar
+    // (desugared to a window footer). Footer is still rejected anywhere it isn't
+    // legal — e.g. a panel nested inside a row, which is not a top-level panel.
     const err = expectParseError(
       [
         'window:',
-        '  panel:',
-        '    footer:',
-        '      button "nope"',
+        '  row:',
+        '    panel:',
+        '      footer:',
+        '        button "nope"',
         '',
       ].join('\n'),
     );

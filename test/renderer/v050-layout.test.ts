@@ -558,3 +558,116 @@ describe('v0.50 sheet — rendering', () => {
     expect(svg).toContain('>Modal overlay<');
   });
 });
+
+// --- v0.5.2 -----------------------------------------------------------------
+// Vertical edge-anchoring (col spacer + col justify) and the footer chrome
+// band's flex behaviour (spacer distribution + lone-row stretch).
+
+function findKind(
+  root: ReturnType<typeof layoutSource>,
+  kind: string,
+): ReturnType<typeof layoutSource> {
+  const stack = [...root.children];
+  while (stack.length > 0) {
+    const n = stack.shift()!;
+    if (n.node.kind === kind) return n;
+    stack.push(...n.children);
+  }
+  throw new Error(`no ${kind} found`);
+}
+
+describe('v0.5.2 layout — col vertical spacer', () => {
+  it('anchors content to top and bottom when stretched by a taller sibling', () => {
+    // The second col is taller, so the first col stretches to match; its spacer
+    // then pushes "Bottom" to the bottom edge while "Top" stays at the top.
+    const root = layoutSource(
+      [
+        'window:',
+        '  row:',
+        '    col:',
+        '      text "Top"',
+        '      spacer',
+        '      text "Bottom"',
+        '    col:',
+        '      text "L1"',
+        '      text "L2"',
+        '      text "L3"',
+        '      text "L4"',
+        '',
+      ].join('\n'),
+    );
+    const row = findRow(root);
+    const left = row.children[0]!;
+    const right = row.children[1]!;
+    // Stretched to the taller sibling.
+    expect(left.height).toBeCloseTo(right.height, 1);
+    const top = left.children[0]!;
+    const bottom = left.children[left.children.length - 1]!;
+    expect(top.y).toBeCloseTo(left.y, 1);
+    expect(bottom.y + bottom.height).toBeCloseTo(left.y + left.height, 1);
+  });
+});
+
+describe('v0.5.2 layout — col justify', () => {
+  it('justify=end pushes content to the bottom edge', () => {
+    const root = layoutSource(
+      [
+        'window:',
+        '  row:',
+        '    col justify=end:',
+        '      text "Pinned bottom"',
+        '    col:',
+        '      text "L1"',
+        '      text "L2"',
+        '      text "L3"',
+        '',
+      ].join('\n'),
+    );
+    const row = findRow(root);
+    const left = row.children[0]!;
+    const only = left.children[0]!;
+    expect(only.y + only.height).toBeCloseTo(left.y + left.height, 1);
+  });
+});
+
+describe('v0.5.2 layout — footer band flex', () => {
+  it('a spacer anchors footer clusters to opposite edges', () => {
+    const root = layoutSource(
+      'window:\n  footer:\n    button "Left"\n    spacer\n    button "Right"\n',
+    );
+    const footer = findKind(root, 'footer');
+    const left = footer.children[0]!;
+    const right = footer.children[footer.children.length - 1]!;
+    expect(right.x + right.width).toBeGreaterThan(left.x + left.width + 50);
+    // Left cluster hugs the left inset; right cluster hugs the right inset.
+    expect(left.x - footer.x).toBeCloseTo(DEFAULT_THEME.windowPadding, 1);
+    expect(footer.x + footer.width - (right.x + right.width)).toBeCloseTo(
+      DEFAULT_THEME.windowPadding,
+      1,
+    );
+  });
+
+  it('a lone row with a spacer stretches to the full band width', () => {
+    const root = layoutSource(
+      'window:\n  footer:\n    row:\n      button "Back"\n      spacer\n      button "Next"\n',
+    );
+    const footer = findKind(root, 'footer');
+    const row = findKind(footer, 'row');
+    const back = row.children[0]!;
+    const next = row.children[row.children.length - 1]!;
+    expect(back.x).toBeCloseTo(row.x, 0);
+    expect(next.x + next.width).toBeCloseTo(row.x + row.width, 0);
+  });
+
+  it('a plain two-button footer still right-packs (unchanged)', () => {
+    const root = layoutSource(
+      'window:\n  footer:\n    button "Cancel"\n    button "Apply"\n',
+    );
+    const footer = findKind(root, 'footer');
+    const apply = footer.children[footer.children.length - 1]!;
+    expect(footer.x + footer.width - (apply.x + apply.width)).toBeCloseTo(
+      DEFAULT_THEME.windowPadding,
+      1,
+    );
+  });
+});

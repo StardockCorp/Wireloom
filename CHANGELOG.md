@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-05-30
+
+Edge-anchoring on both axes. Authors could already spread a row's children to opposite ends with `spacer`, but there was no way to pin content to the top/bottom of a column, and a `spacer` was only legal inside `row`. Worse, the common `footer: row: … spacer …` shape silently failed: the footer gave its lone row the row's intrinsic width and right-packed it, so the spacer had no slack and both clusters jammed against the right edge (e.g. a left-hand "Selected" card and a right-hand minimap ending up stacked on the right). This release makes vertical anchoring real and fixes the footer band.
+
+### Added
+- **`spacer` is now legal inside `col`.** It consumes vertical slack the same way it consumes horizontal slack in a `row` — `text "Top"` / `spacer` / `text "Bottom"` pins the two labels to the top and bottom edges. A `col` only has slack to distribute when something stretches it taller than its content; a `row` now does exactly that for any col that uses vertical distribution (see Changed).
+- **`justify=start|between|around|end` on `col`**, mirroring `row`. Shifts or spreads content along the vertical axis (`justify=end` pins to the bottom). Default `start` is unchanged.
+- **Footer chrome band is now a flex band.** A `spacer` among a footer's children spreads clusters to the band's left and right edges, and a lone anchoring `row` child (one that contains a `spacer`, a `fill` col, or an explicit `align=`/`justify=`) is stretched to the full band width so its own anchoring resolves. A plain action footer (`button "Cancel"` / `button "Apply"`) still right-packs exactly as before.
+- **`header` opts into the same horizontal action-band layout when it contains a `spacer`** (e.g. a left title and a right-hand control), leaving the default centered/stacked title header untouched.
+
+### Changed
+- **A `row` stretches `col` children that use vertical slack to the row's content height.** This is what gives a vertical `spacer`/`justify=` something to distribute. Plain content-sized cols are left untouched, so existing layouts render byte-identical.
+- **`align=right` or `align=center` combined with a `spacer` in the same `row` is now a parse error** instead of silently letting the spacer win. The two express contradictory intent (pack to one edge vs. spread to both); the error names the conflict and tells you to drop one. `align=left` + `spacer` stays valid (left is the default packing direction, so there's no conflict). `justify=` + `spacer` is unchanged — the spacer still wins.
+- The `spacer`-placement error now reads `"spacer" may only appear inside "row", "col", or "footer"`.
+
 ## [0.6.0] — 2026-05-07
 
 Quality-of-life additions for data-heavy mockups (strategy-game UIs, dashboards,

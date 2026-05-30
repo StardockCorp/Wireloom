@@ -72,6 +72,17 @@ describe('layout engine', () => {
     expect(a!.x).toBeLessThan(b!.x);
   });
 
+  it('lays out a footer nested in a top-level panel as window footer chrome', () => {
+    const root = layoutSource(
+      'window:\n  panel:\n    text "body"\n    footer:\n      button "Cancel"\n      button "OK" primary',
+    );
+    const panel = root.children.find((c) => c.node.kind === 'panel');
+    const footer = root.children.find((c) => c.node.kind === 'footer');
+    expect(panel).toBeDefined();
+    expect(footer).toBeDefined();
+    expect(footer!.y).toBeGreaterThan(panel!.y + panel!.height);
+  });
+
   it('produces non-overlapping vertical children in a col', () => {
     const root = layoutSource(
       'window:\n  col:\n    text "1"\n    text "2"\n    text "3"',

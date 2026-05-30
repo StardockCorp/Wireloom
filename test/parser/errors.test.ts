@@ -144,6 +144,36 @@ describe('parser — error messages', () => {
     expect(err.message).toContain('"window"');
   });
 
+  it('accepts a trailing footer inside a top-level panel and normalizes it to window chrome', () => {
+    const doc = parse(
+      'window:\n  panel:\n    text "body"\n    footer:\n      button "Cancel"\n      button "OK" primary\n',
+    );
+    expect(doc.root).toBeDefined();
+    expect(doc.root?.children).toHaveLength(2);
+    expect(doc.root?.children[0]?.kind).toBe('panel');
+    expect(doc.root?.children[1]?.kind).toBe('footer');
+
+    const panel = doc.root?.children[0];
+    if (!panel || panel.kind !== 'panel') throw new Error('expected panel');
+    expect(panel.children).toHaveLength(1);
+    expect(panel.children[0]?.kind).toBe('text');
+  });
+
+  it('rejects non-trailing footer inside a top-level panel', () => {
+    const err = expectParseError(
+      'window:\n  panel:\n    text "body"\n    footer:\n      button "OK"\n    text "after"\n',
+    );
+    expect(err.message).toContain('top-level "panel"');
+    expect(err.message).toContain('last child');
+  });
+
+  it('rejects multiple footer blocks across a window and a top-level panel', () => {
+    const err = expectParseError(
+      'window:\n  panel:\n    text "body"\n    footer:\n      button "OK"\n  footer:\n    button "Cancel"\n',
+    );
+    expect(err.message).toContain('at most one "footer"');
+  });
+
   // ---------------------------------------------------------------------------
   // v0.2 error cases
   // ---------------------------------------------------------------------------
@@ -203,6 +233,29 @@ describe('parser — error messages', () => {
     const err = expectParseError('window:\n  row align=justified:\n    text "x"');
     expect(err.message).toContain('"justified"');
     expect(err.message).toContain('align');
+  });
+
+  it('rejects align=right combined with a spacer on "row"', () => {
+    const err = expectParseError(
+      'window:\n  row align=right:\n    button "A"\n    spacer\n    button "B"\n',
+    );
+    expect(err.message).toContain('spacer');
+    expect(err.message).toContain('align=right');
+  });
+
+  it('rejects align=center combined with a spacer on "row"', () => {
+    const err = expectParseError(
+      'window:\n  row align=center:\n    button "A"\n    spacer\n    button "B"\n',
+    );
+    expect(err.message).toContain('spacer');
+  });
+
+  it('allows align=left with a spacer (harmless default, no conflict)', () => {
+    // align=left is the default packing direction, so it does not contradict a
+    // spacer — this must parse without error.
+    expect(() =>
+      parse('window:\n  row align=left:\n    button "A"\n    spacer\n    button "B"\n'),
+    ).not.toThrow();
   });
 
   it('rejects range with M <= N on slider', () => {

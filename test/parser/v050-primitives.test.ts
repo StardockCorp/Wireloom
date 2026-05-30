@@ -55,9 +55,14 @@ describe('v0.50 — spacer primitive', () => {
     expect(err.message).toMatch(/spacer.*only appear inside.*row/);
   });
 
-  it('rejects spacer inside a col', () => {
-    const err = expectParseError('window:\n  col:\n    spacer\n');
-    expect(err.message).toMatch(/spacer.*only appear inside.*row/);
+  it('accepts spacer inside a col (vertical slack — v0.5.2)', () => {
+    const doc = parse(
+      ['window:', '  col:', '    text "Top"', '    spacer', '    text "Bottom"', ''].join('\n'),
+    );
+    const col = doc.root?.children[0] as ColNode;
+    expect(col.kind).toBe('col');
+    expect(col.children.length).toBe(3);
+    expect(col.children[1]?.kind).toBe('spacer');
   });
 
   it('rejects spacer inside a panel', () => {
