@@ -731,7 +731,7 @@ class Parser {
     }
     if (name === 'spacer') {
       throw new WireloomError(
-        '"spacer" may only appear inside "row", "col", or "footer"',
+        '"spacer" may only appear inside "row", "col", "header", or "footer"',
         head.line,
         head.column,
       );
@@ -772,7 +772,7 @@ class Parser {
     const position = positionOf(head);
     const attributes = this.parseAttributes('header');
     const hasChildren = this.parseTerminator('header', head);
-    const children = hasChildren ? this.parseContainerChildren() : [];
+    const children = hasChildren ? this.parseChildrenAllowingSpacer() : [];
     return { kind: 'header', attributes, children, position };
   }
 
@@ -1212,7 +1212,7 @@ class Parser {
 
   /**
    * Parse children for a flex container that accepts `spacer` (flex gap — v0.5).
-   * Used by `row`, `col`, and the `footer` chrome band. Kept as a separate pass
+   * Used by `row`, `col`, and the `header`/`footer` chrome bands. Kept as a separate pass
    * so spacer stays grammar-restricted to these containers without widening the
    * general container-child union (`parseContainerChild` still rejects spacer).
    */
@@ -2372,7 +2372,7 @@ function placementErrorFor(name: string): string {
     case 'sheet':
       return '"sheet" may only appear directly inside "window"';
     case 'spacer':
-      return '"spacer" may only appear inside "row"';
+      return '"spacer" may only appear inside "row", "col", "header", or "footer"';
     case 'segment':
       return '"segment" may only appear inside "segmented"';
     case 'window':

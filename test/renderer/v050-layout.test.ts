@@ -288,6 +288,18 @@ describe('v0.50 — backbutton rendering', () => {
 });
 
 describe('v0.50 — header large flag', () => {
+  it('anchors direct header children to opposite toolbar edges with a spacer', () => {
+    const root = layoutSource(
+      'window:\n  header:\n    button "Cancel"\n    spacer\n    button "Done" primary\n  panel:\n    text "Body"\n',
+    );
+    const header = root.children.find((child) => child.node.kind === 'header')!;
+    const [cancel, spacer, done] = header.children;
+
+    expect(cancel!.x).toBe(header.x + DEFAULT_THEME.windowPadding);
+    expect(spacer!.width).toBeGreaterThan(0);
+    expect(done!.x + done!.width).toBe(header.x + header.width - DEFAULT_THEME.windowPadding);
+  });
+
   it('renders header large with forced bold, large-size title', () => {
     const svg = renderWireframe('window:\n  header large:\n    text "Q2 Review"\n');
     expect(svg).toContain('font-size="18"'); // largeFontSize in default theme

@@ -65,6 +65,15 @@ describe('v0.50 — spacer primitive', () => {
     expect(col.children[1]?.kind).toBe('spacer');
   });
 
+  it('accepts spacer directly inside a header for toolbar alignment', () => {
+    const doc = parse(
+      ['window:', '  header:', '    button "Cancel"', '    spacer', '    button "Done" primary', ''].join('\n'),
+    );
+    const header = doc.root?.children[0] as HeaderNode;
+    expect(header.kind).toBe('header');
+    expect(header.children[1]?.kind).toBe('spacer');
+  });
+
   it('rejects spacer inside a panel', () => {
     const err = expectParseError('window:\n  panel:\n    spacer\n');
     expect(err.message).toMatch(/spacer.*only appear inside.*row/);
